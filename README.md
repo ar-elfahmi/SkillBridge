@@ -16,3 +16,23 @@ Letakkan seluruh isi paket ini di root repo (`CLAUDE.md` di root, sisanya di `do
 | `docs/TASKS.md` | Rencana kerja bertahap + template prompt |
 
 Mulai dari `docs/TASKS.md` task **T0.1**.
+
+## Menjalankan backend lokal
+
+Prasyarat: PHP 8.3+ (ekstensi `pdo_pgsql`), Composer, Docker Desktop.
+
+```bash
+# dari root repo: PostgreSQL 17 + Redis 7 (db/user/password: skillbridge, plus db skillbridge_test untuk test)
+docker compose up -d
+
+cd backend
+composer install
+cp .env.example .env
+php artisan key:generate
+php artisan migrate --seed
+php artisan serve                      # http://localhost:8000 (health: /up)
+php artisan queue:work redis --tries=3 # terminal terpisah
+php artisan test                       # butuh Postgres + Redis aktif
+```
+
+Isi `GEMINI_API_KEY` dan `GEMINI_FLASH_MODEL` di `backend/.env` (jangan di-commit).
