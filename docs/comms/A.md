@@ -16,7 +16,7 @@
 - [x] Hapus role `study_program` + Rekomendasi Kurikulum (keputusan tim) — di-merge (PR #12)
 - [x] T6.1 migrasi `analyses`/`analysis_job_postings`/`skill_matches` — selesai, di-merge (PR #13)
 - [x] T7.1 migrasi `recommendations` + `PriorityCalculator` — selesai, menunggu review (branch `feat/T7.1-recommendations-priority`)
-- [x] T5.5 `skillbridge:scrape-jobs` (Remotive/Arbeitnow → JSON untuk `import-jobs`) — selesai, menunggu review (branch `feat/T5.5-scrape-jobs`). **Untuk B/C:** lowongan hasil scrape berbahasa Inggris, `source_name` = `Remotive`/`Arbeitnow` dan `source_url` terisi (wajib ditampilkan sebagai atribusi); tetap `extraction_status = pending` sampai T5.3. Di Windows lokal, PHP perlu `curl.cainfo` di php.ini bila muncul cURL error 60.
+- [x] T5.5 `skillbridge:scrape-jobs` (Remotive/Arbeitnow/Himalayas/Jobicy, hanya rumpun TI → JSON untuk `import-jobs`) — selesai, menunggu review (branch `feat/T5.5-scrape-jobs`). **Untuk B/C:** lowongan hasil scrape berbahasa Inggris, `source_name` = `Remotive`/`Arbeitnow`/`Himalayas`/`Jobicy` dan `source_url` terisi (wajib ditampilkan sebagai atribusi); tetap `extraction_status = pending` sampai T5.3. Di Windows lokal, PHP perlu `curl.cainfo` di php.ini bila muncul cURL error 60.
 - [ ] Tugas A Hari 1 selesai. Berikutnya bergantung B/C: bantu T6.4 (controller/resource/policy analyses), merge point #3, T8.1, T8.4; ⭐ migrasi T3.6/T7.5 bila diminta.
 
 ## Handoff

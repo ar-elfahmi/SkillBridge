@@ -7,6 +7,8 @@ namespace App\Console\Commands;
 use App\Modules\Industry\Scraping\JobScraper;
 use App\Modules\Industry\Scraping\JobSource;
 use App\Modules\Industry\Scraping\Sources\ArbeitnowSource;
+use App\Modules\Industry\Scraping\Sources\HimalayasSource;
+use App\Modules\Industry\Scraping\Sources\JobicySource;
 use App\Modules\Industry\Scraping\Sources\RemotiveSource;
 use Illuminate\Console\Command;
 use Illuminate\Http\Client\ConnectionException;
@@ -19,7 +21,7 @@ use Illuminate\Http\Client\RequestException;
 class ScrapeJobsCommand extends Command
 {
     protected $signature = 'skillbridge:scrape-jobs
-        {source : Sumber: remotive | arbeitnow}
+        {source : Sumber: remotive | arbeitnow | himalayas | jobicy}
         {--limit=200 : Jumlah maksimum lowongan yang disimpan}
         {--out= : Path file JSON keluaran (default storage/app/private/scraped/...)}
         {--dataset-version= : Isi dataset_version (default <source>-<tanggal>)}';
@@ -30,6 +32,8 @@ class ScrapeJobsCommand extends Command
     private const SOURCES = [
         'remotive' => RemotiveSource::class,
         'arbeitnow' => ArbeitnowSource::class,
+        'himalayas' => HimalayasSource::class,
+        'jobicy' => JobicySource::class,
     ];
 
     public function handle(JobScraper $scraper): int

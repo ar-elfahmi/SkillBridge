@@ -117,6 +117,53 @@ class ScrapeJobsCommandTest extends TestCase
         Http::assertSentCount(2);
     }
 
+    public function test_himalayas_keeps_only_it_categories_and_uses_country_filter(): void
+    {
+        $job = fn (string $title, string $slug, array $parents) => [
+            'companyName' => 'Acme', 'title' => $title, 'parentCategories' => $parents,
+            'description' => '<p>Build things with Laravel.</p>',
+            'applicationLink' => "https://himalayas.app/companies/acme/jobs/{$slug}?utm_source=api",
+        ];
+
+        Http::fake([
+            'himalayas.app/*' => Http::sequence()
+                ->push(['jobs' => [
+                    $job('Backend Developer', 'be', ['Developer']),
+                    $job('React Developer Advocate', 'mk', ['Marketing']),   // non-IT category
+                    $job('Data Analyst', 'da', ['Data Science']),
+                ]])
+                ->push(['jobs' => []]),
+        ]);
+
+        $this->artisan('skillbridge:scrape-jobs', ['source' => 'himalayas', '--out' => $this->out])
+            ->assertSuccessful();
+
+        $rows = $this->outputRows();
+        $this->assertSame(['backend-developer', 'data-analyst'], array_column($rows, 'career'));
+        $this->assertSame('Himalayas', $rows[0]['source_name']);
+        $this->assertSame('https://himalayas.app/companies/acme/jobs/be?utm_source=api', $rows[0]['source_url']);
+        Http::assertSent(fn ($request) => str_contains($request->url(), 'country=Indonesia'));
+    }
+
+    public function test_jobicy_requests_each_it_industry(): void
+    {
+        Http::fake([
+            'jobicy.com/*' => Http::response(['jobs' => [[
+                'companyName' => 'Acme', 'jobTitle' => 'Frontend Engineer',
+                'jobDescription' => '<p>Vue and TypeScript.</p>', 'url' => 'https://jobicy.com/jobs/1-frontend',
+            ]]]),
+        ]);
+
+        $this->artisan('skillbridge:scrape-jobs', ['source' => 'jobicy', '--out' => $this->out])
+            ->assertSuccessful();
+
+        Http::assertSentCount(3);
+        Http::assertSent(fn ($request) => str_contains($request->url(), 'industry=engineering'));
+        $rows = $this->outputRows();
+        $this->assertCount(1, $rows); // same URL in every industry -> deduplicated
+        $this->assertSame('Jobicy', $rows[0]['source_name']);
+    }
+
     public function test_http_error_fails_without_writing_file(): void
     {
         Http::fake(['remotive.com/*' => Http::response('rate limited', 429)]);
@@ -140,5 +187,7 @@ class ScrapeJobsCommandTest extends TestCase
         $this->assertNull($scraper->careerFor('Data Engineer'));
         $this->assertSame('frontend-developer', $scraper->careerFor('Front-End Engineer'));
         $this->assertSame('full-stack-developer', $scraper->careerFor('Full Stack PHP Developer'));
+        $this->assertNull($scraper->careerFor('API Sales Manager'));        // non-IT despite "api"
+        $this->assertNull($scraper->careerFor('Technical Recruiter - Backend'));
     }
 }

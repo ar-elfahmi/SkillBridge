@@ -58,22 +58,39 @@ final class JobScraper
         return ['rows' => $rows, 'skipped' => $skipped];
     }
 
+    /** Career slug for an IT-family title, or null (non-IT or no matching career). */
     public function careerFor(string $title): ?string
     {
-        $title = mb_strtolower($title);
+        /** @var list<string> $excluded */
+        $excluded = config('skillbridge.scraping.exclude_title_keywords', []);
+        if ($this->matchesAny($title, $excluded)) {
+            return null;
+        }
 
         /** @var array<string, list<string>> $map */
         $map = config('skillbridge.scraping.career_keywords', []);
 
         foreach ($map as $slug => $keywords) {
-            foreach ($keywords as $keyword) {
-                if (preg_match('/(?<![\p{L}\p{N}])'.preg_quote(mb_strtolower($keyword), '/').'(?![\p{L}\p{N}])/u', $title) === 1) {
-                    return $slug;
-                }
+            if ($this->matchesAny($title, $keywords)) {
+                return $slug;
             }
         }
 
         return null;
+    }
+
+    /** @param  list<string>  $keywords  matched as whole words, case-insensitive */
+    private function matchesAny(string $title, array $keywords): bool
+    {
+        $title = mb_strtolower($title);
+
+        foreach ($keywords as $keyword) {
+            if (preg_match('/(?<![\p{L}\p{N}])'.preg_quote(mb_strtolower($keyword), '/').'(?![\p{L}\p{N}])/u', $title) === 1) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /** Converts HTML descriptions to plain text, keeping paragraph/list breaks. */

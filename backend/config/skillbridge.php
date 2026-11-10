@@ -81,6 +81,30 @@ return [
                 'max_pages' => 10,
                 'delay_seconds' => 2,
             ],
+            // Terms: link to Himalayas as source, keep applicationLink unchanged.
+            'himalayas' => [
+                'endpoint' => 'https://himalayas.app/jobs/api/search',
+                'country' => env('SKILLBRIDGE_SCRAPER_HIMALAYAS_COUNTRY', 'Indonesia'),
+                'max_pages' => 25,
+                'delay_seconds' => 2,
+                // Only postings whose parentCategories intersect this list (IT family).
+                'it_categories' => ['Developer', 'Data Science', 'IT', 'DevOps', 'Engineering', 'Software Engineering'],
+            ],
+            // Terms: credit Jobicy, keep links to jobicy.com, sync at most hourly.
+            'jobicy' => [
+                'endpoint' => 'https://jobicy.com/api/jobs',
+                // IT-family industry slugs (GET /api/jobs?get=industries).
+                'industries' => ['engineering', 'data-science', 'web-app-design'],
+                'geo' => env('SKILLBRIDGE_SCRAPER_JOBICY_GEO'), // e.g. "apac"; null = all
+                'delay_seconds' => 5,
+            ],
+        ],
+        // Rumpun TI only: titles containing any of these are dropped even if a
+        // career keyword matches (e.g. "API Sales Manager").
+        'exclude_title_keywords' => [
+            'sales', 'marketing', 'recruiter', 'recruitment', 'talent acquisition', 'account executive',
+            'account manager', 'customer success', 'customer support', 'copywriter', 'content writer',
+            'teacher', 'tutor', 'accountant', 'lawyer', 'nurse',
         ],
         // Title keywords -> career slug. First match wins, so order matters
         // (full stack before frontend/backend). Unmatched postings are skipped.
