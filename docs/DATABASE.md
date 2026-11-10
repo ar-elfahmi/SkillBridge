@@ -196,12 +196,16 @@ Unique(`user_id`, `skill_id`). Tanpa embedding dan tanpa bukti dokumen: ini klai
 | purpose | string | `rps_metadata\|rps_extraction\|job_extraction\|embedding\|match_judge\|recommendation` |
 | model | string | |
 | prompt_version | string null | |
-| input_hash | string(64) | |
+| input_hash | string(64) | SHA-256 payload JSON request, tanpa API key; bukan teks sumber |
 | status | string | `success\|failed` |
-| latency_ms | integer null | |
-| usage | jsonb null | token/quota bila tersedia |
-| error | text null | |
+| latency_ms | integer null | durasi percobaan HTTP, tidak termasuk backoff atau insert audit |
+| usage | jsonb null | penghitung token numerik nonnegatif yang tersedia dari `usageMetadata`; tanpa teks bebas |
+| error | text null | kode aman: `http_<status>`, `connection_error`, `invalid_response`, `blocked_response`, `incomplete_response`; bukan pesan mentah penyedia |
 | subject_type / subject_id | nullable morph | entitas terkait |
+
+Implementasi T2.4: migrasi baru `2026_11_10_800000_create_ai_runs_table.php` dan model `App\Models\AiRun` (`usage` cast array, relasi `subject()`). Index morph pada `subject_type` + `subject_id`; tanpa foreign key lintas-tabel. Audit tetap tersimpan saat entitas terkait dihapus. Migrasi/seeder lama tidak berubah; tabel ini tidak memakai seeder.
+
+Satu baris per percobaan HTTP, termasuk kegagalan sebelum retry. Percobaan ulang boleh memiliki `input_hash` sama, sehingga hash tidak unique. Konfigurasi/input tidak valid dan langkah yang tidak mengirim request tidak membuat baris. `success` berarti respons generasi selesai (`STOP`) dan memiliki teks; validitas skema/bukti hasil ditentukan pipeline pemanggil.
 
 ## 3. Catatan
 - **Cache embedding:** sebelum memanggil API, cari baris dengan `text_hash + embedding_model + embedding_dimensions` yang sama (di `course_skills` atau `job_skills`) dan salin vektornya.

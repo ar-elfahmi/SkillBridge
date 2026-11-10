@@ -9,6 +9,21 @@ Semua langkah AI berjalan di queue Laravel melalui modul `Modules/Ai`. Setiap pa
 - Gunakan structured output (`responseMimeType: application/json` + `responseSchema`) bila tersedia, tetap validasi ulang di Laravel.
 - Nama model & kunci dari env. Cek dokumentasi resmi Gemini saat implementasi (nama model, kuota, parameter).
 
+### Klien Gemini (T2.4)
+
+`App\Modules\Ai\GeminiClient::generateContent($purpose, $prompt, $promptVersion = null, $subject = null, $responseSchema = [])` mengembalikan envelope respons Gemini (array), bukan JSON hasil yang sudah tervalidasi. Laravel dapat me-resolve class ini langsung; tidak membutuhkan SDK atau binding tambahan.
+
+- Konfigurasi: `skillbridge.gemini.api_key`, `flash_model`, `timeout_seconds`. Key dikirim lewat header `x-goog-api-key`; endpoint tetap `https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent`, redirect dinonaktifkan.
+- Purpose generasi: `rps_metadata`, `rps_extraction`, `job_extraction`, `match_judge`, `recommendation`. Embedding tetap T4.1; belum ada metode embedding pada klien.
+- Prompt wajib terisi, maksimal 100.000 byte per request; pemanggil melakukan chunking, delimiter data tidak tepercaya, dan instruksi pengaman sesuai task. Prompt version opsional, maksimal 255 karakter alfanumerik/titik/underscore/hubung; subject harus model yang sudah tersimpan.
+- Schema opsional dikirim sebagai `generationConfig.responseSchema` dengan `responseMimeType = application/json`. Pemanggil tetap memvalidasi tipe, enum, ID, dan bukti sebelum menyimpan hasil domain.
+- Maksimal 3 percobaan HTTP; koneksi/timeout, HTTP 408/429/5xx diulang dengan backoff 1 lalu 2 detik. Connect timeout maksimal 10 detik, timeout total per percobaan mengikuti config. Retry HTTP terpisah dari retry validasi skema (maksimal 2) dan percobaan queue.
+- Respons 2xx tanpa kandidat teks final `STOP`, respons diblokir, JSON envelope rusak, dan error HTTP permanen gagal tanpa retry transport. Kegagalan menghasilkan `GeminiException` dengan pesan aman Indonesia, tanpa previous exception penyedia.
+- Setiap percobaan HTTP dicatat di `ai_runs`; hanya hash payload, metadata panggilan, kode error aman, dan penghitung token tersedia yang disimpan. Tidak menyimpan key, prompt, teks hasil, atau respons error mentah. Detail skema: `DATABASE.md` bagian `ai_runs`.
+- Test otomatis memakai `Http::fake`, `Http::preventStrayRequests`, dan `Sleep::fake`; tidak membutuhkan key/model nyata.
+
+Rujukan resmi diperiksa 10 November 2026: [generateContent](https://ai.google.dev/api/generate-content), [API key](https://ai.google.dev/gemini-api/docs/api-key), [penanganan error dan backoff](https://ai.google.dev/gemini-api/docs/troubleshooting). Model tetap ditentukan env; tidak ada perubahan model/provider atau asumsi harga/kuota numerik.
+
 ## 1. Parsing PDF
 1. Baca teks per halaman (`smalot/pdfparser`) → simpan di `rps_pages`.
 2. Bila total teks sangat sedikit (rata-rata karakter non-spasi per halaman < `skillbridge.upload.min_chars_per_page`, env `SKILLBRIDGE_MIN_CHARS_PER_PAGE`, default 50 — heuristik, belum dikalibrasi) → `parse_status = needs_ocr`, pesan: PDF tampak hasil scan; unggah PDF digital.

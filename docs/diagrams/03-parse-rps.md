@@ -53,6 +53,6 @@ sequenceDiagram
 ## Catatan implementasi
 
 - `ParseRpsJob` sudah ada (T2.3) dengan fixture PDF digital dan PDF tanpa teks.
-- `ExtractRpsMetadataJob` dan `ai_runs` belum ada → diagram 04 dan 05 masih `⏳ belum`. `ParseRpsJob` **tidak** dispatch job metadata; placeholder di kode: "dispatched by Modules/Ai once available".
+- `GeminiClient` dan `ai_runs` tersedia (T2.4); `ExtractRpsMetadataJob` belum ada → diagram 04 dan 05 masih `⏳ belum`. `ParseRpsJob` **tidak** dispatch job metadata; placeholder di kode: "dispatched by Modules/Ai once available".
 - Implementasi: `delete()` + `insert()` `rps_pages` dalam satu transaksi, `needs_ocr` dihitung setelah insert; skip bila `parse_status` sudah `parsed`/`needs_ocr`.
 - Teks halaman dipakai ulang sebagai input ekstraksi metadata (halaman awal) dan ekstraksi kompetensi (semua halaman, lihat diagram 05).
