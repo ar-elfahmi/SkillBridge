@@ -4,10 +4,30 @@
 
 ## Status
 - [x] T0.1 backend — selesai, di-merge ke `main` (PR #1). Bagian frontend T0.1 milik C.
-- [x] T0.2 `config/skillbridge.php` — selesai, menunggu review (branch `feat/T0.2-config-skillbridge`)
-- [ ] T1.1 auth Sanctum + `users.role` — berikutnya
+- [x] T0.2 `config/skillbridge.php` — selesai, di-merge (PR #3)
+- [x] T1.1 auth Sanctum + `users.role` — selesai, di-merge (PR #4)
+- [x] T2.1 migrasi `courses`/`rps_documents`/`rps_pages` + model + Policy — selesai, menunggu review (branch `feat/T2.1-rps-migrations`)
+- [ ] T2.2 `POST /api/rps` upload — berikutnya
 
 ## Handoff
+
+#### HO-A-004 · 2026-11-10 · T2.1 · untuk: B
+Tabel & model RPS tersedia (skema: `docs/DATABASE.md`):
+- `App\Models\Course`, `App\Models\RpsDocument` (`user`, `course`, `pages` terurut `page_number`), `App\Models\RpsPage` (`document`).
+- Status di-cast ke enum `App\Modules\Rps\Enums\{ParseStatus, ExtractionStatus, ReviewStatus}`; default `pending`/`pending`/`unreviewed`. Bandingkan dengan enum, bukan string.
+- `RpsDocument::file_path` disembunyikan dari serialisasi; baca file lewat `Storage::disk('private')`.
+- `App\Policies\RpsDocumentPolicy` (view/update/delete): hanya pemilik; selain pemilik → 404 (`denyAsNotFound`). Pakai `$this->authorize('view', $document)` / `Gate`.
+- Factory: `RpsDocument::factory()`, `RpsPage::factory()`, `Course::factory()`.
+
+Breaking change: tidak.
+
+#### HO-A-003 · 2026-11-10 · T1.1 · untuk: C
+Endpoint auth sudah ada di `main`; kontrak lengkap di `docs/API.md` §2.
+- `GET /sanctum/csrf-cookie` → `POST /api/auth/register` (201, langsung login) / `POST /api/auth/login` (200) / `POST /api/auth/logout` (204) / `GET /api/auth/me` (200).
+- Respons: `{ "data": { id, name, email, role, created_at } }`; `role` ∈ `student` | `study_program`.
+- Error: 422 `errors.<field>[]` (pesan Indonesia), login gagal → `errors.email[0] = "Email atau kata sandi salah."`, 401 `{"message":"Silakan masuk terlebih dahulu."}`, 429 setelah 5 percobaan/menit (`SKILLBRIDGE_AUTH_PER_MINUTE`).
+
+Breaking change: route sementara `GET /api/user` dihapus — pakai `/api/auth/me`.
 
 #### HO-A-002 · 2026-11-10 · T0.2 · untuk: B
 `backend/config/skillbridge.php` tersedia (setelah PR T0.2 di-merge). Baca selalu lewat `config()`, jangan `env()`:

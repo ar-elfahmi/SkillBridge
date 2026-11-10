@@ -40,4 +40,9 @@ return [
         'max_pages' => (int) env('SKILLBRIDGE_MAX_PAGES', 60),
     ],
 
+    // --- Rate limits (Modules/Auth) ---
+    'rate_limits' => [
+        'auth_per_minute' => (int) env('SKILLBRIDGE_AUTH_PER_MINUTE', 5),
+    ],
+
 ];
