@@ -166,6 +166,8 @@ Input: hanya `skill_matches` yang sudah divalidasi (+ data RPS dan lowongan terk
 | `partial` | `medium` bila diminta ≥ 50% lowongan, selain itu `low` |
 | `covered` | tidak ada rekomendasi |
 
+Diimplementasikan `App\Modules\Recommendation\Services\PriorityCalculator`; ambang dan prioritas tiap aturan di `config('skillbridge.recommendation.priority')` (env `SKILLBRIDGE_PRIORITY_HIGH_DEMAND_RATIO`, default 0.5). Rasio = `demand_count` / jumlah lowongan terpilih pada analisis. Penanda skill "wajib (*required*)" dari PRD §5.3 belum dipakai karena skema `job_skills` tidak menyimpannya.
+
 ### Rekomendasi mahasiswa
 Untuk `missing` dan `partial`, **kecuali** skill yang `skill_id`-nya ada di `user_skills` pengguna: skill itu tidak dibuatkan rekomendasi (dikembalikan sebagai `meta.self_declared_skills`). `GenerateRecommendationsJob` dijalankan ulang oleh `POST /api/analyses/{id}/recommendations/refresh`, idempotent (rekomendasi lama diganti). Prompt tidak menerima isi `user_skills` sebagai fakta; Laravel hanya memfilter daftar skill. Output skema:
 ```json

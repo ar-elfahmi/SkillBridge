@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 /**
  * Classification of one industry skill against the RPS in an analysis.
@@ -76,5 +77,13 @@ class SkillMatch extends Model
     public function courseSkill(): BelongsTo
     {
         return $this->belongsTo(CourseSkill::class);
+    }
+
+    /**
+     * @return HasOne<Recommendation, $this>
+     */
+    public function recommendation(): HasOne
+    {
+        return $this->hasOne(Recommendation::class);
     }
 }
