@@ -14,6 +14,7 @@ Letakkan seluruh isi paket ini di root repo (`CLAUDE.md` di root, sisanya di `do
 | `docs/SECURITY.md` | Keamanan & privasi |
 | `docs/TESTING.md` | Strategi test, evaluasi, kalibrasi threshold |
 | `docs/TASKS.md` | Rencana kerja bertahap + template prompt |
+| `docs/VERSIONS.md` | Versi bahasa, framework, layanan & tools |
 
 Mulai dari `docs/TASKS.md` task **T0.1**.
 
