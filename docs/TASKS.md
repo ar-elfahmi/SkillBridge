@@ -14,7 +14,7 @@ Jika ada yang ambigu, tanya dulu.
 ## Fase 0 — Fondasi
 - [ ] **T0.1 Scaffold monorepo.** Buat `backend/` (Laravel + Sanctum + Redis queue + PostgreSQL) dan `frontend/` (React + Vite + React Router + TS + Tailwind + shadcn/ui). `.env.example` kedua sisi, `README` singkat, docker compose opsional untuk Postgres+Redis.
   *Terima:* `php artisan test` dan `npm run build` berjalan; koneksi DB & Redis berfungsi.
-- [ ] **T0.2 Config SkillBridge.** `config/skillbridge.php` membaca env (model, dimensi, top-K, threshold, batas upload/halaman).
+- [x] **T0.2 Config SkillBridge.** `config/skillbridge.php` membaca env (model, dimensi, top-K, threshold, batas upload/halaman).
   *Terima:* config bisa di-override di test.
 
 ## Fase 1 — Auth & role
