@@ -138,30 +138,30 @@ Indeks: `rps_document_id`, `skill_id`, (`text_hash`, `embedding_model`, `embeddi
 ### `analyses`
 | Kolom | Tipe | Catatan |
 |---|---|---|
-| user_id | FK | |
-| rps_document_id | FK | |
-| career_id | FK | |
-| status | string | `queued\|processing\|completed\|failed` |
+| user_id | FK | cascade |
+| rps_document_id | FK | cascade (hapus RPS → analisisnya ikut terhapus) |
+| career_id | FK | restrict |
+| status | string | `queued\|processing\|completed\|failed`, default `queued` |
 | error_message | text null | |
 | summary | jsonb null | `{total_skills, covered, partial, missing, coverage_percentage}` |
 | model_versions | jsonb null | model ekstraksi/penilaian/embedding, versi prompt, threshold, `dataset_version` |
 
 ### `analysis_job_postings` (pivot)
-`analysis_id`, `job_posting_id`; unique pasangan. Tanpa timestamps.
+`analysis_id`, `job_posting_id`; primary key pasangan. Tanpa timestamps. Keduanya cascade (lowongan manual yang dihapus hilang dari daftar lowongan analisis; `skill_matches` tidak diubah).
 
 ### `skill_matches`
 | Kolom | Tipe | Catatan |
 |---|---|---|
 | analysis_id | FK | cascade |
-| skill_id | FK skills | skill industri (unik per analisis) |
+| skill_id | FK skills | skill industri (unik per analisis); restrict |
 | demand_count | smallint | jumlah lowongan terpilih yang meminta skill ini |
-| source_job_skill_ids | jsonb | id `job_skills` terkait |
-| course_skill_id | FK null | kompetensi RPS terbaik; null bila `missing` |
+| source_job_skill_ids | jsonb | id `job_skills` terkait; default `[]` |
+| course_skill_id | FK null | kompetensi RPS terbaik; null bila `missing`; di-null-kan bila kompetensi dihapus |
 | similarity_score | numeric(6,5) null | skor kandidat terbaik, bukan persen penguasaan |
 | classification | string | `covered\|partial\|missing` |
 | reason | text | penjelasan singkat |
 | evidence | text null | kutipan RPS pendukung |
-| candidates | jsonb | top-K `{course_skill_id, score}` |
+| candidates | jsonb | top-K `{course_skill_id, score}`; default `[]` |
 | judged_by | string | `rule\|llm` |
 
 Unique(`analysis_id`, `skill_id`).

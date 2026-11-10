@@ -60,7 +60,7 @@ Dok: `API.md §4`, `AI_PIPELINE.md §5`
 
 ## Fase 6 — Matching & Skill Gap
 Dok: `AI_PIPELINE.md §6`, `API.md §5`
-- [ ] **T6.1** Migrasi `analyses`, `analysis_job_postings`, `skill_matches`.
+- [x] **T6.1** Migrasi `analyses`, `analysis_job_postings`, `skill_matches`.
 - [ ] **T6.2** `CandidateFinder`: top-K cosine; test dengan vektor sintetis.
 - [ ] **T6.3** `MatchJudge` (prompt `match-judge-v1`) + `ClassificationGuardrails` (id kandidat valid, bukti, nama teknologi, unverified→max partial, floor).
 - [ ] **T6.4** `RunAnalysisJob`: agregasi skill per `skill_id` + `demand_count`, klasifikasi, `summary`, `model_versions`. Endpoint `POST /api/analyses`, `GET /api/analyses`, `GET /api/analyses/{id}`, `GET .../matches`, `DELETE`.

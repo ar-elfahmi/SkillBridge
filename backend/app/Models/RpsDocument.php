@@ -88,6 +88,14 @@ class RpsDocument extends Model
         return $this->hasMany(CourseSkill::class);
     }
 
+    /**
+     * @return HasMany<Analysis, $this>
+     */
+    public function analyses(): HasMany
+    {
+        return $this->hasMany(Analysis::class);
+    }
+
     public function isOwnedBy(User $user): bool
     {
         return $this->user_id === $user->id;
