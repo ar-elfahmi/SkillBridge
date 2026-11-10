@@ -22,6 +22,6 @@ class DatabaseSeeder extends Seeder
             ['name' => 'Test User', 'password' => 'password'],
         );
 
-        $this->call([SkillSeeder::class, CareerSeeder::class]);
+        $this->call([SkillSeeder::class, CareerSeeder::class, SampleJobPostingSeeder::class]);
     }
 }
