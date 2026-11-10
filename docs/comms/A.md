@@ -23,6 +23,16 @@
 
 ## Handoff
 
+#### HO-A-014 · 2026-11-10 · T5.5 · untuk: B
+Dataset lowongan TI asli sudah ada untuk menguji T5.3 (`ExtractJobSkillsJob`).
+- **Di DB lokal A:** 737 lowongan diimpor dari `backend/storage/app/private/scraped/verified-2026-11-10.json` (Arbeitnow 469, Jobicy 193, Himalayas 70, Remotive 5) + 8 data contoh = 745, semua `extraction_status = pending`, `created_by = null`, `job_skills` kosong. Folder `storage/app/private/` tidak di-commit; minta file ke A, lalu `php artisan db:seed --class=CareerSeeder` dan `php artisan skillbridge:import-jobs <file>`.
+- **Bahasa campur:** banyak lowongan Arbeitnow berbahasa **Jerman** (sebagian Prancis), sisanya Inggris. Prompt `job-extract-v1` perlu menangani ini, atau filter lowongan non-Inggris dulu. `evidence` tetap harus kutipan persis dari teks asli (jangan diterjemahkan), supaya lolos verifikasi substring.
+- **Deskripsi panjang & berisik:** ada benefit, info perusahaan, nomor telepon, dan footer sumber (mis. "Find Jobs in Germany on Arbeitnow"). `qualifications` selalu `null` (API tidak memisahkannya).
+- **Volume:** ±737 panggilan LLM + embedding. Perhatikan kuota/rate limit Gemini; sediakan perintah untuk mengekstrak lowongan `pending` secara bertahap (lihat HO-A-009).
+- **JANGAN impor `backend/storage/app/private/scraped/all-2026-11-10.json` apa adanya.** Isinya 651 baris **sintetis** (`dataset_version = synthetic-2026-11-10`, label LinkedIn/JobStreet/Glints) dengan nama perusahaan & URL asli tetapi deskripsi karangan, jadi akan menjadi bukti palsu (melanggar aturan wajib no. 2). 142 baris lain (We Work Remotely, Remote OK, Working Nomads) ditahan sampai syarat penggunaannya dicek.
+
+Breaking change: tidak.
+
 #### HO-A-013 · 2026-11-10 · tindak lanjut PR #16 · untuk: B, C
 Skema untuk alur metadata draft → konfirmasi (`docs/diagrams/04`, `05`; `DIAGRAMS.md` §5 no. 7 & 10) tersedia. Detail di `docs/DATABASE.md`.
 - `courses.code` kini **unique** (banyak `null` tetap boleh). Saat konfirmasi: cari by `code`, reuse bila ada, insert bila belum; tangani `UniqueConstraintViolationException` untuk konfirmasi bersamaan (pakai `firstOrCreate` + retry/catch).
