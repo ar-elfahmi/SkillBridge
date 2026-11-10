@@ -88,6 +88,14 @@ class Analysis extends Model
         return $this->hasMany(SkillMatch::class);
     }
 
+    /**
+     * @return HasMany<Recommendation, $this>
+     */
+    public function recommendations(): HasMany
+    {
+        return $this->hasMany(Recommendation::class);
+    }
+
     public function isOwnedBy(User $user): bool
     {
         return $this->user_id === $user->id;

@@ -170,11 +170,13 @@ Unique(`analysis_id`, `skill_id`).
 | Kolom | Tipe | Catatan |
 |---|---|---|
 | analysis_id | FK | cascade |
-| skill_match_id | FK | |
+| skill_match_id | FK | cascade |
 | title | string | |
 | reason | text | |
-| priority | string | `high\|medium\|low` |
-| details | jsonb | `{topics[], learning_keywords[]}` |
+| priority | string | `high\|medium\|low`; dihitung `PriorityCalculator` |
+| details | jsonb | `{topics[], learning_keywords[]}`, default `{}` |
+
+Unique(`analysis_id`, `skill_match_id`): satu rekomendasi per skill match, sehingga refresh mengganti secara idempoten.
 
 ### `user_skills` (skill pribadi di luar RPS, klaim pengguna)
 | Kolom | Tipe | Catatan |

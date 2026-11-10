@@ -48,4 +48,17 @@ return [
         'upload_per_minute' => (int) env('SKILLBRIDGE_UPLOAD_PER_MINUTE', 10),
     ],
 
+    // --- Recommendation (Modules/Recommendation) ---
+    // Priority rules from docs/AI_PIPELINE.md §7; computed by Laravel, never by the LLM.
+    'recommendation' => [
+        'priority' => [
+            // Share of selected job postings asking for the skill that counts as "high demand".
+            'high_demand_ratio' => (float) env('SKILLBRIDGE_PRIORITY_HIGH_DEMAND_RATIO', 0.5),
+            'missing_high_demand' => 'high',
+            'missing' => 'medium',
+            'partial_high_demand' => 'medium',
+            'partial' => 'low',
+        ],
+    ],
+
 ];

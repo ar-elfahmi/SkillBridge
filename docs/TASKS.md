@@ -69,7 +69,7 @@ Dok: `AI_PIPELINE.md §6`, `API.md §5`
 
 ## Fase 7 — Rekomendasi
 Dok: `AI_PIPELINE.md §7`
-- [ ] **T7.1** Migrasi `recommendations`; `PriorityCalculator` sesuai aturan + test.
+- [x] **T7.1** Migrasi `recommendations`; `PriorityCalculator` sesuai aturan + test.
 - [ ] **T7.2** `GenerateRecommendationsJob` untuk rekomendasi belajar mahasiswa (prompt `reco-v1`), validasi skema, tanpa URL.
 - [ ] **T7.3** `GET /api/analyses/{id}/recommendations`.
 - [ ] **T7.4** Frontend tab Rekomendasi Belajar + DisclaimerBanner.

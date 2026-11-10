@@ -14,10 +14,19 @@
 - [x] T5.1 migrasi `careers`/`job_postings`/`job_skills` + seeder profesi — selesai, di-merge (PR #10)
 - [x] T5.2 `skillbridge:import-jobs` + data contoh — selesai, di-merge (PR #11)
 - [x] Hapus role `study_program` + Rekomendasi Kurikulum (keputusan tim) — di-merge (PR #12)
-- [x] T6.1 migrasi `analyses`/`analysis_job_postings`/`skill_matches` — selesai, menunggu review (branch `feat/T6.1-analyses-migrations`)
-- [ ] T7.1 migrasi `recommendations` + `PriorityCalculator` — berikutnya
+- [x] T6.1 migrasi `analyses`/`analysis_job_postings`/`skill_matches` — selesai, di-merge (PR #13)
+- [x] T7.1 migrasi `recommendations` + `PriorityCalculator` — selesai, menunggu review (branch `feat/T7.1-recommendations-priority`)
+- [ ] Tugas A Hari 1 selesai. Berikutnya bergantung B/C: bantu T6.4 (controller/resource/policy analyses), merge point #3, T8.1, T8.4; ⭐ migrasi T3.6/T7.5 bila diminta.
 
 ## Handoff
+
+#### HO-A-012 · 2026-11-10 · T7.1 · untuk: B
+Tabel `recommendations` + kalkulator prioritas tersedia. Siap untuk T7.2–T7.3.
+- `App\Models\Recommendation`: `analysis`, `skillMatch`; `priority` → enum `App\Enums\RecommendationPriority` (`weight()` untuk urutan); `details` di-cast `array` (default `{}`), isi `{topics[], learning_keywords[]}`, **tanpa URL**. Unique (`analysis_id`, `skill_match_id`) → refresh: hapus lalu insert ulang (atau `upsert`) per analisis. Relasi: `Analysis::recommendations()`, `SkillMatch::recommendation()`.
+- `App\Modules\Recommendation\Services\PriorityCalculator` (di area B; dibuat A sesuai T7.1): `calculate(MatchClassification, int $demandCount, int $selectedPostings): ?RecommendationPriority` atau `forMatch(SkillMatch, int $selectedPostings)`. `covered` → `null` (jangan buat rekomendasi). `$selectedPostings` = jumlah lowongan terpilih di analisis (`$analysis->jobPostings()->count()`).
+- Aturan dari `config('skillbridge.recommendation.priority')`; env `SKILLBRIDGE_PRIORITY_HIGH_DEMAND_RATIO` (default 0.5). Penanda skill "wajib" dari PRD belum didukung skema, jadi tidak dipakai.
+
+Breaking change: tidak.
 
 #### HO-A-011 · 2026-11-10 · T6.1 · untuk: B
 Tabel & model analisis tersedia (skema: `docs/DATABASE.md`). Siap untuk T6.2–T6.4.
