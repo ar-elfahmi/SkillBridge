@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Modules\Auth\Http\Controllers\AuthController;
+use App\Modules\Rps\Http\Controllers\RpsUploadController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -17,4 +18,8 @@ Route::prefix('auth')->group(function (): void {
         Route::post('logout', [AuthController::class, 'logout']);
         Route::get('me', [AuthController::class, 'me']);
     });
+});
+
+Route::middleware('auth:sanctum')->group(function (): void {
+    Route::post('rps', RpsUploadController::class)->middleware('throttle:upload');
 });
