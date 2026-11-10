@@ -42,6 +42,8 @@ composer install
 php artisan migrate --seed
 php artisan serve
 php artisan queue:work redis --tries=3
+php artisan skillbridge:scrape-jobs arbeitnow   # -> storage/app/private/scraped/*.json, tinjau lalu:
+php artisan skillbridge:import-jobs <file.json>
 php artisan test
 
 # frontend/

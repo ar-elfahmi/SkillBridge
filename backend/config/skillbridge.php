@@ -61,4 +61,35 @@ return [
         ],
     ],
 
+    // --- Job scraping (Modules/Industry, skillbridge:scrape-jobs) ---
+    // Offline collection only: output is a JSON file reviewed by a human, then
+    // loaded with skillbridge:import-jobs. Only sources whose terms allow
+    // automated access are listed here (see docs/PRD.md §8).
+    'scraping' => [
+        'user_agent' => env('SKILLBRIDGE_SCRAPER_USER_AGENT', 'SkillBridgeDatasetBot/1.0 (academic research)'),
+        'timeout_seconds' => (int) env('SKILLBRIDGE_SCRAPER_TIMEOUT', 30),
+        'output_dir' => storage_path('app/private/scraped'),
+        'sources' => [
+            // Terms: credit Remotive + link back, max 2 req/min, a few runs per day.
+            'remotive' => [
+                'endpoint' => 'https://remotive.com/api/remote-jobs',
+                'categories' => ['software-dev', 'data'],
+                'delay_seconds' => 35,
+            ],
+            'arbeitnow' => [
+                'endpoint' => 'https://www.arbeitnow.com/api/job-board-api',
+                'max_pages' => 10,
+                'delay_seconds' => 2,
+            ],
+        ],
+        // Title keywords -> career slug. First match wins, so order matters
+        // (full stack before frontend/backend). Unmatched postings are skipped.
+        'career_keywords' => [
+            'full-stack-developer' => ['full stack', 'full-stack', 'fullstack'],
+            'data-analyst' => ['data analyst', 'business intelligence', 'bi analyst', 'analytics analyst', 'reporting analyst'],
+            'frontend-developer' => ['frontend', 'front-end', 'front end', 'react', 'vue', 'angular', 'ui developer', 'ui engineer'],
+            'backend-developer' => ['backend', 'back-end', 'back end', 'api', 'laravel', 'php', 'node', 'golang', 'django', 'rails', 'java developer', 'python developer'],
+        ],
+    ],
+
 ];
