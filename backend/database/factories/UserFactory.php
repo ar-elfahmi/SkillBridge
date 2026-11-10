@@ -35,13 +35,6 @@ class UserFactory extends Factory
         ];
     }
 
-    public function studyProgram(): static
-    {
-        return $this->state(fn (array $attributes) => [
-            'role' => UserRole::StudyProgram,
-        ]);
-    }
-
     /**
      * Indicate that the model's email address should be unverified.
      */

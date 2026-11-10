@@ -13,10 +13,10 @@ Base URL: `/api`. Semua endpoint kecuali register/login memerlukan autentikasi (
 ## 2. Auth
 | Method | Endpoint | Fungsi |
 |---|---|---|
-| POST | `/api/auth/register` | `name, email, password, password_confirmation, role` |
+| POST | `/api/auth/register` | `name, email, password, password_confirmation` (role selalu `student`; field `role` dari klien diabaikan) |
 | POST | `/api/auth/login` | `email, password` |
 | POST | `/api/auth/logout` | |
-| GET | `/api/auth/me` | profil + role |
+| GET | `/api/auth/me` | profil (`role` selalu `student`) |
 
 Alur SPA: `GET /sanctum/csrf-cookie` (204, set cookie `XSRF-TOKEN`) → kirim header `X-XSRF-TOKEN` dan `withCredentials: true` pada setiap request berikutnya. Sesi berbasis cookie; tidak ada token di body.
 
@@ -27,7 +27,7 @@ Alur SPA: `GET /sanctum/csrf-cookie` (204, set cookie `XSRF-TOKEN`) → kirim he
 
 | Endpoint | Sukses | Error |
 |---|---|---|
-| `POST /api/auth/register` | **201** + user resource, langsung login | 422 (`email` sudah terdaftar, `password` ≥ 8 & `confirmed`, `role` ∈ `student`/`study_program`), 429 |
+| `POST /api/auth/register` | **201** + user resource, langsung login | 422 (`email` sudah terdaftar, `password` ≥ 8 & `confirmed`), 429 |
 | `POST /api/auth/login` | **200** + user resource | 422 `errors.email = ["Email atau kata sandi salah."]`, 429 |
 | `POST /api/auth/logout` | **204** | 401 |
 | `GET /api/auth/me` | **200** + user resource | 401 `{"message":"Silakan masuk terlebih dahulu."}` |
@@ -131,7 +131,7 @@ Body `POST /api/jobs`:
 | GET | `/api/analyses` | Riwayat analisis |
 | GET | `/api/analyses/{id}` | Status + ringkasan |
 | GET | `/api/analyses/{id}/matches` | Detail pemetaan per skill |
-| GET | `/api/analyses/{id}/recommendations?audience=` | Rekomendasi (`student` / `study_program`; default sesuai role pengguna) |
+| GET | `/api/analyses/{id}/recommendations` | Rekomendasi belajar mahasiswa |
 | DELETE | `/api/analyses/{id}` | Hapus analisis |
 
 Prasyarat: `rps_documents.extraction_status = completed`, `rps_documents.review_status = confirmed`, lowongan `extraction_status = completed`, semua lowongan memiliki `career_id` yang sama dengan `career_id` request, selain itu 422.
@@ -190,37 +190,24 @@ Skor adalah ilustrasi dan **tidak** boleh ditampilkan sebagai persentase penguas
 
 `self_declared` dihitung saat dibaca: `true` bila `skill_id` ada pada `user_skills` milik pengguna yang sedang login. Nilai ini tidak mengubah `classification` dan `summary`.
 
-### Skill pribadi (hanya role `student`, selain itu 403)
+### Skill pribadi (milik pengguna yang login)
 | Method | Endpoint | Fungsi |
 |---|---|---|
 | GET | `/api/me/skills` | Daftar skill pribadi |
 | POST | `/api/me/skills` | Tambah: `{ "skill": "Docker", "analysis_id": 101? }`; dinormalisasi ke `skills`; duplikat idempoten (200 dengan data yang ada) |
 | DELETE | `/api/me/skills/{id}` | Hapus skill pribadi (koreksi) |
-| POST | `/api/analyses/{id}/recommendations/refresh` | Buat ulang rekomendasi `student` dengan memperhitungkan skill pribadi terbaru. 202. Klasifikasi tidak dihitung ulang. |
+| POST | `/api/analyses/{id}/recommendations/refresh` | Buat ulang rekomendasi dengan memperhitungkan skill pribadi terbaru. 202. Klasifikasi tidak dihitung ulang. |
 
-`GET /api/analyses/{id}/recommendations?audience=student` mengembalikan `meta.self_declared_skills`: daftar skill industri berstatus `missing`/`partial` yang sudah dilaporkan pengguna, dengan label "Dipelajari mandiri (dilaporkan pengguna)". Skill tersebut tidak muncul di `data`.
+`GET /api/analyses/{id}/recommendations` mengembalikan `meta.self_declared_skills`: daftar skill industri berstatus `missing`/`partial` yang sudah dilaporkan pengguna, dengan label "Dipelajari mandiri (dilaporkan pengguna)". Skill tersebut tidak muncul di `data`.
 
-Contoh item rekomendasi `student`:
+Contoh item rekomendasi:
 ```json
 {
   "skill": "Docker",
-  "audience": "student",
   "priority": "high",
   "title": "Docker Fundamentals",
   "reason": "Tidak ditemukan dalam RPS yang dianalisis dan diminta pada 2 dari 2 lowongan.",
   "details": { "topics": ["Image & container", "Dockerfile", "docker compose"], "learning_keywords": ["docker getting started", "dockerfile best practices"] }
-}
-```
-
-Contoh item rekomendasi `study_program`:
-```json
-{
-  "skill": "REST API",
-  "audience": "study_program",
-  "priority": "high",
-  "title": "Pengayaan materi Framework dan MVC",
-  "reason": "Skill REST API belum tercakup; materi terdekat ada di minggu 7 (MVC).",
-  "details": { "suggested_enrichment": "Tambahkan sesi desain endpoint REST dan format respons JSON.", "related_weeks": [7, 9], "related_sources": ["Sub-CPMK 9"] }
 }
 ```
 

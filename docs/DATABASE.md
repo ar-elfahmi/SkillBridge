@@ -34,7 +34,7 @@ erDiagram
 | name | string | |
 | email | string unique | |
 | password | string | hash |
-| role | string | `student` \| `study_program`, default `student` |
+| role | string | selalu `student`, default `student` (role lain di luar MVP) |
 
 ### `courses`
 | Kolom | Tipe | Catatan |
@@ -171,16 +171,15 @@ Unique(`analysis_id`, `skill_id`).
 |---|---|---|
 | analysis_id | FK | cascade |
 | skill_match_id | FK | |
-| audience | string | `student\|study_program` |
 | title | string | |
 | reason | text | |
 | priority | string | `high\|medium\|low` |
-| details | jsonb | student: `{topics[], learning_keywords[]}`; prodi: `{suggested_enrichment, related_weeks[], related_sources[]}` |
+| details | jsonb | `{topics[], learning_keywords[]}` |
 
 ### `user_skills` (skill pribadi di luar RPS, klaim pengguna)
 | Kolom | Tipe | Catatan |
 |---|---|---|
-| user_id | FK users | cascade; hanya role `student` |
+| user_id | FK users | cascade |
 | skill_id | FK skills | selalu dinormalisasi; buat entri baru bila belum ada |
 | skill | string | nama sebagaimana diketik pengguna |
 | source_analysis_id | FK analyses null | analisis tempat skill ditambahkan; null bila dihapus/tidak ada |

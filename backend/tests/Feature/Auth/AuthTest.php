@@ -27,7 +27,6 @@ class AuthTest extends TestCase
             'email' => 'mhs@example.test',
             'password' => 'rahasia123',
             'password_confirmation' => 'rahasia123',
-            'role' => 'student',
         ], $overrides);
     }
 
@@ -40,25 +39,27 @@ class AuthTest extends TestCase
 
     public function test_register_creates_user_and_logs_in(): void
     {
-        $this->postJson('/api/auth/register', $this->payload(['role' => 'study_program']), $this->spa)
+        $this->postJson('/api/auth/register', $this->payload(), $this->spa)
             ->assertCreated()
             ->assertJsonPath('data.email', 'mhs@example.test')
-            ->assertJsonPath('data.role', 'study_program')
+            ->assertJsonPath('data.role', 'student')
             ->assertJsonMissingPath('data.password');
 
         $user = User::where('email', 'mhs@example.test')->firstOrFail();
-        $this->assertSame(UserRole::StudyProgram, $user->role);
+        $this->assertSame(UserRole::Student, $user->role);
         $this->assertNotSame('rahasia123', $user->getAuthPassword());
         $this->assertAuthenticatedAs($user, 'web');
     }
 
-    public function test_register_rejects_invalid_role(): void
+    public function test_register_ignores_client_sent_role(): void
     {
-        $this->postJson('/api/auth/register', $this->payload(['role' => 'admin']))
-            ->assertUnprocessable()
-            ->assertJsonValidationErrors(['role']);
+        foreach (['study_program', 'admin'] as $i => $role) {
+            $this->postJson('/api/auth/register', $this->payload(['email' => "u{$i}@example.test", 'role' => $role]))
+                ->assertCreated()
+                ->assertJsonPath('data.role', 'student');
+        }
 
-        $this->assertDatabaseCount('users', 0);
+        $this->assertSame(0, User::where('role', '!=', 'student')->count());
     }
 
     public function test_register_rejects_duplicate_email_and_bad_confirmation(): void
@@ -110,7 +111,7 @@ class AuthTest extends TestCase
 
     public function test_me_returns_profile_and_role(): void
     {
-        $user = User::factory()->studyProgram()->create();
+        $user = User::factory()->create();
 
         $this->actingAs($user, 'sanctum')
             ->getJson('/api/auth/me')
@@ -119,7 +120,7 @@ class AuthTest extends TestCase
                 'id' => $user->id,
                 'name' => $user->name,
                 'email' => $user->email,
-                'role' => 'study_program',
+                'role' => 'student',
                 'created_at' => $user->created_at?->toIso8601String(),
             ]]);
     }

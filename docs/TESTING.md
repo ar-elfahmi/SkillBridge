@@ -7,7 +7,7 @@
 ## 2. Backend (Pest atau PHPUnit)
 | Area | Contoh test |
 |---|---|
-| Auth & Policy | pengguna A tidak bisa membaca RPS/analisis pengguna B (404); role dibatasi |
+| Auth & Policy | pengguna A tidak bisa membaca RPS/analisis pengguna B (404) |
 | Upload | tolak non-PDF, terlalu besar, terlalu banyak halaman; duplikat → 409 |
 | Parsing | PDF digital fixture → `rps_pages` terisi; PDF tanpa text layer → `needs_ocr` |
 | Ekstraksi | skema valid tersimpan; skema invalid → retry → `failed`; `evidence` tidak ada di halaman → `unverified` dan `page` null |

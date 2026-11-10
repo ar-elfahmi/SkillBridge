@@ -2,7 +2,7 @@
 
 ## 1. Autentikasi & otorisasi
 - Laravel Sanctum (cookie SPA + CSRF). Password di-hash (bcrypt/argon2 bawaan Laravel).
-- Role-based access control: `student`, `study_program`.
+- Satu role (`student`) di MVP; akses data dibatasi per pemilik lewat Policy.
 - Policy untuk `RpsDocument`, `Analysis`, `JobPosting` (milik pengguna). Akses resource orang lain → 404.
 - Dataset lowongan terkurasi (`created_by = null`) dapat dibaca semua pengguna login, tidak dapat diubah lewat API.
 - Rate limiting: login, upload, `POST /api/jobs`, `POST /api/analyses`.

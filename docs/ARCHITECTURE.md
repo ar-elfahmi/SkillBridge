@@ -45,12 +45,12 @@ flowchart TD
 ```
 backend/app/
 ├── Modules/
-│   ├── Auth/            # register, login, me, roles
+│   ├── Auth/            # register, login, me
 │   ├── Rps/             # upload, parsing, competencies
 │   │   ├── Actions/ Services/ Jobs/ Http/ Models/ Policies/
 │   ├── Industry/        # careers, job postings, job skills
 │   ├── Analysis/        # matching, classification, summary
-│   ├── Recommendation/  # student & curriculum recommendations
+│   ├── Recommendation/  # student learning recommendations
 │   └── Ai/              # GeminiClient, EmbeddingService, PromptRegistry, SchemaValidator
 ├── Support/             # helper (cosine, text normalization, hashing)
 config/skillbridge.php   # threshold, top-K, model env, batas ukuran
@@ -58,11 +58,11 @@ config/skillbridge.php   # threshold, top-K, model env, batas ukuran
 Aturan: controller tipis → Action/Service; Service AI hanya diakses lewat `Modules/Ai`.
 
 ### Modul
-- **Auth** — registrasi, login, role `student`/`study_program`.
+- **Auth** — registrasi, login (role tunggal `student`).
 - **Rps** — upload, simpan metadata, parsing halaman, ekstraksi & verifikasi kompetensi.
 - **Industry** — profesi, lowongan, ekstraksi dan normalisasi skill lowongan.
 - **Analysis** — pencocokan, klasifikasi, hitung cakupan.
-- **Recommendation** — rekomendasi mahasiswa dan prodi.
+- **Recommendation** — rekomendasi belajar mahasiswa.
 - **Ai** — klien Gemini, embedding + cache, registry prompt/skema, pencatatan `ai_runs`.
 
 ## 5. Pemrosesan latar belakang
@@ -75,7 +75,7 @@ Aturan: controller tipis → Action/Service; Service AI hanya diakses lewat `Mod
 | `ExtractCompetenciesJob` | pengguna konfirmasi metadata | LLM → kompetensi → validasi bukti → normalisasi → embedding |
 | `ExtractJobSkillsJob` | lowongan disimpan | LLM → skill → normalisasi → embedding |
 | `RunAnalysisJob` | `POST /api/analyses` | Top-K → penilaian → klasifikasi → ringkasan |
-| `GenerateRecommendationsJob` | setelah analisis selesai | Rekomendasi `student` dan `study_program` |
+| `GenerateRecommendationsJob` | setelah analisis selesai | Rekomendasi belajar mahasiswa |
 
 Semua job: idempotent, `tries = 3`, `backoff` eksponensial, timeout eksplisit, method `failed()` mengubah status menjadi `failed` dengan pesan aman untuk pengguna. Pembatasan paralelisme job AI via rate limiter / `WithoutOverlapping` per dokumen.
 

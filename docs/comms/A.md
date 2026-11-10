@@ -12,10 +12,20 @@
 - [x] T2.3 `ParseRpsJob` — selesai, di-merge (PR #8)
 - [x] T3.1 migrasi `skills`/`course_skills` + seeder — selesai, di-merge (PR #9)
 - [x] T5.1 migrasi `careers`/`job_postings`/`job_skills` + seeder profesi — selesai, di-merge (PR #10)
-- [x] T5.2 `skillbridge:import-jobs` + data contoh — selesai, menunggu review (branch `feat/T5.2-import-jobs`)
+- [x] T5.2 `skillbridge:import-jobs` + data contoh — selesai, di-merge (PR #11)
+- [x] Hapus role `study_program` + Rekomendasi Kurikulum (keputusan tim) — menunggu review (branch `refactor/remove-study-program-role`)
 - [ ] T6.1 migrasi `analyses`/`analysis_job_postings`/`skill_matches` — berikutnya
 
 ## Handoff
+
+#### HO-A-010 · 2026-11-10 · keputusan scope · untuk: B, C
+**Keputusan tim: pengguna hanya mahasiswa.** Role `study_program` dan fitur Rekomendasi Kurikulum dihapus dari MVP (dipindah ke Pengembangan Lanjut di `docs/PRD.md`). Dokumen PRD, API, AI_PIPELINE, DATABASE, FRONTEND, ARCHITECTURE, SECURITY, TASKS, TESTING sudah disesuaikan.
+- `users.role` tetap ada, selalu `student`. Enum `UserRole` hanya `Student`; `UserFactory::studyProgram()` dihapus.
+- **Untuk C:** `POST /api/auth/register` tidak lagi menerima `role` (bila dikirim, diabaikan). Hapus pilihan role di form register. Tab hasil: Ringkasan, Skill Gap, Rekomendasi Belajar (tanpa Rekomendasi Kurikulum / `CurriculumRecommendationList`). `SelfDeclaredSkill*` berlaku untuk semua pengguna.
+- **Untuk B (T7.2–T7.3):** hanya rekomendasi mahasiswa. Tidak ada `audience`: kolom `recommendations.audience` dihapus dari skema, `GET /api/analyses/{id}/recommendations` tanpa query `audience`, prompt `reco-v1` tanpa `{{audience}}`, `details` = `{topics[], learning_keywords[]}`. Endpoint `/api/me/skills` tidak lagi punya cek role (tetap hanya data milik pengguna).
+- Kolom `courses.study_program` **tetap** (itu metadata nama prodi mata kuliah, bukan role).
+
+Breaking change: **ya** — kontrak register (`role` tidak dipakai) dan rekomendasi (`audience` dihapus).
 
 #### HO-A-009 · 2026-11-10 · T5.2 · untuk: B, C
 - `php artisan db:seed` sekarang juga mengisi **8 lowongan data contoh** (2 per profesi, perusahaan fiktif `PT Contoh …`, `source_name = "data contoh"`, `source_url = null`, `dataset_version = "sample-v1"`, `created_by = null`, `extraction_status = pending`). Sumber: `backend/database/data/sample_jobs.json`.
