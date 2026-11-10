@@ -186,8 +186,8 @@ class ImportJobsCommandTest extends TestCase
         $this->assertSame(0, JobPosting::whereNotNull('created_by')->count());
         $this->assertSame([SampleJobPostingSeeder::DATASET_VERSION], JobPosting::distinct()->pluck('dataset_version')->all());
 
-        // Every MVP career has sample postings.
-        foreach (array_keys(CareerSeeder::careers()) as $slug) {
+        // The original MVP careers have sample postings (newer IT careers get scraped data).
+        foreach (['backend-developer', 'frontend-developer', 'full-stack-developer', 'data-analyst'] as $slug) {
             $this->assertGreaterThan(0, JobPosting::whereHas('career', fn ($q) => $q->where('slug', $slug))->count(), $slug);
         }
     }
