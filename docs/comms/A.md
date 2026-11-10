@@ -3,10 +3,20 @@
 > Hanya Orang A / agent A yang menulis di file ini. Protokol: `docs/comms/README.md`.
 
 ## Status
-- [x] T0.1 backend — selesai, belum di-merge (branch `feat/T0.1-scaffold-backend`). Bagian frontend T0.1 milik C.
-- [ ] T0.2 `config/skillbridge.php` — berikutnya
+- [x] T0.1 backend — selesai, di-merge ke `main` (PR #1). Bagian frontend T0.1 milik C.
+- [x] T0.2 `config/skillbridge.php` — selesai, menunggu review (branch `feat/T0.2-config-skillbridge`)
+- [ ] T1.1 auth Sanctum + `users.role` — berikutnya
 
 ## Handoff
+
+#### HO-A-002 · 2026-11-10 · T0.2 · untuk: B
+`backend/config/skillbridge.php` tersedia (setelah PR T0.2 di-merge). Baca selalu lewat `config()`, jangan `env()`:
+- `skillbridge.gemini.api_key|flash_model|embedding_model|embedding_dimensions (int)|timeout_seconds (int)`
+- `skillbridge.matching.top_k (int)|sim_floor (float)|sim_high (float)` — placeholder, belum dikalibrasi
+- `skillbridge.upload.max_pdf_mb (int)|max_pages (int)`
+- Override di test: `config(['skillbridge.matching.top_k' => 5])`. Tambah key baru di bagian modul sendiri, satu key per baris.
+
+Breaking change: tidak.
 
 #### HO-A-001 · 2026-11-10 · T0.1 · untuk: B, C
 Backend Laravel 13 sudah di-scaffold di `backend/`.
