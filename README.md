@@ -43,3 +43,15 @@ Upload RPS hingga `SKILLBRIDGE_MAX_PDF_MB` (default 10 MB) butuh batas PHP yang 
 upload_max_filesize = 12M
 post_max_size = 12M
 ```
+
+## Impor lowongan terkurasi
+
+```bash
+cd backend
+php artisan skillbridge:import-jobs path/ke/lowongan.csv --dataset-version=2026-11 --dry-run   # validasi dulu
+php artisan skillbridge:import-jobs path/ke/lowongan.csv --dataset-version=2026-11
+```
+
+Kolom CSV/JSON: `career` (slug profesi: `backend-developer`, `frontend-developer`, `full-stack-developer`, `data-analyst`), `company`, `title`, `description` (maks 20.000 karakter), opsional `qualifications`, `source_name`, `source_url` (http/https), `collected_at` (`YYYY-MM-DD`), `dataset_version`. JSON boleh berupa array atau `{ "jobs": [...] }`. Satu baris tidak valid → seluruh impor dibatalkan. Impor ulang baris yang sama (profesi + perusahaan + posisi + `source_url` + `dataset_version`) memperbarui, bukan menduplikasi.
+
+`php artisan db:seed` menambahkan 8 lowongan **data contoh** (`backend/database/data/sample_jobs.json`, perusahaan fiktif, tanpa `source_url`) untuk demo.

@@ -11,10 +11,19 @@
 - [x] T2.2 `POST /api/rps` upload — selesai, di-merge (PR #7)
 - [x] T2.3 `ParseRpsJob` — selesai, di-merge (PR #8)
 - [x] T3.1 migrasi `skills`/`course_skills` + seeder — selesai, di-merge (PR #9)
-- [x] T5.1 migrasi `careers`/`job_postings`/`job_skills` + seeder profesi — selesai, menunggu review (branch `feat/T5.1-careers-jobs-migrations`)
-- [ ] T5.2 `skillbridge:import-jobs` + data contoh — berikutnya
+- [x] T5.1 migrasi `careers`/`job_postings`/`job_skills` + seeder profesi — selesai, di-merge (PR #10)
+- [x] T5.2 `skillbridge:import-jobs` + data contoh — selesai, menunggu review (branch `feat/T5.2-import-jobs`)
+- [ ] T6.1 migrasi `analyses`/`analysis_job_postings`/`skill_matches` — berikutnya
 
 ## Handoff
+
+#### HO-A-009 · 2026-11-10 · T5.2 · untuk: B, C
+- `php artisan db:seed` sekarang juga mengisi **8 lowongan data contoh** (2 per profesi, perusahaan fiktif `PT Contoh …`, `source_name = "data contoh"`, `source_url = null`, `dataset_version = "sample-v1"`, `created_by = null`, `extraction_status = pending`). Sumber: `backend/database/data/sample_jobs.json`.
+- Impor dataset nyata: `php artisan skillbridge:import-jobs <file.csv|json> [--dataset-version=] [--dry-run]` (format di `README.md`). Logika ada di `App\Modules\Industry\Services\JobPostingImporter` (dipakai juga oleh seeder).
+- **Untuk B (T5.3):** perintah impor **belum** men-dispatch `ExtractJobSkillsJob`, jadi lowongan impor tetap `pending` dan `job_skills` kosong. Saat T5.3 siap, tambahkan dispatch untuk lowongan baru/terupdate (ada komentar penanda di `ImportJobsCommand`), atau sediakan perintah untuk mengekstrak lowongan `pending`.
+- **Untuk C (T5.4):** lowongan contoh harus ditampilkan dengan label "Data contoh" (`docs/FRONTEND.md`); kenali dari `source_name = "data contoh"` (atau field yang disepakati di `API.md` §4 saat T5.3).
+
+Breaking change: tidak.
 
 #### HO-A-008 · 2026-11-10 · T5.1 · untuk: B, C
 Tabel & model industri tersedia (skema: `docs/DATABASE.md`). Siap untuk T5.3 (B) dan T5.4 (C).

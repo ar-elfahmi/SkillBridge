@@ -1,0 +1,69 @@
+{
+  "_note": "DATA CONTOH untuk demo/pengembangan. Perusahaan dan lowongan fiktif, bukan data industri tervalidasi. source_url sengaja null.",
+  "jobs": [
+    {
+      "career": "backend-developer",
+      "company": "PT Contoh Teknologi Nusantara",
+      "title": "Backend Developer (PHP/Laravel)",
+      "description": "Merancang dan membangun REST API menggunakan Laravel. Mengelola basis data PostgreSQL atau MySQL termasuk perancangan skema dan optimasi query. Menerapkan autentikasi dan otorisasi pada API. Menulis unit test untuk logika bisnis. Bekerja dalam tim Agile dan melakukan code review.",
+      "qualifications": "Menguasai PHP dan pemrograman berorientasi objek. Memahami pola MVC. Terbiasa menggunakan Git untuk version control. Pengalaman dengan Docker menjadi nilai tambah. Memahami dasar keamanan aplikasi web (OWASP).",
+      "source_name": "data contoh"
+    },
+    {
+      "career": "backend-developer",
+      "company": "PT Contoh Solusi Digital",
+      "title": "Junior Backend Engineer",
+      "description": "Mengembangkan layanan backend dan integrasi API pihak ketiga. Menulis query SQL yang efisien dan menjaga integritas data. Menyiapkan pipeline CI/CD sederhana dan deployment ke server Linux. Menggunakan Redis untuk cache dan antrean pekerjaan.",
+      "qualifications": "Memahami protokol HTTP dan arsitektur client-server. Mampu membuat RESTful API. Terbiasa dengan Linux command line dan Git. Mau belajar Node.js.",
+      "source_name": "data contoh"
+    },
+    {
+      "career": "frontend-developer",
+      "company": "PT Contoh Kreasi Antarmuka",
+      "title": "Frontend Developer (React)",
+      "description": "Membangun antarmuka web dengan React dan TypeScript. Mengonsumsi REST API menggunakan Fetch API. Membuat tampilan responsif dengan Tailwind CSS. Menulis unit test komponen.",
+      "qualifications": "Menguasai HTML, CSS, dan JavaScript (ES6). Memahami responsive web design. Terbiasa menggunakan Git dan melakukan code review.",
+      "source_name": "data contoh"
+    },
+    {
+      "career": "frontend-developer",
+      "company": "PT Contoh Media Interaktif",
+      "title": "Web Frontend Engineer",
+      "description": "Mengembangkan halaman web interaktif menggunakan Vue.js. Mengoptimalkan performa dan aksesibilitas halaman. Berkolaborasi dengan tim backend untuk integrasi API.",
+      "qualifications": "Menguasai JavaScript, HTML5, dan CSS3. Pengalaman dengan Bootstrap atau Tailwind CSS. Memahami asynchronous JavaScript (AJAX).",
+      "source_name": "data contoh"
+    },
+    {
+      "career": "full-stack-developer",
+      "company": "PT Contoh Rekayasa Aplikasi",
+      "title": "Full Stack Developer",
+      "description": "Mengembangkan aplikasi web end-to-end: frontend React dan backend Laravel. Merancang basis data relasional dan REST API. Menerapkan autentikasi berbasis session. Melakukan deployment menggunakan Docker.",
+      "qualifications": "Menguasai PHP, JavaScript, dan SQL. Memahami MVC dan OOP. Terbiasa dengan Git, Linux, dan praktik CI/CD.",
+      "source_name": "data contoh"
+    },
+    {
+      "career": "full-stack-developer",
+      "company": "PT Contoh Startup Edukasi",
+      "title": "Software Engineer (Full Stack)",
+      "description": "Membangun fitur produk dengan Node.js dan Express.js di sisi server serta React di sisi klien. Menulis unit test dan automated testing. Bekerja dengan metodologi Scrum.",
+      "qualifications": "Menguasai TypeScript atau JavaScript. Memahami struktur data dan algoritma dasar. Pengalaman dengan PostgreSQL.",
+      "source_name": "data contoh"
+    },
+    {
+      "career": "data-analyst",
+      "company": "PT Contoh Analitika Data",
+      "title": "Data Analyst",
+      "description": "Mengolah dan membersihkan data dari berbagai sumber. Menulis query SQL untuk analisis. Membuat dashboard dan visualisasi data menggunakan Power BI atau Tableau. Menyajikan temuan kepada pemangku kepentingan.",
+      "qualifications": "Menguasai SQL dan Microsoft Excel. Memahami statistika dasar. Mampu menggunakan Python dengan Pandas menjadi nilai tambah.",
+      "source_name": "data contoh"
+    },
+    {
+      "career": "data-analyst",
+      "company": "PT Contoh Ritel Cerdas",
+      "title": "Junior Data Analyst",
+      "description": "Melakukan data cleaning dan data wrangling pada data penjualan. Membuat laporan berkala dengan Excel dan visualisasi data. Membantu membangun model data sederhana.",
+      "qualifications": "Memahami statistik deskriptif. Terbiasa dengan spreadsheet dan SQL. Mampu berkomunikasi dengan baik.",
+      "source_name": "data contoh"
+    }
+  ]
+}
