@@ -13,10 +13,21 @@
 - [x] T3.1 migrasi `skills`/`course_skills` + seeder — selesai, di-merge (PR #9)
 - [x] T5.1 migrasi `careers`/`job_postings`/`job_skills` + seeder profesi — selesai, di-merge (PR #10)
 - [x] T5.2 `skillbridge:import-jobs` + data contoh — selesai, di-merge (PR #11)
-- [x] Hapus role `study_program` + Rekomendasi Kurikulum (keputusan tim) — menunggu review (branch `refactor/remove-study-program-role`)
-- [ ] T6.1 migrasi `analyses`/`analysis_job_postings`/`skill_matches` — berikutnya
+- [x] Hapus role `study_program` + Rekomendasi Kurikulum (keputusan tim) — di-merge (PR #12)
+- [x] T6.1 migrasi `analyses`/`analysis_job_postings`/`skill_matches` — selesai, menunggu review (branch `feat/T6.1-analyses-migrations`)
+- [ ] T7.1 migrasi `recommendations` + `PriorityCalculator` — berikutnya
 
 ## Handoff
+
+#### HO-A-011 · 2026-11-10 · T6.1 · untuk: B
+Tabel & model analisis tersedia (skema: `docs/DATABASE.md`). Siap untuk T6.2–T6.4.
+- `App\Models\Analysis` (tabel `analyses`): `user`, `rpsDocument`, `career`, `jobPostings` (pivot `analysis_job_postings`), `skillMatches`, `isOwnedBy()`. `status` → enum `App\Enums\AnalysisStatus` (default `queued`); `summary`, `model_versions` di-cast `array`.
+- `App\Models\SkillMatch`: `analysis`, `skill`, `courseSkill`. Enum `App\Enums\MatchClassification` dan `App\Enums\JudgedBy`. `similarity_score` di-cast `decimal:5` (string, mis. `"0.87654"`), **bukan** persen penguasaan; `source_job_skill_ids` dan `candidates` di-cast `array` (default `[]`). Unique (`analysis_id`, `skill_id`) → agregasi per skill harus selesai sebelum insert.
+- `App\Policies\AnalysisPolicy`: hanya pemilik; selain itu 404.
+- Relasi balik: `RpsDocument::analyses()`, `JobPosting::analyses()`. Factory: `Analysis::factory()` (pemilik = pemilik RPS), `SkillMatch::factory()` (default `missing`/`rule`).
+- Catatan: jsonb **tidak menjaga urutan key**; jangan bergantung pada urutan key di `summary`/`model_versions`.
+
+Breaking change: tidak.
 
 #### HO-A-010 · 2026-11-10 · keputusan scope · untuk: B, C
 **Keputusan tim: pengguna hanya mahasiswa.** Role `study_program` dan fitur Rekomendasi Kurikulum dihapus dari MVP (dipindah ke Pengembangan Lanjut di `docs/PRD.md`). Dokumen PRD, API, AI_PIPELINE, DATABASE, FRONTEND, ARCHITECTURE, SECURITY, TASKS, TESTING sudah disesuaikan.
