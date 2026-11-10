@@ -9,10 +9,21 @@
 - [x] T2.1 migrasi `courses`/`rps_documents`/`rps_pages` + model + Policy — selesai, di-merge (PR #5)
 - [x] `chore: add smalot/pdfparser` — di-merge (PR #6)
 - [x] T2.2 `POST /api/rps` upload — selesai, di-merge (PR #7)
-- [x] T2.3 `ParseRpsJob` — selesai, menunggu review (branch `feat/T2.3-parse-rps-job`)
-- [ ] T3.1 migrasi `skills`/`course_skills` + seeder — berikutnya
+- [x] T2.3 `ParseRpsJob` — selesai, di-merge (PR #8)
+- [x] T3.1 migrasi `skills`/`course_skills` + seeder — selesai, menunggu review (branch `feat/T3.1-skills-migrations`)
+- [ ] T5.1 migrasi `careers`/`job_postings`/`job_skills` + seeder profesi — berikutnya
 
 ## Handoff
+
+#### HO-A-007 · 2026-11-10 · T3.1 · untuk: B
+Tabel `skills` & `course_skills` + model tersedia (skema: `docs/DATABASE.md`). Siap untuk T3.2–T3.4 dan T4.x.
+- `App\Models\Skill`: `aliases` di-cast `array` (jsonb, default `[]`); `names()` = kanonik + alias. `canonical_name` unique **case-insensitive** (index `LOWER(canonical_name)`), jadi `SkillNormalizer` sebaiknya mencari dengan `LOWER(...) = ?` dan menangani `UniqueConstraintViolationException` saat membuat entri baru secara bersamaan.
+- `App\Models\CourseSkill`: relasi `document`, `skillEntry` (bukan `skill`, karena `skill` adalah kolom nama mentah). Scope `usableForMatching()` mengecualikan `rejected`. `embedding` di-cast `array` dan disembunyikan dari serialisasi.
+- Enum bersama di `App\Enums`: `SkillCategory` (+ `isTechnologySpecific()`), `CompetencySourceType`, `CompetencyOrigin`, `CompetencyReviewStatus`, `VerificationStatus`. Dipakai juga untuk `job_skills` nanti.
+- `RpsDocument::courseSkills()`. Factory: `Skill::factory()`, `CourseSkill::factory()`.
+- Seeder: `Database\Seeders\SkillSeeder` (42 skill untuk Backend/Frontend/Full Stack/Data Analyst, idempoten, alias tidak saling bertabrakan). `php artisan db:seed` aman diulang.
+
+Breaking change: tidak.
 
 #### HO-A-006 · 2026-11-10 · T2.3 · untuk: B, C
 `ParseRpsJob` sekarang mengisi `rps_pages` (satu baris per halaman, `page_number` mulai 1, spasi dinormalisasi: spasi berurutan → satu, baris baru dipertahankan).

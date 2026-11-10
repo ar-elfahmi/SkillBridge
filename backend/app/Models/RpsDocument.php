@@ -80,6 +80,14 @@ class RpsDocument extends Model
         return $this->hasMany(RpsPage::class)->orderBy('page_number');
     }
 
+    /**
+     * @return HasMany<CourseSkill, $this>
+     */
+    public function courseSkills(): HasMany
+    {
+        return $this->hasMany(CourseSkill::class);
+    }
+
     public function isOwnedBy(User $user): bool
     {
         return $this->user_id === $user->id;
