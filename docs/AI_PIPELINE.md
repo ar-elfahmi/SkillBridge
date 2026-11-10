@@ -11,7 +11,7 @@ Semua langkah AI berjalan di queue Laravel melalui modul `Modules/Ai`. Setiap pa
 
 ## 1. Parsing PDF
 1. Baca teks per halaman (`smalot/pdfparser`) → simpan di `rps_pages`.
-2. Bila total teks sangat sedikit (mis. < N karakter per halaman rata-rata; nilai di config) → `parse_status = needs_ocr`, pesan: PDF tampak hasil scan; unggah PDF digital.
+2. Bila total teks sangat sedikit (rata-rata karakter non-spasi per halaman < `skillbridge.upload.min_chars_per_page`, env `SKILLBRIDGE_MIN_CHARS_PER_PAGE`, default 50 — heuristik, belum dikalibrasi) → `parse_status = needs_ocr`, pesan: PDF tampak hasil scan; unggah PDF digital.
 3. Hindari menyimpan teks PDF di log.
 
 ## 2. Ekstraksi metadata mata kuliah

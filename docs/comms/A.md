@@ -7,11 +7,20 @@
 - [x] T0.2 `config/skillbridge.php` — selesai, di-merge (PR #3)
 - [x] T1.1 auth Sanctum + `users.role` — selesai, di-merge (PR #4)
 - [x] T2.1 migrasi `courses`/`rps_documents`/`rps_pages` + model + Policy — selesai, di-merge (PR #5)
-- [x] `chore: add smalot/pdfparser` — PR #6
-- [x] T2.2 `POST /api/rps` upload — selesai, menunggu review (branch `feat/T2.2-upload-rps`, di atas PR #6)
-- [ ] T2.3 `ParseRpsJob` — berikutnya
+- [x] `chore: add smalot/pdfparser` — di-merge (PR #6)
+- [x] T2.2 `POST /api/rps` upload — selesai, di-merge (PR #7)
+- [x] T2.3 `ParseRpsJob` — selesai, menunggu review (branch `feat/T2.3-parse-rps-job`)
+- [ ] T3.1 migrasi `skills`/`course_skills` + seeder — berikutnya
 
 ## Handoff
+
+#### HO-A-006 · 2026-11-10 · T2.3 · untuk: B, C
+`ParseRpsJob` sekarang mengisi `rps_pages` (satu baris per halaman, `page_number` mulai 1, spasi dinormalisasi: spasi berurutan → satu, baris baru dipertahankan).
+- Status akhir `parse_status`: `parsed` | `needs_ocr` (rata-rata < `skillbridge.upload.min_chars_per_page` karakter non-spasi per halaman; halaman tetap disimpan) | `failed`. `error_message` berisi pesan aman berbahasa Indonesia.
+- **Untuk B (T2.5):** job ini **belum** men-dispatch `ExtractRpsMetadataJob`. Tambahkan dispatch-nya di akhir `handle()` saat status `parsed` (ada komentar penanda), atau minta A lewat `REQ-B-xxx`. `EvidenceVerifier` bisa membaca `RpsDocument::pages` (terurut).
+- **Untuk C:** setelah upload (202), polling `GET /api/rps/{id}` sampai `parse_status` ∉ {`pending`, `parsing`}; tampilkan `error_message` bila `needs_ocr`/`failed`.
+
+Breaking change: tidak.
 
 #### HO-A-005 · 2026-11-10 · T2.2 · untuk: B, C
 `POST /api/rps` (multipart, field `file`) tersedia; kontrak lengkap di `docs/API.md` §3.

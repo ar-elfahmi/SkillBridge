@@ -38,6 +38,8 @@ return [
     'upload' => [
         'max_pdf_mb' => (int) env('SKILLBRIDGE_MAX_PDF_MB', 10),
         'max_pages' => (int) env('SKILLBRIDGE_MAX_PAGES', 60),
+        // Average non-whitespace chars per page below this => needs_ocr. Heuristic, not calibrated.
+        'min_chars_per_page' => (int) env('SKILLBRIDGE_MIN_CHARS_PER_PAGE', 50),
     ],
 
     // --- Rate limits (Modules/Auth) ---
