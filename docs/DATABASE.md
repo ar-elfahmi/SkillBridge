@@ -75,7 +75,7 @@ Unique(`rps_document_id`, `page_number`).
 ### `skills` (kamus kompetensi)
 | Kolom | Tipe | Catatan |
 |---|---|---|
-| canonical_name | string unique | contoh `Laravel Framework`, `Git`, `REST API` |
+| canonical_name | string unique | contoh `Laravel Framework`, `Git`, `REST API`; juga unique pada `LOWER(canonical_name)` (normalisasi case-insensitive) |
 | category | string null | `language\|framework\|tool\|concept\|practice\|other` |
 | aliases | jsonb | default `[]`; contoh `["PHP Laravel","Laravel"]` |
 
@@ -83,7 +83,7 @@ Unique(`rps_document_id`, `page_number`).
 | Kolom | Tipe | Catatan |
 |---|---|---|
 | rps_document_id | FK | cascade |
-| skill_id | FK skills null | hasil normalisasi |
+| skill_id | FK skills null | hasil normalisasi; di-`null`-kan bila entri kamus dihapus |
 | skill | string | nama mentah dari LLM |
 | category | string null | |
 | competency | text | deskripsi kompetensi (dipakai untuk embedding) |
@@ -95,7 +95,7 @@ Unique(`rps_document_id`, `page_number`).
 | source_reference | string null | contoh `Sub-CPMK 9` |
 | week | smallint null | |
 | page | smallint null | null bila tidak diketahui |
-| verification_status | string | `verified\|unverified` |
+| verification_status | string | `verified\|unverified`, default `unverified` |
 | embedding | jsonb null | array float |
 | embedding_model | string null | |
 | embedding_dimensions | smallint null | |

@@ -35,7 +35,7 @@ Dok: `DATABASE.md`, `API.md §3`, `AI_PIPELINE.md §1–2`
 
 ## Fase 3 — Ekstraksi kompetensi
 Dok: `AI_PIPELINE.md §3`, `DATABASE.md (skills, course_skills)`
-- [ ] **T3.1** Migrasi `skills`, `course_skills`; seeder kamus awal (Laravel Framework, Git, REST API, Docker, dst.) dengan aliases.
+- [x] **T3.1** Migrasi `skills`, `course_skills`; seeder kamus awal (Laravel Framework, Git, REST API, Docker, dst.) dengan aliases.
 - [ ] **T3.2** `SkillNormalizer` (alias → kanonik, buat baru bila perlu) + test.
 - [ ] **T3.3** `EvidenceVerifier` (normalisasi teks, substring per halaman) + test halusinasi.
 - [ ] **T3.4** `ExtractCompetenciesJob`: prompt `rps-extract-v1`, validasi skema, verifikasi bukti, normalisasi, dedup, simpan. `POST /api/rps/{id}/extract`, `GET /api/rps/{id}/competencies`.
