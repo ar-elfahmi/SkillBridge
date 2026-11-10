@@ -100,6 +100,45 @@ class RpsSchemaTest extends TestCase
         $this->assertNull($document->fresh()?->course_id);
     }
 
+    public function test_metadata_draft_is_empty_and_unconfirmed_by_default(): void
+    {
+        $document = RpsDocument::factory()->create()->fresh();
+
+        $this->assertNotNull($document);
+        $this->assertNull($document->detected_metadata);
+        $this->assertNull($document->metadata_confirmed_at);
+        $this->assertFalse($document->isMetadataConfirmed());
+    }
+
+    public function test_metadata_draft_round_trips_and_confirmation_is_tracked(): void
+    {
+        $draft = ['code' => '24060511D21', 'name' => 'Pemrograman Web', 'credits' => 3, 'semester' => 4, 'study_program' => null];
+        $document = RpsDocument::factory()->create(['detected_metadata' => $draft]);
+
+        $document->update(['metadata_confirmed_at' => now()]);
+        $document = $document->fresh();
+
+        $this->assertNotNull($document);
+        $this->assertSame($draft, $document->detected_metadata);
+        $this->assertTrue($document->isMetadataConfirmed());
+    }
+
+    public function test_course_code_is_globally_unique(): void
+    {
+        Course::factory()->create(['code' => '24060511D21']);
+
+        $this->expectException(QueryException::class);
+
+        Course::factory()->create(['code' => '24060511D21']);
+    }
+
+    public function test_courses_without_code_do_not_collide(): void
+    {
+        Course::factory()->count(2)->create(['code' => null]);
+
+        $this->assertSame(2, Course::whereNull('code')->count());
+    }
+
     public function test_policy_allows_owner_and_hides_from_others(): void
     {
         $owner = User::factory()->create();

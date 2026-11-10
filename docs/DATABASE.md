@@ -39,7 +39,7 @@ erDiagram
 ### `courses`
 | Kolom | Tipe | Catatan |
 |---|---|---|
-| code | string null | contoh `24060511D21` |
+| code | string null unique | contoh `24060511D21`; unik global (identitas MK, dipakai ulang saat konfirmasi metadata). Banyak `null` diperbolehkan |
 | name | string | |
 | credits | smallint null | bobot SKS |
 | semester | smallint null | |
@@ -50,6 +50,8 @@ erDiagram
 |---|---|---|
 | user_id | FK users | cascade |
 | course_id | FK courses null | diisi setelah metadata dikonfirmasi |
+| detected_metadata | jsonb null | draft metadata hasil `ExtractRpsMetadataJob` / koreksi `PATCH`, mis. `{code, name, credits, semester, study_program}`; tidak menyentuh `courses` |
+| metadata_confirmed_at | timestamp null | diisi saat konfirmasi (`POST /api/rps/{id}/extract`) bersama `course_id`; gerbang ekstraksi kompetensi |
 | original_name | string | |
 | file_path | string | disk privat |
 | file_hash | string(64) | SHA-256; deteksi duplikat per user |

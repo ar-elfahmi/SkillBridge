@@ -14,15 +14,18 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Carbon;
 
 /**
  * @property int $user_id
  * @property ParseStatus $parse_status
  * @property ExtractionStatus $extraction_status
  * @property ReviewStatus $review_status
+ * @property array<string, mixed>|null $detected_metadata
+ * @property Carbon|null $metadata_confirmed_at
  */
 #[Fillable([
-    'user_id', 'course_id', 'original_name', 'file_path', 'file_hash', 'file_size',
+    'user_id', 'course_id', 'detected_metadata', 'metadata_confirmed_at', 'original_name', 'file_path', 'file_hash', 'file_size',
     'page_count', 'parse_status', 'extraction_status', 'review_status', 'reviewed_at', 'error_message',
 ])]
 // Storage path is internal; never expose it in API responses.
@@ -53,6 +56,8 @@ class RpsDocument extends Model
             'extraction_status' => ExtractionStatus::class,
             'review_status' => ReviewStatus::class,
             'reviewed_at' => 'datetime',
+            'detected_metadata' => 'array',
+            'metadata_confirmed_at' => 'datetime',
         ];
     }
 
@@ -94,6 +99,14 @@ class RpsDocument extends Model
     public function analyses(): HasMany
     {
         return $this->hasMany(Analysis::class);
+    }
+
+    /**
+     * Confirmed metadata is the gate for competency extraction.
+     */
+    public function isMetadataConfirmed(): bool
+    {
+        return $this->metadata_confirmed_at !== null;
     }
 
     public function isOwnedBy(User $user): bool
