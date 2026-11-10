@@ -18,6 +18,22 @@ Base URL: `/api`. Semua endpoint kecuali register/login memerlukan autentikasi (
 | POST | `/api/auth/logout` | |
 | GET | `/api/auth/me` | profil + role |
 
+Alur SPA: `GET /sanctum/csrf-cookie` (204, set cookie `XSRF-TOKEN`) → kirim header `X-XSRF-TOKEN` dan `withCredentials: true` pada setiap request berikutnya. Sesi berbasis cookie; tidak ada token di body.
+
+**User resource** (dipakai register, login, me):
+```json
+{ "data": { "id": 1, "name": "…", "email": "…", "role": "student", "created_at": "2026-11-10T08:00:00+00:00" } }
+```
+
+| Endpoint | Sukses | Error |
+|---|---|---|
+| `POST /api/auth/register` | **201** + user resource, langsung login | 422 (`email` sudah terdaftar, `password` ≥ 8 & `confirmed`, `role` ∈ `student`/`study_program`), 429 |
+| `POST /api/auth/login` | **200** + user resource | 422 `errors.email = ["Email atau kata sandi salah."]`, 429 |
+| `POST /api/auth/logout` | **204** | 401 |
+| `GET /api/auth/me` | **200** + user resource | 401 `{"message":"Silakan masuk terlebih dahulu."}` |
+
+Email dinormalisasi ke huruf kecil. Register & login dibatasi `skillbridge.rate_limits.auth_per_minute` (default 5/menit per email + IP).
+
 ## 3. RPS
 | Method | Endpoint | Fungsi |
 |---|---|---|

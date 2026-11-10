@@ -19,7 +19,7 @@ Jika ada yang ambigu, tanya dulu.
 
 ## Fase 1 — Auth & role
 Dok: `API.md §2`, `SECURITY.md`
-- [ ] **T1.1** Register/login/logout/me dengan Sanctum SPA; kolom `users.role` (`student`, `study_program`).
+- [x] **T1.1** Register/login/logout/me dengan Sanctum SPA; kolom `users.role` (`student`, `study_program`).
   *Terima:* test auth lulus; CSRF cookie bekerja dari frontend lokal.
 - [ ] **T1.2** Halaman `/login` dan `/register` + guard sesi di frontend.
 
