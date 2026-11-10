@@ -13,6 +13,8 @@ SkillBridge adalah aplikasi web berbasis AI yang memetakan kompetensi dalam RPS 
 6. `docs/FRONTEND.md` — halaman, komponen, UI
 7. `docs/SECURITY.md` dan `docs/TESTING.md`
 8. `docs/TASKS.md` — daftar tugas bertahap (kerjakan dari sini)
+9. `docs/TEAM.md` — pembagian tim, kepemilikan folder, aturan anti-konflik (hanya ubah file di area pemilik task)
+10. `docs/comms/` — papan pesan antar-agent. **Wajib:** baca `A.md`, `B.md`, `C.md` di awal sesi; di akhir sesi perbarui **hanya** file milikmu (status, handoff, permintaan). Protokol di `docs/comms/README.md`.
 
 ## Stack
 - Frontend: React (Vite SPA) + React Router + TypeScript + Tailwind CSS + shadcn/ui
