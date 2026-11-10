@@ -57,7 +57,7 @@ Dok: `API.md §4`, `AI_PIPELINE.md §5`
 - [x] **T5.2** Perintah `skillbridge:import-jobs {file}` (CSV/JSON: perusahaan, posisi, deskripsi, kualifikasi, `source_url`, `collected_at`, `dataset_version`) + seeder contoh berlabel "data contoh".
 - [ ] **T5.3** `ExtractJobSkillsJob` (prompt `job-extract-v1`), normalisasi, embedding. `POST /api/jobs`, `GET /api/jobs`, `GET /api/jobs/{id}`, `GET /api/careers`.
 - [ ] **T5.4** Frontend: pilih profesi, daftar lowongan (perusahaan, posisi, skill, sumber), form tambah lowongan manual.
-- [x] **T5.5** Perintah `skillbridge:scrape-jobs {remotive|arbeitnow|himalayas|jobicy}` → file JSON (format `import-jobs`) dari API publik yang mengizinkan akses otomatis; hanya rumpun TI (kategori sumber + `exclude_title_keywords`); pemetaan profesi via `config('skillbridge.scraping.career_keywords')`; tanpa menulis DB.
+- [x] **T5.5** Perintah `skillbridge:scrape-jobs {remotive|arbeitnow|himalayas|jobicy}` → file JSON (format `import-jobs`) dari API publik yang mengizinkan akses otomatis; hanya rumpun TI (kategori sumber + `exclude_title_keywords`); pemetaan ke 21 profesi TI (`CareerSeeder`) via `config('skillbridge.scraping.career_keywords')`; tanpa menulis DB.
 
 ## Fase 6 — Matching & Skill Gap
 Dok: `AI_PIPELINE.md §6`, `API.md §5`

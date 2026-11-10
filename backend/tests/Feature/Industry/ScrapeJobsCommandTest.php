@@ -22,6 +22,11 @@ class ScrapeJobsCommandTest extends TestCase
         parent::setUp();
 
         Sleep::fake();
+        // Pin source categories so request counts don't depend on config tuning.
+        config([
+            'skillbridge.scraping.sources.remotive.categories' => ['software-development', 'data'],
+            'skillbridge.scraping.sources.jobicy.industries' => ['engineering', 'data-science', 'qa-testing'],
+        ]);
         Http::preventStrayRequests();
         $this->out = sys_get_temp_dir().'/skillbridge-scrape-'.bin2hex(random_bytes(4)).'.json';
     }
@@ -79,7 +84,7 @@ class ScrapeJobsCommandTest extends TestCase
 
         $rows = $this->outputRows();
         $this->assertSame(
-            ['backend-developer', 'full-stack-developer', 'data-analyst'],
+            ['backend-developer', 'full-stack-developer', 'ui-ux-designer', 'data-analyst'],
             array_column($rows, 'career'),
         );
         $this->assertSame('Remotive', $rows[0]['source_name']);
@@ -90,7 +95,7 @@ class ScrapeJobsCommandTest extends TestCase
         // The file feeds straight into the existing importer.
         $this->seed(CareerSeeder::class);
         $this->artisan('skillbridge:import-jobs', ['file' => $this->out])->assertSuccessful();
-        $this->assertDatabaseCount('job_postings', 3);
+        $this->assertDatabaseCount('job_postings', 4);
         $this->assertDatabaseHas('job_postings', ['source_name' => 'Remotive', 'created_by' => null]);
     }
 
@@ -184,10 +189,37 @@ class ScrapeJobsCommandTest extends TestCase
         $scraper = new JobScraper;
 
         $this->assertNull($scraper->careerFor('Rapid Prototyper'));       // "api" inside a word
-        $this->assertNull($scraper->careerFor('Data Engineer'));
         $this->assertSame('frontend-developer', $scraper->careerFor('Front-End Engineer'));
         $this->assertSame('full-stack-developer', $scraper->careerFor('Full Stack PHP Developer'));
         $this->assertNull($scraper->careerFor('API Sales Manager'));        // non-IT despite "api"
         $this->assertNull($scraper->careerFor('Technical Recruiter - Backend'));
+        $this->assertNull($scraper->careerFor('Business Developer'));
+        $this->assertNull($scraper->careerFor('Mechanical Engineer'));
+
+        $expected = [
+            'Senior React Native Developer' => 'mobile-developer',
+            'Data Engineer' => 'data-engineer',
+            'Machine Learning Engineer' => 'machine-learning-engineer',
+            'Site Reliability Engineer' => 'devops-engineer',
+            'SOC Analyst L2' => 'cybersecurity-engineer',
+            'QA Automation Engineer' => 'qa-engineer',
+            'Senior Product Designer' => 'ui-ux-designer',
+            'IT Support Specialist' => 'it-support',
+            'Unity Game Developer' => 'game-developer',
+            'Firmware Engineer' => 'embedded-iot-engineer',
+            'Senior Software Engineer' => 'software-engineer',
+            'Senior .NET Developer' => 'backend-developer',
+        ];
+        foreach ($expected as $title => $slug) {
+            $this->assertSame($slug, $scraper->careerFor($title), $title);
+        }
+    }
+
+    public function test_every_career_keyword_slug_is_a_seeded_career(): void
+    {
+        $this->assertSame(
+            [],
+            array_diff(array_keys(config('skillbridge.scraping.career_keywords')), array_keys(CareerSeeder::careers())),
+        );
     }
 }

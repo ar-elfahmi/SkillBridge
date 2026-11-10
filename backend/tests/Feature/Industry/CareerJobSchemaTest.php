@@ -26,8 +26,13 @@ class CareerJobSchemaTest extends TestCase
         $this->seed(CareerSeeder::class);
 
         $this->assertSame(
-            ['backend-developer', 'data-analyst', 'frontend-developer', 'full-stack-developer'],
+            collect(CareerSeeder::careers())->keys()->sort()->values()->all(),
             Career::orderBy('slug')->pluck('slug')->all(),
+        );
+        $this->assertGreaterThanOrEqual(20, Career::count());
+        $this->assertContains(
+            'backend-developer',
+            Career::pluck('slug')->all(),
         );
         $this->assertSame('Backend Developer', Career::where('slug', 'backend-developer')->value('name'));
     }

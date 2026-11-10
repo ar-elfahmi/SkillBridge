@@ -73,7 +73,7 @@ return [
             // Terms: credit Remotive + link back, max 2 req/min, a few runs per day.
             'remotive' => [
                 'endpoint' => 'https://remotive.com/api/remote-jobs',
-                'categories' => ['software-dev', 'data'],
+                'categories' => ['software-development', 'data', 'devops', 'qa', 'artificial-intelligence', 'information-technology', 'design'],
                 'delay_seconds' => 35,
             ],
             'arbeitnow' => [
@@ -88,13 +88,13 @@ return [
                 'max_pages' => 25,
                 'delay_seconds' => 2,
                 // Only postings whose parentCategories intersect this list (IT family).
-                'it_categories' => ['Developer', 'Data Science', 'IT', 'DevOps', 'Engineering', 'Software Engineering'],
+                'it_categories' => ['Developer', 'Data Science', 'IT', 'DevOps', 'Engineering', 'Software Engineering', 'Design', 'Cybersecurity', 'QA', 'Research & Development'],
             ],
             // Terms: credit Jobicy, keep links to jobicy.com, sync at most hourly.
             'jobicy' => [
                 'endpoint' => 'https://jobicy.com/api/jobs',
                 // IT-family industry slugs (GET /api/jobs?get=industries).
-                'industries' => ['engineering', 'data-science', 'web-app-design'],
+                'industries' => ['engineering', 'data-science', 'admin', 'qa-testing', 'cybersecurity', 'technical-support', 'web-app-design'],
                 'geo' => env('SKILLBRIDGE_SCRAPER_JOBICY_GEO'), // e.g. "apac"; null = all
                 'delay_seconds' => 5,
             ],
@@ -105,14 +105,36 @@ return [
             'sales', 'marketing', 'recruiter', 'recruitment', 'talent acquisition', 'account executive',
             'account manager', 'customer success', 'customer support', 'copywriter', 'content writer',
             'teacher', 'tutor', 'accountant', 'lawyer', 'nurse',
+            'business developer', 'business development', 'content developer', 'curriculum developer',
+            'mechanical', 'civil engineer', 'chemical engineer', 'electrical engineer', 'process engineer',
+            'graphic designer', 'interior designer', 'fashion',
         ],
-        // Title keywords -> career slug. First match wins, so order matters
-        // (full stack before frontend/backend). Unmatched postings are skipped.
+        // Title keywords -> career slug (slugs from CareerSeeder). First match
+        // wins, so specific roles come before generic ones (e.g. "react native"
+        // -> mobile before "react" -> frontend; "software engineer" is the
+        // catch-all). Unmatched postings are skipped.
         'career_keywords' => [
             'full-stack-developer' => ['full stack', 'full-stack', 'fullstack'],
-            'data-analyst' => ['data analyst', 'business intelligence', 'bi analyst', 'analytics analyst', 'reporting analyst'],
-            'frontend-developer' => ['frontend', 'front-end', 'front end', 'react', 'vue', 'angular', 'ui developer', 'ui engineer'],
-            'backend-developer' => ['backend', 'back-end', 'back end', 'api', 'laravel', 'php', 'node', 'golang', 'django', 'rails', 'java developer', 'python developer'],
+            'machine-learning-engineer' => ['machine learning', 'ml engineer', 'mlops', 'ai engineer', 'ai/ml', 'deep learning', 'computer vision', 'nlp', 'llm', 'genai', 'generative ai'],
+            'data-scientist' => ['data scientist', 'data science'],
+            'data-engineer' => ['data engineer', 'analytics engineer', 'etl', 'big data', 'data platform', 'data warehouse'],
+            'data-analyst' => ['data analyst', 'business intelligence', 'bi analyst', 'bi developer', 'analytics analyst', 'reporting analyst', 'power bi', 'tableau'],
+            'database-administrator' => ['database administrator', 'dba', 'database engineer', 'database developer'],
+            'cybersecurity-engineer' => ['security engineer', 'security analyst', 'cybersecurity', 'cyber security', 'information security', 'infosec', 'appsec', 'application security', 'penetration tester', 'pentester', 'soc analyst', 'devsecops', 'security architect'],
+            'devops-engineer' => ['devops', 'site reliability', 'sre', 'platform engineer', 'release engineer', 'build engineer', 'kubernetes'],
+            'cloud-engineer' => ['cloud engineer', 'cloud architect', 'cloud developer', 'aws', 'azure', 'gcp', 'google cloud'],
+            'network-engineer' => ['network engineer', 'network administrator', 'network architect', 'noc engineer', 'noc analyst'],
+            'system-administrator' => ['system administrator', 'systems administrator', 'sysadmin', 'linux administrator', 'windows administrator', 'infrastructure engineer', 'systems engineer', 'it infrastructure'],
+            'qa-engineer' => ['qa', 'quality assurance', 'test engineer', 'software tester', 'tester', 'sdet', 'test automation', 'automation tester', 'quality engineer'],
+            'mobile-developer' => ['mobile', 'android', 'ios', 'flutter', 'react native', 'kotlin', 'swift', 'swiftui', 'xamarin'],
+            'game-developer' => ['game developer', 'game programmer', 'game engineer', 'gameplay', 'unity', 'unreal'],
+            'embedded-iot-engineer' => ['embedded', 'firmware', 'iot', 'internet of things', 'microcontroller'],
+            'ui-ux-designer' => ['ui/ux', 'ui ux', 'ux designer', 'ui designer', 'ux researcher', 'product designer', 'interaction designer', 'ux/ui', 'ux'],
+            'frontend-developer' => ['frontend', 'front-end', 'front end', 'react', 'reactjs', 'vue', 'vuejs', 'angular', 'nextjs', 'next.js', 'ui developer', 'ui engineer', 'javascript developer', 'typescript developer'],
+            'backend-developer' => ['backend', 'back-end', 'back end', 'api', 'laravel', 'php', 'node', 'nodejs', 'node.js', 'golang', 'go developer', 'django', 'rails', 'ruby', 'java developer', 'java engineer', 'python developer', 'python engineer', '.net', 'c#', 'spring boot', 'elixir', 'rust'],
+            'system-analyst' => ['system analyst', 'systems analyst', 'it business analyst', 'business systems analyst', 'it analyst', 'technical business analyst', 'erp consultant', 'sap consultant', 'functional consultant'],
+            'it-support' => ['it support', 'helpdesk', 'help desk', 'service desk', 'technical support', 'desktop support', 'it technician', 'support engineer', 'it specialist', 'it officer'],
+            'software-engineer' => ['software engineer', 'software developer', 'software development engineer', 'programmer', 'application developer', 'web developer', 'developer', 'coder', 'staff engineer', 'principal engineer', 'tech lead', 'engineering manager', 'solutions architect', 'software architect'],
         ],
     ],
 
