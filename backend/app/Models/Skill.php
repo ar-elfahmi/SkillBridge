@@ -52,6 +52,14 @@ class Skill extends Model
     }
 
     /**
+     * @return HasMany<JobSkill, $this>
+     */
+    public function jobSkills(): HasMany
+    {
+        return $this->hasMany(JobSkill::class);
+    }
+
+    /**
      * Canonical name plus aliases, for matching / technology-name checks.
      *
      * @return list<string>

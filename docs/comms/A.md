@@ -10,10 +10,20 @@
 - [x] `chore: add smalot/pdfparser` — di-merge (PR #6)
 - [x] T2.2 `POST /api/rps` upload — selesai, di-merge (PR #7)
 - [x] T2.3 `ParseRpsJob` — selesai, di-merge (PR #8)
-- [x] T3.1 migrasi `skills`/`course_skills` + seeder — selesai, menunggu review (branch `feat/T3.1-skills-migrations`)
-- [ ] T5.1 migrasi `careers`/`job_postings`/`job_skills` + seeder profesi — berikutnya
+- [x] T3.1 migrasi `skills`/`course_skills` + seeder — selesai, di-merge (PR #9)
+- [x] T5.1 migrasi `careers`/`job_postings`/`job_skills` + seeder profesi — selesai, menunggu review (branch `feat/T5.1-careers-jobs-migrations`)
+- [ ] T5.2 `skillbridge:import-jobs` + data contoh — berikutnya
 
 ## Handoff
+
+#### HO-A-008 · 2026-11-10 · T5.1 · untuk: B, C
+Tabel & model industri tersedia (skema: `docs/DATABASE.md`). Siap untuk T5.3 (B) dan T5.4 (C).
+- `App\Models\Career` (`jobPostings`), `App\Models\JobPosting` (`career`, `creator`, `jobSkills`, `isCurated()`, scope `visibleTo($user)` = terkurasi + milik sendiri), `App\Models\JobSkill` (`jobPosting`, `skillEntry`; `embedding` disembunyikan).
+- `JobPosting::extraction_status` memakai enum `App\Modules\Rps\Enums\ExtractionStatus` (nilai sama: `pending|processing|completed|failed`).
+- **Untuk B (T5.3):** `App\Policies\JobPostingPolicy` — `view`: terkurasi atau milik sendiri, selain itu 404; `update`/`delete`: terkurasi → 403 "Lowongan dari dataset terkurasi tidak dapat diubah.", milik orang lain → 404. Untuk `GET /api/jobs` pakai `JobPosting::visibleTo($request->user())`. `job_skills.skill_id` wajib (NOT NULL), jadi normalisasi harus terjadi sebelum insert.
+- **Untuk C (T5.4):** profesi ter-seed dengan slug `backend-developer`, `frontend-developer`, `full-stack-developer`, `data-analyst` (`php artisan db:seed`). Data lowongan contoh menyusul di T5.2.
+
+Breaking change: tidak.
 
 #### HO-A-007 · 2026-11-10 · T3.1 · untuk: B
 Tabel `skills` & `course_skills` + model tersedia (skema: `docs/DATABASE.md`). Siap untuk T3.2–T3.4 dan T4.x.
