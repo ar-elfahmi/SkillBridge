@@ -20,7 +20,7 @@ class AuthController extends Controller
 {
     public function register(RegisterRequest $request, RegisterUser $registerUser): JsonResponse
     {
-        /** @var array{name: string, email: string, password: string, role: string} $data */
+        /** @var array{name: string, email: string, password: string} $data */
         $data = $request->validated();
 
         $user = $registerUser->execute($data);

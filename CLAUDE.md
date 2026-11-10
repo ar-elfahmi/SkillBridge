@@ -1,6 +1,6 @@
 # SkillBridge — Instruksi untuk Claude Code
 
-SkillBridge adalah aplikasi web berbasis AI yang memetakan kompetensi dalam RPS (PDF) terhadap kebutuhan keterampilan pada lowongan kerja, mengklasifikasikan hasilnya (`covered` / `partial` / `missing`) beserta bukti sumber, lalu menghasilkan rekomendasi untuk mahasiswa dan program studi.
+SkillBridge adalah aplikasi web berbasis AI yang memetakan kompetensi dalam RPS (PDF) terhadap kebutuhan keterampilan pada lowongan kerja, mengklasifikasikan hasilnya (`covered` / `partial` / `missing`) beserta bukti sumber, lalu menghasilkan rekomendasi belajar untuk mahasiswa.
 
 **Bukan** alat ukur kemampuan aktual mahasiswa. Status `missing` hanya berarti "belum ditemukan secara memadai di RPS yang dianalisis".
 

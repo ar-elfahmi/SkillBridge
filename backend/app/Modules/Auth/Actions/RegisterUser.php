@@ -10,7 +10,7 @@ use App\Modules\Auth\Enums\UserRole;
 class RegisterUser
 {
     /**
-     * @param  array{name: string, email: string, password: string, role: string}  $data
+     * @param  array{name: string, email: string, password: string}  $data
      */
     public function execute(array $data): User
     {
@@ -18,7 +18,8 @@ class RegisterUser
             'name' => $data['name'],
             'email' => mb_strtolower($data['email']),
             'password' => $data['password'],
-            'role' => UserRole::from($data['role']),
+            // Single MVP role; any client-sent role is ignored.
+            'role' => UserRole::Student,
         ]);
     }
 }

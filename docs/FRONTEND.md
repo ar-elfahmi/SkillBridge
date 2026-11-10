@@ -25,23 +25,22 @@ Modern, minimalis, responsif, **mobile-first**.
 ## 2. Struktur halaman (React Router)
 | Route | Halaman | Isi |
 |---|---|---|
-| `/login`, `/register` | Auth | form; pilih role saat registrasi |
+| `/login`, `/register` | Auth | form (tanpa pilihan role; semua pengguna mahasiswa) |
 | `/` → `/dashboard` | Beranda | daftar RPS & riwayat analisis, tombol mulai |
 | `/rps/upload` | 1. Upload RPS | dropzone PDF, info file, form metadata (nama, kode, SKS, semester, prodi) |
 | `/rps/:id` | 2. Ekstraksi Kompetensi | status proses (polling), CPMK/Sub-CPMK/materi, tabel kompetensi + bukti + badge verifikasi, **CompetencyReviewTable** (benar / edit / tolak / tambah kompetensi) dan tombol "Konfirmasi hasil ekstraksi" |
 | `/analyses/new?rps={id}` | 3. Pemetaan Industri | pilih profesi, daftar lowongan (perusahaan, posisi, skill, sumber), form tambah lowongan manual, preview pemetaan awal, tombol "Mulai Analisis" |
-| `/analyses/:id` | 4. Hasil Analisis | tab: Ringkasan, Skill Gap, Rekomendasi Belajar, Rekomendasi Kurikulum |
+| `/analyses/:id` | 4. Hasil Analisis | tab: Ringkasan, Skill Gap, Rekomendasi Belajar |
 
-Tab default pada hasil: untuk `student` → Rekomendasi Belajar tersedia menonjol; untuk `study_program` → Rekomendasi Kurikulum. Kedua tab tetap dapat diakses.
+Rekomendasi Belajar ditampilkan menonjol pada hasil.
 
 ### Halaman hasil — komponen
 - **CoverageSummary:** kartu jumlah covered/partial/missing + persentase cakupan + donut/bar chart.
 - **SkillGapTable:** kolom skill, status, diminta di N lowongan, kompetensi RPS terkait; filter status; klik baris → **EvidenceDrawer**.
 - **EvidenceDrawer:** kutipan RPS (sumber, minggu, halaman, badge `verified/unverified`), kutipan lowongan + perusahaan + tautan sumber, alasan klasifikasi, kemiripan semantik (opsional).
 - **LearningRecommendationList:** kartu per skill: topik, alasan, prioritas, kata kunci belajar.
-- **SelfDeclaredSkillAction (role `student`):** tombol "Sudah saya pelajari di luar RPS" pada baris SkillGapTable (`missing`/`partial`) dan pada kartu LearningRecommendationList. Klik → `POST /api/me/skills`, lalu banner "Rekomendasi belum diperbarui" dengan tombol "Perbarui rekomendasi" (`POST .../recommendations/refresh`, polling).
-- **SelfDeclaredSkillsPanel (role `student`):** di tab Rekomendasi Belajar, bagian "Dipelajari mandiri (dilaporkan pengguna)": daftar skill, input bebas untuk menambah skill di luar daftar, tombol hapus untuk koreksi. Keterangan: "Berdasarkan laporan Anda; tidak diverifikasi dan tidak memengaruhi Cakupan skill dalam RPS." Penanda kecil pada baris Skill Gap bila `self_declared = true`; status `missing`/`partial` tidak diubah.
-- **CurriculumRecommendationList:** tabel kompetensi, usulan, minggu/sumber RPS terkait, prioritas.
+- **SelfDeclaredSkillAction:** tombol "Sudah saya pelajari di luar RPS" pada baris SkillGapTable (`missing`/`partial`) dan pada kartu LearningRecommendationList. Klik → `POST /api/me/skills`, lalu banner "Rekomendasi belum diperbarui" dengan tombol "Perbarui rekomendasi" (`POST .../recommendations/refresh`, polling).
+- **SelfDeclaredSkillsPanel:** di tab Rekomendasi Belajar, bagian "Dipelajari mandiri (dilaporkan pengguna)": daftar skill, input bebas untuk menambah skill di luar daftar, tombol hapus untuk koreksi. Keterangan: "Berdasarkan laporan Anda; tidak diverifikasi dan tidak memengaruhi Cakupan skill dalam RPS." Penanda kecil pada baris Skill Gap bila `self_declared = true`; status `missing`/`partial` tidak diubah.
 - **DisclaimerBanner:** batasan analisis.
 
 ## 3. Status & polling

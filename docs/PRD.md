@@ -3,17 +3,13 @@
 **AI-Powered Curriculum & Industry Competency Mapping Platform**
 
 ## 1. Ringkasan
-SkillBridge menghubungkan kompetensi dalam kurikulum pendidikan tinggi (dari dokumen RPS) dengan kebutuhan keterampilan industri (dari data lowongan kerja). Hasilnya: keterampilan yang tercakup, tercakup sebagian, dan belum tercakup, lengkap dengan bukti sumber, serta dua jenis rekomendasi.
-
-- **Personal Learning Recommendation** — materi belajar mandiri untuk mahasiswa.
-- **Curriculum Recommendation** — materi yang perlu ditinjau program studi.
+SkillBridge menghubungkan kompetensi dalam kurikulum pendidikan tinggi (dari dokumen RPS) dengan kebutuhan keterampilan industri (dari data lowongan kerja). Hasilnya: keterampilan yang tercakup, tercakup sebagian, dan belum tercakup, lengkap dengan bukti sumber, serta **Personal Learning Recommendation** (materi belajar mandiri untuk mahasiswa).
 
 Fokus: kesesuaian kurikulum dengan kebutuhan industri. Bukan penilaian kemampuan aktual mahasiswa dan bukan penyusunan kurikulum otomatis.
 
 ## 2. Masalah
 - Kompetensi di RPS tidak terhubung langsung dengan kebutuhan profesi.
 - Mahasiswa sulit tahu keterampilan tambahan yang perlu dipelajari.
-- Prodi butuh data untuk menentukan materi yang perlu ditinjau.
 - Membandingkan RPS dengan banyak lowongan secara manual memakan waktu.
 
 ## 3. Tujuan
@@ -21,13 +17,13 @@ Fokus: kesesuaian kurikulum dengan kebutuhan industri. Bukan penilaian kemampuan
 2. Memetakan kompetensi tersebut ke kebutuhan skill industri.
 3. Mengidentifikasi skill gap per profesi.
 4. Memberi rekomendasi belajar mandiri untuk mahasiswa.
-5. Memberi rekomendasi peninjauan materi untuk prodi.
 
 ## 4. Pengguna
 | Role (`users.role`) | Kebutuhan |
 |---|---|
 | `student` (Mahasiswa) | Memahami kompetensi yang tercakup di mata kuliah dan mendapat rekomendasi belajar mandiri sesuai profesi tujuan. |
-| `study_program` (Program Studi) | Menganalisis cakupan RPS dan mendapat rekomendasi materi yang perlu ditinjau. |
+
+Hanya satu peran di MVP. Kolom `users.role` dipertahankan (selalu `student`) sebagai persiapan peran lain di masa depan.
 
 ## 5. Fitur
 
@@ -66,20 +62,14 @@ Fokus: kesesuaian kurikulum dengan kebutuhan industri. Bukan penilaian kemampuan
   - Skill pribadi **tidak** mengubah klasifikasi, `summary`, maupun "Cakupan skill dalam RPS". Ia ditampilkan sebagai lapisan terpisah berlabel "Dipelajari mandiri (dilaporkan pengguna)".
   - Pencocokan dengan skill industri hanya lewat `skill_id` ternormalisasi yang sama (deterministik), bukan tebakan embedding.
   - Rekomendasi Belajar tidak lagi memuat skill tersebut di daftar utama; skill itu muncul di bagian "Sudah dipelajari mandiri". Setelah skill pribadi berubah, pengguna menekan "Perbarui rekomendasi" (hanya rekomendasi dibuat ulang, klasifikasi tidak dihitung ulang).
-  - Skill pribadi adalah klaim pengguna, bukan bukti dokumen dan tidak diverifikasi. Rekomendasi Kurikulum (`study_program`) tidak terpengaruh.
+  - Skill pribadi adalah klaim pengguna, bukan bukti dokumen dan tidak diverifikasi.
 - Di luar cakupan: sistem kursus, sertifikasi, penilaian kemampuan, pelacakan progres.
-
-### 5.4 Curriculum Recommendation
-- **Input:** kompetensi RPS, kebutuhan industri, hasil Skill Gap Analysis.
-- **Output per item:** kompetensi yang ditinjau, alasan, materi/minggu RPS relevan, usulan pengayaan, prioritas.
-- Contoh: REST API → pengayaan materi Framework dan MVC; Docker → peninjauan materi container dan deployment.
-- Bersifat pendukung keputusan. Sistem tidak mengubah RPS atau kurikulum.
 
 ## 6. Alur pengguna (4 tahap)
 1. **Upload RPS** — unggah PDF; sistem validasi, simpan, ambil info dasar mata kuliah (nama, kode, SKS, semester, prodi). Output: dokumen tersimpan dan siap diproses.
 2. **Ekstraksi Kompetensi** — sistem mengekstraksi CPL, CPMK, Sub-CPMK, materi, rencana mingguan, tugas/evaluasi → daftar kompetensi terstruktur + sumber di RPS. Status proses ditampilkan (polling). Setelah selesai, pengguna meninjau dan mengonfirmasi hasil ekstraksi (benar / edit / tolak / tambah kompetensi).
 3. **Pemetaan Industri** — pengguna memilih profesi (mis. Backend Developer, Frontend Developer, Full Stack Developer, Data Analyst) dan lowongan spesifik; sistem menampilkan perusahaan, posisi, kualifikasi skill, sumber lowongan, dan hasil pemetaan awal.
-4. **Hasil Analisis** — ringkasan cakupan, detail Skill Gap, Personal Learning Recommendation, Curriculum Recommendation. Detail dapat dilihat per skill, sumber RPS, dan lowongan. Mahasiswa dapat melaporkan skill yang sudah dipelajari di luar RPS dan memperbarui rekomendasi.
+4. **Hasil Analisis** — ringkasan cakupan, detail Skill Gap, Personal Learning Recommendation. Detail dapat dilihat per skill, sumber RPS, dan lowongan. Mahasiswa dapat melaporkan skill yang sudah dipelajari di luar RPS dan memperbarui rekomendasi.
 
 ## 7. Simulasi (data contoh, bukan hasil industri tervalidasi)
 Mata kuliah Pemrograman Web (kode 24060511D21, 2 SKS, semester 2, Teknik Informatika), profesi Backend Developer. Materi RPS: HTTP & client-server, HTML/CSS, PHP, form, MySQL, cookie & session, authentication, OOP & MVC, framework PHP, JavaScript & Fetch API.
@@ -109,7 +99,6 @@ Mata kuliah Pemrograman Web (kode 24060511D21, 2 SKS, semester 2, Teknik Informa
 - [ ] Sistem menampilkan bukti sumber hasil pemetaan.
 - [ ] Sistem menghasilkan rekomendasi belajar mandiri.
 - [ ] Mahasiswa dapat melaporkan skill pribadi di luar RPS pada hasil analisis, dan rekomendasi belajar menyesuaikan tanpa mengubah klasifikasi RPS.
-- [ ] Sistem menghasilkan rekomendasi peninjauan kurikulum.
 - [ ] Hasil tampil baik di mobile dan desktop.
 
 ## 10. Nilai utama
@@ -139,7 +128,7 @@ Klaim kebaruan terhadap produk/penelitian lain belum dikaji dan jangan dipakai d
 | Embedding | `JSONB`, cosine di PHP, tanpa pgvector. |
 | Queue | Laravel Queue + Redis (sesuai dokumen produk); worker terpisah (proses systemd/Supervisor) di VPS yang sama. |
 | Auth | Sanctum cookie SPA; production memakai subdomain satu domain induk (mis. `app.` dan `api.`) agar cookie same-site. |
-| Role | `student` dan `study_program`; registrasi publik memilih salah satu. Tidak ada role admin di MVP. |
+| Role | Hanya `student` (mahasiswa); registrasi tidak memilih role. Role program studi dan Rekomendasi Kurikulum dihapus dari MVP (keputusan tim, 2026-11-10). Tidak ada role admin. |
 | Data lowongan | Dataset terkurasi (seeder/import CSV-JSON dengan `source_url` dan `collected_at`) **plus** input manual tempel deskripsi lowongan. Tidak ada scraping otomatis. |
 | Profesi | Tabel `careers` diisi seeder (Backend, Frontend, Full Stack, Data Analyst). |
 | Analisis | Satu RPS per analisis, satu profesi, satu atau lebih lowongan dari profesi tersebut. Skill yang sama dari beberapa lowongan digabung (`demand_count`). |
@@ -148,4 +137,4 @@ Klaim kebaruan terhadap produk/penelitian lain belum dikaji dan jangan dipakai d
 | Prioritas rekomendasi | Dihitung deterministik oleh Laravel (lihat `AI_PIPELINE.md`), penjelasan teks oleh LLM. |
 
 ## 12. Pengembangan lanjut (di luar scope sekarang)
-Analisis multi-RPS per prodi (`analysis_documents`), OCR/multimodal untuk PDF scan, pgvector bila data membesar, ekspor laporan PDF, role admin untuk kurasi lowongan.
+Role program studi + Rekomendasi Kurikulum, analisis multi-RPS per prodi (`analysis_documents`), OCR/multimodal untuk PDF scan, pgvector bila data membesar, ekspor laporan PDF, role admin untuk kurasi lowongan.
