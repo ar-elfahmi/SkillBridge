@@ -113,8 +113,8 @@ Indeks: `rps_document_id`, `skill_id`, (`text_hash`, `embedding_model`, `embeddi
 ### `job_postings`
 | Kolom | Tipe | Catatan |
 |---|---|---|
-| career_id | FK careers | |
-| created_by | FK users null | null untuk dataset terkurasi |
+| career_id | FK careers | restrict (profesi yang punya lowongan tidak bisa dihapus) |
+| created_by | FK users null | null untuk dataset terkurasi; cascade (lowongan manual ikut terhapus bersama pemiliknya) |
 | title | string | posisi |
 | company | string | |
 | description | text | |
@@ -129,7 +129,7 @@ Indeks: `rps_document_id`, `skill_id`, (`text_hash`, `embedding_model`, `embeddi
 | Kolom | Tipe | Catatan |
 |---|---|---|
 | job_posting_id | FK | cascade |
-| skill_id | FK skills | selalu dinormalisasi; buat entri baru bila belum ada |
+| skill_id | FK skills | selalu dinormalisasi; buat entri baru bila belum ada; restrict |
 | skill | string | nama mentah |
 | requirement_text | text | deskripsi kebutuhan (dipakai embedding) |
 | evidence | text | kutipan teks lowongan |

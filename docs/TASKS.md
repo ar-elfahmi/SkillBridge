@@ -53,7 +53,7 @@ Dok: `AI_PIPELINE.md §4`
 
 ## Fase 5 — Industri (profesi & lowongan)
 Dok: `API.md §4`, `AI_PIPELINE.md §5`
-- [ ] **T5.1** Migrasi `careers`, `job_postings`, `job_skills`; seeder profesi (Backend, Frontend, Full Stack, Data Analyst).
+- [x] **T5.1** Migrasi `careers`, `job_postings`, `job_skills`; seeder profesi (Backend, Frontend, Full Stack, Data Analyst).
 - [ ] **T5.2** Perintah `skillbridge:import-jobs {file}` (CSV/JSON: perusahaan, posisi, deskripsi, kualifikasi, `source_url`, `collected_at`, `dataset_version`) + seeder contoh berlabel "data contoh".
 - [ ] **T5.3** `ExtractJobSkillsJob` (prompt `job-extract-v1`), normalisasi, embedding. `POST /api/jobs`, `GET /api/jobs`, `GET /api/jobs/{id}`, `GET /api/careers`.
 - [ ] **T5.4** Frontend: pilih profesi, daftar lowongan (perusahaan, posisi, skill, sumber), form tambah lowongan manual.
