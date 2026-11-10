@@ -15,12 +15,23 @@
 - [x] T5.2 `skillbridge:import-jobs` + data contoh — selesai, di-merge (PR #11)
 - [x] Hapus role `study_program` + Rekomendasi Kurikulum (keputusan tim) — di-merge (PR #12)
 - [x] T6.1 migrasi `analyses`/`analysis_job_postings`/`skill_matches` — selesai, di-merge (PR #13)
-- [x] T7.1 migrasi `recommendations` + `PriorityCalculator` — selesai, menunggu review (branch `feat/T7.1-recommendations-priority`)
-- [x] T5.5 `skillbridge:scrape-jobs` (Remotive/Arbeitnow/Himalayas/Jobicy, hanya rumpun TI → JSON untuk `import-jobs`) — selesai, menunggu review (branch `feat/T5.5-scrape-jobs`). **Untuk B/C:** lowongan hasil scrape berbahasa Inggris, `source_name` = `Remotive`/`Arbeitnow`/`Himalayas`/`Jobicy` dan `source_url` terisi (wajib ditampilkan sebagai atribusi); tetap `extraction_status = pending` sampai T5.3. Di Windows lokal, PHP perlu `curl.cainfo` di php.ini bila muncul cURL error 60. Lowongan bisa berbahasa Inggris/Jerman/Prancis (Arbeitnow).
+- [x] T7.1 migrasi `recommendations` + `PriorityCalculator` — selesai, di-merge (PR #14)
+- [x] T5.5 `skillbridge:scrape-jobs` (Remotive/Arbeitnow/Himalayas/Jobicy, hanya rumpun TI → JSON untuk `import-jobs`) — selesai, di-merge (PR #15). **Untuk B/C:** lowongan hasil scrape berbahasa Inggris, `source_name` = `Remotive`/`Arbeitnow`/`Himalayas`/`Jobicy` dan `source_url` terisi (wajib ditampilkan sebagai atribusi); tetap `extraction_status = pending` sampai T5.3. Di Windows lokal, PHP perlu `curl.cainfo` di php.ini bila muncul cURL error 60. Lowongan bisa berbahasa Inggris/Jerman/Prancis (Arbeitnow).
   - **Profesi kini 21 (rumpun TI)**, bukan 4 — lihat `CareerSeeder::careers()`. **Untuk C (T5.4):** pemilih profesi perlu muat ±21 opsi (mis. combobox/select dengan pencarian), jangan hardcode 4. Data contoh tetap hanya untuk 4 profesi awal; profesi lain bisa kosong sampai dataset hasil scrape diimpor. **Untuk B:** tidak ada perubahan skema/kontrak.
+- [x] Tindak lanjut PR #16 (sequence diagrams): unique `courses.code` + `rps_documents.detected_metadata`/`metadata_confirmed_at` — selesai, menunggu review (branch `feat/rps-metadata-draft-columns`)
 - [ ] Tugas A Hari 1 selesai. Berikutnya bergantung B/C: bantu T6.4 (controller/resource/policy analyses), merge point #3, T8.1, T8.4; ⭐ migrasi T3.6/T7.5 bila diminta.
 
 ## Handoff
+
+#### HO-A-013 · 2026-11-10 · tindak lanjut PR #16 · untuk: B, C
+Skema untuk alur metadata draft → konfirmasi (`docs/diagrams/04`, `05`; `DIAGRAMS.md` §5 no. 7 & 10) tersedia. Detail di `docs/DATABASE.md`.
+- `courses.code` kini **unique** (banyak `null` tetap boleh). Saat konfirmasi: cari by `code`, reuse bila ada, insert bila belum; tangani `UniqueConstraintViolationException` untuk konfirmasi bersamaan (pakai `firstOrCreate` + retry/catch).
+- `rps_documents.detected_metadata` (jsonb null, cast `array`): draft `{code, name, credits, semester, study_program}` dari `ExtractRpsMetadataJob`/`PATCH`. Tidak pernah menulis `courses`.
+- `rps_documents.metadata_confirmed_at` (timestamp null): diisi bersama `course_id` oleh `POST /api/rps/{id}/extract`. `RpsDocument::isMetadataConfirmed()` = gerbang ekstraksi kompetensi.
+- **Untuk B (T2.5):** bentuk `detected_metadata` dan apakah field ini tampil di `RpsDocumentResource` / `API.md` §3 adalah keputusanmu; A tidak mengubah resource/kontrak API.
+- **Untuk C:** belum ada perubahan respons API sampai B memperbarui `API.md`.
+
+Breaking change: tidak (kolom baru nullable; unique `code` hanya menolak kode ganda, saat ini belum ada kode yang menulis `courses`).
 
 #### HO-A-012 · 2026-11-10 · T7.1 · untuk: B
 Tabel `recommendations` + kalkulator prioritas tersedia. Siap untuk T7.2–T7.3.
@@ -132,3 +143,10 @@ Breaking change: tidak.
 
 ## Permintaan
 _(belum ada)_
+
+## Jawaban DISCUSS PR #16
+- **Jawab DISCUSS-1:** `rps_documents.detected_metadata` (jsonb null) sudah ditambahkan oleh A (lihat HO-A-013), jadi T2.5 tidak perlu membuat migration sendiri.
+- **Jawab DISCUSS-4 / gap §5 no. 6 & 13:** penanda eksplisit dibutuhkan → kolom `rps_documents.metadata_confirmed_at` ditambahkan. Konfirmasi = isi `course_id` + `metadata_confirmed_at` dalam satu transaksi. Status metadata terpisah (enum) tidak ditambahkan; draft ada/tidak + `metadata_confirmed_at` sudah cukup.
+- **Jawab DISCUSS-7:** migration unique `courses.code` memang belum pernah masuk `main`; dibuat ulang sebagai `2026_11_10_700000_add_unique_code_to_courses_table.php`, catatan di `docs/DATABASE.md` ditambahkan. Env dev: jalankan `php artisan migrate`.
+- **Jawab DISCUSS-8:** gap §5 no. 1–4 ada di area B (`Matching`/`Recommendation`, T6.3–T7.2), bukan A. A tidak memutuskan sepihak; menunggu jawaban B di `B.md`. Usulan A (tidak mengikat): (1) id di luar top-K → tolak hasil LLM, fallback ke klasifikasi aturan; (3) `RunAnalysisJob` men-dispatch `GenerateRecommendationsJob` setelah sukses; (4) `processing` di-set di awal `handle()` job, bukan di endpoint.
+- **DISCUSS-5** (dispatch `ExtractJobSkillsJob` dari import) tetap menunggu B (lihat HO-A-009). **DISCUSS-6** (URL seeder): data contoh memakai `source_url = null`, jadi tidak ada URL karangan; tidak perlu aturan tambahan.
