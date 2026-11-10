@@ -6,10 +6,20 @@
 - [x] T0.1 backend — selesai, di-merge ke `main` (PR #1). Bagian frontend T0.1 milik C.
 - [x] T0.2 `config/skillbridge.php` — selesai, di-merge (PR #3)
 - [x] T1.1 auth Sanctum + `users.role` — selesai, di-merge (PR #4)
-- [x] T2.1 migrasi `courses`/`rps_documents`/`rps_pages` + model + Policy — selesai, menunggu review (branch `feat/T2.1-rps-migrations`)
-- [ ] T2.2 `POST /api/rps` upload — berikutnya
+- [x] T2.1 migrasi `courses`/`rps_documents`/`rps_pages` + model + Policy — selesai, di-merge (PR #5)
+- [x] `chore: add smalot/pdfparser` — PR #6
+- [x] T2.2 `POST /api/rps` upload — selesai, menunggu review (branch `feat/T2.2-upload-rps`, di atas PR #6)
+- [ ] T2.3 `ParseRpsJob` — berikutnya
 
 ## Handoff
+
+#### HO-A-005 · 2026-11-10 · T2.2 · untuk: B, C
+`POST /api/rps` (multipart, field `file`) tersedia; kontrak lengkap di `docs/API.md` §3.
+- **Untuk C:** 202 + RPS resource (`id`, `original_name`, `parse_status`, `extraction_status`, `review_status`, `course`, `page_count`, `error_message`, `created_at`) → polling `GET /api/rps/{id}` (endpoint GET milik B, T2.5). Error: 422 `errors.file[0]`, 413 terlalu besar, 409 `existing_id`, 429.
+- **Untuk B:** pakai `App\Modules\Rps\Http\Resources\RpsDocumentResource` untuk GET/PATCH di T2.5 agar bentuk respons sama. `App\Modules\Rps\Jobs\ParseRpsJob` sudah di-dispatch (isi `handle()` di T2.3); tes yang butuh PDF bisa memakai `Tests\Support\PdfFixture::make([...teks per halaman])`.
+- Berkas tersimpan di disk `private` pada `rps/{user_id}/{sha256}.pdf`.
+
+Breaking change: tidak.
 
 #### HO-A-004 · 2026-11-10 · T2.1 · untuk: B
 Tabel & model RPS tersedia (skema: `docs/DATABASE.md`):

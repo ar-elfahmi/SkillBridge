@@ -35,5 +35,16 @@ class AppServiceProvider extends ServiceProvider
                     'message' => 'Terlalu banyak percobaan. Coba lagi dalam satu menit.',
                 ], 429));
         });
+
+        // RPS uploads per minute, keyed by user (falls back to IP).
+        RateLimiter::for('upload', function (Request $request): Limit {
+            $perMinute = (int) config('skillbridge.rate_limits.upload_per_minute', 10);
+
+            return Limit::perMinute($perMinute)
+                ->by((string) ($request->user()?->getAuthIdentifier() ?? $request->ip()))
+                ->response(fn () => response()->json([
+                    'message' => 'Terlalu banyak unggahan. Coba lagi dalam satu menit.',
+                ], 429));
+        });
     }
 }

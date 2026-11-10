@@ -51,6 +51,16 @@ Email dinormalisasi ke huruf kecil. Register & login dibatasi `skillbridge.rate_
 
 Validasi upload: MIME `application/pdf` (cek isi, bukan hanya ekstensi), ukuran ≤ `SKILLBRIDGE_MAX_PDF_MB`, halaman ≤ `SKILLBRIDGE_MAX_PAGES`. Duplikat (`file_hash` sama untuk user yang sama) → 409 dengan id dokumen yang ada.
 
+Respons `POST /api/rps`:
+
+| Kasus | Status | Body |
+|---|---|---|
+| Diterima | **202** | RPS resource (bentuk sama dengan `GET /api/rps/{id}`), `parse_status = pending`, `page_count` terisi; klien polling `GET /api/rps/{id}` |
+| Tanpa berkas / bukan PDF (isi atau ekstensi) / PDF rusak / halaman > batas | **422** | `{ "message", "errors": { "file": ["…"] } }` |
+| Ukuran > batas | **413** | `{ "message": "Ukuran PDF melebihi batas 10 MB.", "errors": { "file": ["…"] } }` |
+| Duplikat | **409** | `{ "message": "RPS ini sudah pernah Anda unggah.", "existing_id": 12 }` |
+| Rate limit (`SKILLBRIDGE_UPLOAD_PER_MINUTE`, default 10/menit per user) | **429** | `{ "message" }` |
+
 Contoh respons `GET /api/rps/12`:
 ```json
 {

@@ -43,6 +43,7 @@ return [
     // --- Rate limits (Modules/Auth) ---
     'rate_limits' => [
         'auth_per_minute' => (int) env('SKILLBRIDGE_AUTH_PER_MINUTE', 5),
+        'upload_per_minute' => (int) env('SKILLBRIDGE_UPLOAD_PER_MINUTE', 10),
     ],
 
 ];

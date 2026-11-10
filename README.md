@@ -36,3 +36,10 @@ php artisan test                       # butuh Postgres + Redis aktif
 ```
 
 Isi `GEMINI_API_KEY` dan `GEMINI_FLASH_MODEL` di `backend/.env` (jangan di-commit).
+
+Upload RPS hingga `SKILLBRIDGE_MAX_PDF_MB` (default 10 MB) butuh batas PHP yang cukup. Default PHP (`upload_max_filesize=2M`, `post_max_size=8M`) akan menolak PDF besar sebelum sampai ke Laravel. Set di `php.ini` (dev) dan PHP-FPM (produksi), plus `client_max_body_size` di Nginx:
+
+```ini
+upload_max_filesize = 12M
+post_max_size = 12M
+```
