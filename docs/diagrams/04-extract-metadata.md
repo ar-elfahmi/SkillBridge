@@ -2,7 +2,7 @@
 
 **Sumber:** docs/AI_PIPELINE.md §2 · docs/API.md §3 · docs/DATABASE.md §`courses`, §`rps_documents`
 **Owner:** Orang B · **Task:** T2.5
-**Status:** ⏳ belum (parse T2.3 ✅ ada, `ai_runs` T2.4 belum)
+**Status:** ⏳ belum (parse T2.3 ✅ ada, klien dan `ai_runs` T2.4 ✅ ada; integrasi job T2.5 belum)
 
 ## Prasyarat
 

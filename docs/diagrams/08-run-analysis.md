@@ -67,7 +67,7 @@ sequenceDiagram
     QW->>QW: total_skills = jumlah skill industri unik, hitung covered/partial/missing
     QW->>QW: coverage_percentage = covered / total_skills × 100 (2 desimal, partial tidak dihitung)
     QW->>DB: simpan analyses.summary + analyses.model_versions (model ekstraksi & penilaian, embedding model, dimensi, prompt_version, dataset_version, threshold)
-    QW->>DB: catat ai_runs (purpose=match_judge per panggilan, purpose=embedding) ⏳ T2.4
+    QW->>DB: catat ai_runs (purpose=match_judge per panggilan, purpose=embedding) ⏳ integrasi T4/T6 (klien T2.4 tersedia)
     QW->>DB: analyses.status=completed
     Note over FE: polling berhenti saat completed/failed
 

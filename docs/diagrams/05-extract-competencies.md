@@ -91,7 +91,7 @@ sequenceDiagram
     end
 
     Note over QW,DB: Tahap 7 — penutup
-    QW->>DB: catat ai_runs (purpose=rps_extraction, model, prompt_version=rps-extract-v1, status, latency_ms) ⏳ T2.4
+    QW->>DB: catat ai_runs (purpose=rps_extraction, model, prompt_version=rps-extract-v1, status, latency_ms) ⏳ integrasi T3.4 (klien T2.4 tersedia)
     QW->>DB: extraction_status=completed
     Note over FE: polling berhenti saat completed/failed
 ```
