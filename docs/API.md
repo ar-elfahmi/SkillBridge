@@ -61,6 +61,28 @@ Respons `POST /api/rps`:
 | Duplikat | **409** | `{ "message": "RPS ini sudah pernah Anda unggah.", "existing_id": 12 }` |
 | Rate limit (`SKILLBRIDGE_UPLOAD_PER_MINUTE`, default 10/menit per user) | **429** | `{ "message" }` |
 
+Semua endpoint di atas memerlukan sesi Sanctum. Untuk endpoint dokumen T2.5, sesi tidak valid menghasilkan **401** dan ID yang tidak ada atau dimiliki pengguna lain menghasilkan **404**.
+
+- `GET /api/rps` → **200** `{"data":[...]}`, dokumen milik pengguna saja, ID terbaru dahulu. Daftar kosong mengembalikan `{"data":[]}`.
+- `GET /api/rps/{id}` → **200** `{"data": {...}}`.
+- `PATCH /api/rps/{id}` → **200** dengan bentuk yang sama seperti detail. Kirim minimal satu dari lima field draft di tingkat teratas. Field yang dihilangkan mempertahankan nilai lama, dan `null` mengosongkan nilai. `name`, `code`, dan `study_program` berupa string maksimal 255 karakter atau `null`. `credits` dan `semester` berupa integer 0–32767 atau `null`. Payload kosong, field lain, nilai invalid, parse belum `parsed`, atau metadata sudah dikonfirmasi menghasilkan **422** (`message` dan `errors`). Koreksi yang berhasil menjadi draft dan menghapus pesan gagal metadata.
+- `DELETE /api/rps/{id}` → **204** tanpa body setelah dokumen dan PDF privat terhapus. Halaman dan kompetensi terkait dihapus melalui cascade. Record `courses` dipertahankan. Kegagalan menghapus berkas menghasilkan **500** dengan pesan aman.
+
+Upload, daftar, detail, dan PATCH memakai `RpsDocumentResource`. `course` berisi mata kuliah yang sudah tertaut, atau `null`. `detected_metadata` berisi draft dengan lima field nullable, atau `null` jika draft belum tersedia.
+
+Polling detail setiap 2–3 detik mengikuti kondisi berikut.
+
+| Kondisi | Tindakan |
+|---|---|
+| `parse_status` = `pending` atau `parsing` | Lanjutkan polling. |
+| `parse_status` = `needs_ocr` atau `failed` | Hentikan polling dan tampilkan `error_message`. |
+| `parsed`, draft dan `error_message` sama-sama `null` | Lanjutkan polling untuk upload baru. Gunakan batas tunggu UI agar dokumen lama yang belum pernah dijadwalkan dapat diedit manual. |
+| `parsed`, `detected_metadata` berupa objek | Hentikan polling dan tampilkan draft, termasuk bila `code` atau semua field bernilai `null`. |
+| `parsed`, draft `null`, `error_message` terisi | Hentikan polling, tampilkan pesan aman dan izinkan koreksi manual. |
+| `parsed`, `course` terisi | Hentikan polling metadata dan tampilkan mata kuliah tertaut. |
+
+`extraction_status` mengikuti ekstraksi kompetensi. Pada tahap draft, status tersebut masih `pending`.
+
 Contoh respons `GET /api/rps/12`:
 ```json
 {
@@ -68,11 +90,13 @@ Contoh respons `GET /api/rps/12`:
     "id": 12,
     "original_name": "RPS Pemrograman Web.pdf",
     "parse_status": "parsed",
-    "extraction_status": "processing",
+    "extraction_status": "pending",
     "review_status": "unreviewed",
-    "course": { "code": "24060511D21", "name": "Pemrograman Web", "credits": 2, "semester": 2, "study_program": "Teknik Informatika" },
+    "course": null,
+    "detected_metadata": { "code": null, "name": "Pemrograman Web", "credits": 2, "semester": 2, "study_program": "Teknik Informatika" },
     "page_count": 8,
-    "error_message": null
+    "error_message": null,
+    "created_at": "2026-11-11T02:00:00+00:00"
   }
 }
 ```
