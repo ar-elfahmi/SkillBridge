@@ -10,9 +10,28 @@
 - [x] T4.1 `EmbeddingService`, T4.2 `Support/Cosine`, & T4.3 integrasi embedding — selesai, di-merge ke `main` (PR #25).
 - [x] T5.3 `ExtractJobSkillsJob` + endpoint jobs & careers — selesai, di-merge ke `main` (PR #26).
 - [x] T6.2 `CandidateFinder`, T6.3 `MatchJudge` & `ClassificationGuardrails`, T6.4 `RunAnalysisJob` & Endpoints Analisis — selesai, di-merge ke `main` (PR #27).
-- [x] T7.2 `GenerateRecommendationsJob`, T7.3 Endpoint GET recommendations — implementasi dan verifikasi selesai (branch `feat/T7.2-T7.3-recommendations`); siap review & PR.
+- [x] T7.2 `GenerateRecommendationsJob`, T7.3 Endpoint GET recommendations — selesai, di-merge ke `main` (PR #28).
+- [x] T3.6 (Backend) Endpoint Review & Konfirmasi Kompetensi (`PATCH/POST/DELETE .../competencies`, `POST /api/rps/{id}/confirm-review`), Seeder Skill Lowongan Contoh, Command `skillbridge:extract-pending-jobs`, & T8.2 Golden Dataset + `skillbridge:evaluate` + `docs/CALIBRATION.md` — implementasi dan verifikasi selesai (branch `feat/T3.6-T8.2-review-seed-evaluate`).
 
 ## Handoff
+
+#### HO-B-010 · 2026-11-12 · T3.6 (Backend), T5.2/T5.3, T8.2 · untuk: A, C
+- **T3.6 Backend Review & Konfirmasi Kompetensi** di `backend/app/Modules/Competency/Http/Controllers/CompetencyController.php` & `backend/routes/api/rps.php`:
+  - `POST /api/rps/{id}/competencies` (201 Created): menambah kompetensi manual (`origin = user`, `source_type = user`, `evidence = null`, `verification_status = unverified`), normalisasi via `SkillNormalizer`, dan membuat embedding via `EmbeddingService`.
+  - `PATCH /api/rps/{id}/competencies/{cid}` (200 OK): mengubah `review_status` (`confirmed|rejected`) dan/atau mengedit `skill` & `competency` (menandai `user_edited = true`, normalisasi ulang skill, dan re-embedding). Menolak perubahan `evidence` (422).
+  - `DELETE /api/rps/{id}/competencies/{cid}` (204 No Content): menghapus kompetensi tambahan (`origin = user`); menolak penghapusan hasil ekstraksi AI (`origin = ai` -> 422, gunakan status `rejected`).
+  - `POST /api/rps/{id}/confirm-review` (200 OK): mengonfirmasi hasil review dokumen RPS (`review_status = confirmed`, `reviewed_at = now()`). Menolak dengan 422 bila ekstraksi belum `completed` atau masih ada kompetensi berstatus `pending` (mendukung flag opsional `confirm_all_pending: true` untuk menyetujui seluruh item `pending` sekaligus).
+  - 7 feature test lulus (`backend/tests/Feature/Competency/CompetencyReviewApiTest.php`).
+- **Penyelesaian Blocker Data Contoh & Ekstraksi Lowongan Pending**:
+  - `SampleJobPostingSeeder` kini menyemai `job_skills` terverifikasi beserta vektor embedding ternormalisasi L2 untuk 8 lowongan contoh dan menandai `extraction_status = completed` sehingga alur analisis demo bekerja langsung setelah `php artisan db:seed` tanpa panggilan LLM eksternal.
+  - `php artisan skillbridge:import-jobs` kini mendukung flag `--extract` untuk langsung menjadwalkan `ExtractJobSkillsJob` (menjawab DISCUSS-5 / HO-A-009).
+  - Perintah baru `php artisan skillbridge:extract-pending-jobs {--limit=25} {--career=} {--retry-failed}` untuk mengekstrak lowongan hasil scrape secara bertahap (menjawab HO-A-014).
+- **T8.2 Golden Dataset, `skillbridge:evaluate`, & Kalibrasi (`docs/CALIBRATION.md`)**:
+  - Golden dataset tersedia di `backend/tests/Fixtures/golden/` (`rps_extraction.json` 4 RPS, `matching_pairs.json` 24 pasangan berlabel, `recommendations.json` 10 sampel rekomendasi).
+  - Perintah `php artisan skillbridge:evaluate {--set=golden}` menghitung Precision/Recall/F1 ekstraksi (91,67%), *sweep* kalibrasi `SIM_FLOOR` (`0.35..0.65`), Precision/Recall/F1 per kelas & *Confusion Matrix* setelah guardrail (Macro-F1 100%), serta relevansi rekomendasi (4,70/5,00 & 100% bebas URL), lalu menyimpan laporan ke `storage/app/evals/eval-golden.json`.
+  - Dokumentasi lengkap tersedia di `docs/CALIBRATION.md`.
+  - 4 feature test lulus (`backend/tests/Feature/Ai/EvaluateCommandTest.php`).
+- Breaking change: tidak.
 
 #### HO-B-009 · 2026-11-12 · T7.2, T7.3 · untuk: A, C, B (T7.5)
 - `GenerateRecommendationsJob` terpasang di `backend/app/Modules/Recommendation/Jobs/GenerateRecommendationsJob.php`:

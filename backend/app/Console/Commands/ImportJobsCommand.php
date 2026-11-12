@@ -4,7 +4,10 @@ declare(strict_types=1);
 
 namespace App\Console\Commands;
 
+use App\Models\JobPosting;
+use App\Modules\Industry\Jobs\ExtractJobSkillsJob;
 use App\Modules\Industry\Services\JobPostingImporter;
+use App\Modules\Rps\Enums\ExtractionStatus;
 use Illuminate\Console\Command;
 use InvalidArgumentException;
 
@@ -13,6 +16,7 @@ class ImportJobsCommand extends Command
     protected $signature = 'skillbridge:import-jobs
         {file : Path ke file .csv atau .json}
         {--dataset-version= : Isi dataset_version untuk baris yang tidak menyebutkannya}
+        {--extract : Dispatch ExtractJobSkillsJob untuk lowongan berstatus pending}
         {--dry-run : Validasi saja, tanpa menyimpan}';
 
     protected $description = 'Impor lowongan terkurasi (created_by = null) dari CSV/JSON';
@@ -64,7 +68,18 @@ class ImportJobsCommand extends Command
         ['created' => $created, 'updated' => $updated] = $importer->import($rows);
 
         $this->info("Selesai: {$created} lowongan baru, {$updated} diperbarui.");
-        // Skill extraction (ExtractJobSkillsJob, T5.3) is not dispatched yet; postings stay "pending".
+
+        if ($this->option('extract')) {
+            $pendingIds = JobPosting::query()
+                ->where('extraction_status', ExtractionStatus::Pending)
+                ->pluck('id');
+
+            foreach ($pendingIds as $jobPostingId) {
+                ExtractJobSkillsJob::dispatch((int) $jobPostingId);
+            }
+
+            $this->info('Dijadwalkan ekstraksi skill untuk '.$pendingIds->count().' lowongan pending.');
+        }
 
         return self::SUCCESS;
     }
