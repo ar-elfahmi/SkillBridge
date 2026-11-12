@@ -9,9 +9,27 @@
 - [x] T3.4 `ExtractCompetenciesJob` + endpoint RPS extract & competencies — selesai, di-merge ke `main` (PR #24).
 - [x] T4.1 `EmbeddingService`, T4.2 `Support/Cosine`, & T4.3 integrasi embedding — selesai, di-merge ke `main` (PR #25).
 - [x] T5.3 `ExtractJobSkillsJob` + endpoint jobs & careers — selesai, di-merge ke `main` (PR #26).
-- [x] T6.2 `CandidateFinder`, T6.3 `MatchJudge` & `ClassificationGuardrails`, T6.4 `RunAnalysisJob` & Endpoints Analisis — implementasi dan verifikasi selesai (branch `feat/T6-matching-and-analysis`); siap review & PR.
+- [x] T6.2 `CandidateFinder`, T6.3 `MatchJudge` & `ClassificationGuardrails`, T6.4 `RunAnalysisJob` & Endpoints Analisis — selesai, di-merge ke `main` (PR #27).
+- [x] T7.2 `GenerateRecommendationsJob`, T7.3 Endpoint GET recommendations — implementasi dan verifikasi selesai (branch `feat/T7.2-T7.3-recommendations`); siap review & PR.
 
 ## Handoff
+
+#### HO-B-009 · 2026-11-12 · T7.2, T7.3 · untuk: A, C, B (T7.5)
+- `GenerateRecommendationsJob` terpasang di `backend/app/Modules/Recommendation/Jobs/GenerateRecommendationsJob.php`:
+  - Dijalankan otomatis di akhir `RunAnalysisJob` dan saat endpoint rekomendasi diakses pertama kali jika belum terisi.
+  - Menghitung prioritas rekomendasi belajar secara deterministik via `PriorityCalculator` (`high|medium|low`) berdasarkan rasio permintaan (`demand_count / total_job_postings`).
+  - Mengambil skill match berstatus `missing` dan `partial` (skill `covered` diabaikan, tidak dibuatkan rekomendasi).
+  - Menggunakan prompt template `backend/resources/prompts/reco-v1.txt` (`purpose = 'recommendation'`) dengan Structured Outputs schema `{title, reason, topics, learning_keywords}`.
+  - Guardrail anti-halusinasi ketat: menyaring dan menghapus semua bentuk tautan URL (`http://`, `https://`, `www.`) dari teks `title`, `reason`, `topics`, dan `learning_keywords`.
+  - Transaksi DB idempoten: menghapus rekomendasi lama dan menyimpan record baru.
+  - 2 feature test lulus (`backend/tests/Feature/Recommendation/GenerateRecommendationsJobTest.php`).
+- Endpoint Rekomendasi Belajar di `backend/routes/api/recommendations.php` (di-load di `backend/routes/api.php`):
+  - `GET /api/analyses/{id}/recommendations`: mengembalikan daftar rekomendasi belajar terurut berdasarkan prioritas (`high` -> `medium` -> `low`) dengan rincian topik dan kata kunci belajar (`RecommendationResource`).
+  - Menyertakan `meta.self_declared_skills` untuk skill missing/partial yang telah dilaporkan mandiri oleh pengguna.
+  - Validasi otorisasi: pengguna lain menghasilkan 404 (via `AnalysisPolicy`), analisis yang belum selesai diproses menghasilkan 422.
+  - 3 feature test lulus (`backend/tests/Feature/Recommendation/RecommendationApiTest.php`).
+- Total pengujian modul Recommendation (24 tests, 71 assertions) lulus 100%. Pengujian modul Matching (23 tests, 94 assertions) lulus 100%. Pint code style lulus.
+- Breaking change: tidak. Sesuai kontrak `docs/API.md §5`.
 
 #### HO-B-008 · 2026-11-12 · T6.2, T6.3, T6.4 · untuk: A, C, B (T7.2-T7.4)
 - `CandidateFinder` terpasang di `backend/app/Modules/Matching/Services/CandidateFinder.php`:

@@ -71,8 +71,8 @@ Dok: `AI_PIPELINE.md §6`, `API.md §5`
 ## Fase 7 — Rekomendasi
 Dok: `AI_PIPELINE.md §7`
 - [x] **T7.1** Migrasi `recommendations`; `PriorityCalculator` sesuai aturan + test.
-- [ ] **T7.2** `GenerateRecommendationsJob` untuk rekomendasi belajar mahasiswa (prompt `reco-v1`), validasi skema, tanpa URL.
-- [ ] **T7.3** `GET /api/analyses/{id}/recommendations`.
+- [x] **T7.2** `GenerateRecommendationsJob` untuk rekomendasi belajar mahasiswa (prompt `reco-v1`), validasi skema, tanpa URL.
+- [x] **T7.3** `GET /api/analyses/{id}/recommendations`.
 - [ ] **T7.4** Frontend tab Rekomendasi Belajar + DisclaimerBanner.
 - [ ] **T7.5** Skill pribadi (Tahap 4). Migrasi `user_skills`; `GET/POST/DELETE /api/me/skills` (hanya `student`, normalisasi via `SkillNormalizer`, idempoten); `self_declared` pada `GET .../matches`; `GenerateRecommendationsJob` mengecualikan skill pribadi + `meta.self_declared_skills`; `POST /api/analyses/{id}/recommendations/refresh`. Frontend `SelfDeclaredSkillAction` dan `SelfDeclaredSkillsPanel`.
   *Terima:* `summary`/`classification` tidak berubah setelah menambah skill pribadi; hanya pemilik yang dapat membaca/menghapus; refresh idempotent; teks UI memakai "dilaporkan pengguna", bukan "dikuasai".
