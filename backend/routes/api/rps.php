@@ -14,4 +14,8 @@ Route::middleware('auth:sanctum')->group(function (): void {
 
     Route::post('rps/{document}/extract', [CompetencyController::class, 'extract']);
     Route::get('rps/{document}/competencies', [CompetencyController::class, 'index']);
+    Route::post('rps/{document}/competencies', [CompetencyController::class, 'store']);
+    Route::patch('rps/{document}/competencies/{competency}', [CompetencyController::class, 'update']);
+    Route::delete('rps/{document}/competencies/{competency}', [CompetencyController::class, 'destroy']);
+    Route::post('rps/{document}/confirm-review', [CompetencyController::class, 'confirmReview']);
 });

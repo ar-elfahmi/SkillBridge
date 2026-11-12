@@ -1,0 +1,273 @@
+{
+  "_meta": {
+    "dataset": "golden-rps-extraction-v1",
+    "created_at": "2026-11-12",
+    "description": "4 dokumen RPS contoh beserta ground truth kompetensi hasil identifikasi manual untuk evaluasi Extraction Accuracy."
+  },
+  "courses": [
+    {
+      "code": "IF301",
+      "name": "Pemrograman Web Lanjut",
+      "pages": [
+        {
+          "page_number": 1,
+          "text": "RENCANA PEMBELAJARAN SEMESTER (RPS) Mata Kuliah: Pemrograman Web Lanjut (IF301). CPMK-1: Mahasiswa mampu menerapkan pemrograman berorientasi objek menggunakan PHP dan pola arsitektur MVC pada pengembangan aplikasi web."
+        },
+        {
+          "page_number": 2,
+          "text": "Sub-CPMK-2: Mahasiswa mampu merancang dan membangun REST API menggunakan framework Laravel serta mengimplementasikan autentikasi berbasis session dan token. Minggu 6: Praktikum pembuatan endpoint RESTful API dan pengujian dengan unit test."
+        }
+      ],
+      "ground_truth_skills": [
+        "PHP",
+        "Object-Oriented Programming",
+        "MVC",
+        "REST API",
+        "Laravel Framework",
+        "Authentication",
+        "Unit Testing"
+      ],
+      "extracted_predictions": [
+        {
+          "raw_skill": "PHP",
+          "category": "language",
+          "competency": "Menerapkan pemrograman berorientasi objek menggunakan PHP",
+          "evidence": "menerapkan pemrograman berorientasi objek menggunakan PHP",
+          "page": 1
+        },
+        {
+          "raw_skill": "OOP",
+          "category": "concept",
+          "competency": "Menerapkan konsep pemrograman berorientasi objek",
+          "evidence": "pemrograman berorientasi objek menggunakan PHP dan pola arsitektur MVC",
+          "page": 1
+        },
+        {
+          "raw_skill": "Pola MVC",
+          "category": "concept",
+          "competency": "Menggunakan pola arsitektur MVC pada aplikasi web",
+          "evidence": "pola arsitektur MVC pada pengembangan aplikasi web",
+          "page": 1
+        },
+        {
+          "raw_skill": "RESTful API",
+          "category": "concept",
+          "competency": "Merancang dan membangun REST API",
+          "evidence": "merancang dan membangun REST API menggunakan framework Laravel",
+          "page": 2
+        },
+        {
+          "raw_skill": "PHP Laravel",
+          "category": "framework",
+          "competency": "Membangun aplikasi web menggunakan framework Laravel",
+          "evidence": "merancang dan membangun REST API menggunakan framework Laravel",
+          "page": 2
+        },
+        {
+          "raw_skill": "Autentikasi",
+          "category": "concept",
+          "competency": "Mengimplementasikan autentikasi berbasis session dan token",
+          "evidence": "mengimplementasikan autentikasi berbasis session dan token",
+          "page": 2
+        },
+        {
+          "raw_skill": "Unit Testing",
+          "category": "practice",
+          "competency": "Melakukan pengujian endpoint dengan unit test",
+          "evidence": "Praktikum pembuatan endpoint RESTful API dan pengujian dengan unit test",
+          "page": 2
+        }
+      ]
+    },
+    {
+      "code": "IF204",
+      "name": "Sistem Basis Data",
+      "pages": [
+        {
+          "page_number": 1,
+          "text": "RPS Sistem Basis Data (IF204). CPMK-1: Mahasiswa mampu melakukan perancangan basis data relasional menggunakan ERD dan normalisasi basis data."
+        },
+        {
+          "page_number": 2,
+          "text": "Sub-CPMK-3: Mahasiswa mampu menulis query SQL kompleks pada PostgreSQL dan MySQL serta mengoptimalkan indeks tabel."
+        }
+      ],
+      "ground_truth_skills": [
+        "Database Design",
+        "SQL",
+        "PostgreSQL",
+        "MySQL"
+      ],
+      "extracted_predictions": [
+        {
+          "raw_skill": "Perancangan Basis Data",
+          "category": "concept",
+          "competency": "Melakukan perancangan basis data relasional menggunakan ERD dan normalisasi",
+          "evidence": "perancangan basis data relasional menggunakan ERD dan normalisasi basis data",
+          "page": 1
+        },
+        {
+          "raw_skill": "Query SQL",
+          "category": "language",
+          "competency": "Menulis query SQL kompleks pada sistem basis data",
+          "evidence": "menulis query SQL kompleks pada PostgreSQL dan MySQL",
+          "page": 2
+        },
+        {
+          "raw_skill": "PostgreSQL",
+          "category": "tool",
+          "competency": "Mengelola basis data menggunakan PostgreSQL",
+          "evidence": "menulis query SQL kompleks pada PostgreSQL dan MySQL",
+          "page": 2
+        },
+        {
+          "raw_skill": "MySQL",
+          "category": "tool",
+          "competency": "Mengelola basis data menggunakan MySQL",
+          "evidence": "menulis query SQL kompleks pada PostgreSQL dan MySQL",
+          "page": 2
+        }
+      ]
+    },
+    {
+      "code": "IF305",
+      "name": "Pengembangan Antarmuka Web",
+      "pages": [
+        {
+          "page_number": 1,
+          "text": "RPS Pengembangan Antarmuka Web (IF305). CPMK-1: Mahasiswa mampu menyusun halaman web semantik dengan HTML5, CSS3, dan menerapkan responsive web design menggunakan Tailwind CSS."
+        },
+        {
+          "page_number": 2,
+          "text": "Sub-CPMK-4: Mahasiswa mampu membangun Single Page Application interaktif menggunakan React, JavaScript (ES6), dan mengonsumsi data via Fetch API."
+        }
+      ],
+      "ground_truth_skills": [
+        "HTML",
+        "CSS",
+        "Responsive Web Design",
+        "Tailwind CSS",
+        "React",
+        "JavaScript",
+        "Fetch API"
+      ],
+      "extracted_predictions": [
+        {
+          "raw_skill": "HTML5",
+          "category": "language",
+          "competency": "Menyusun halaman web semantik dengan HTML5",
+          "evidence": "menyusun halaman web semantik dengan HTML5, CSS3",
+          "page": 1
+        },
+        {
+          "raw_skill": "CSS3",
+          "category": "language",
+          "competency": "Menata tampilan halaman dengan CSS3",
+          "evidence": "menyusun halaman web semantik dengan HTML5, CSS3",
+          "page": 1
+        },
+        {
+          "raw_skill": "Responsive Web Design",
+          "category": "concept",
+          "competency": "Menerapkan responsive web design pada antarmuka",
+          "evidence": "menerapkan responsive web design menggunakan Tailwind CSS",
+          "page": 1
+        },
+        {
+          "raw_skill": "Tailwind CSS",
+          "category": "framework",
+          "competency": "Menggunakan Tailwind CSS untuk styling responsif",
+          "evidence": "menerapkan responsive web design menggunakan Tailwind CSS",
+          "page": 1
+        },
+        {
+          "raw_skill": "ReactJS",
+          "category": "framework",
+          "competency": "Membangun Single Page Application interaktif menggunakan React",
+          "evidence": "membangun Single Page Application interaktif menggunakan React, JavaScript (ES6)",
+          "page": 2
+        },
+        {
+          "raw_skill": "JavaScript (ES6)",
+          "category": "language",
+          "competency": "Menggunakan JavaScript (ES6) untuk interaktivitas halaman",
+          "evidence": "menggunakan React, JavaScript (ES6), dan mengonsumsi data via Fetch API",
+          "page": 2
+        },
+        {
+          "raw_skill": "Fetch API",
+          "category": "concept",
+          "competency": "Mengonsumsi data asinkron via Fetch API",
+          "evidence": "mengonsumsi data via Fetch API",
+          "page": 2
+        },
+        {
+          "raw_skill": "TypeScript",
+          "category": "language",
+          "competency": "Menggunakan TypeScript untuk tipe statis",
+          "evidence": "menggunakan React, JavaScript (ES6)",
+          "page": 2
+        }
+      ]
+    },
+    {
+      "code": "DS201",
+      "name": "Pengantar Sains Data",
+      "pages": [
+        {
+          "page_number": 1,
+          "text": "RPS Pengantar Sains Data (DS201). CPMK-1: Mahasiswa mampu memahami konsep statistika deskriptif dan inferensial serta melakukan data cleaning menggunakan Python dan pustaka Pandas."
+        },
+        {
+          "page_number": 2,
+          "text": "Sub-CPMK-3: Mahasiswa mampu menyajikan visualisasi data interaktif dan membuat laporan analitik menggunakan Microsoft Excel."
+        }
+      ],
+      "ground_truth_skills": [
+        "Statistics",
+        "Data Cleaning",
+        "Python",
+        "Pandas",
+        "Data Visualization",
+        "Microsoft Excel"
+      ],
+      "extracted_predictions": [
+        {
+          "raw_skill": "Statistika",
+          "category": "concept",
+          "competency": "Memahami konsep statistika deskriptif dan inferensial",
+          "evidence": "memahami konsep statistika deskriptif dan inferensial",
+          "page": 1
+        },
+        {
+          "raw_skill": "Data Cleaning",
+          "category": "concept",
+          "competency": "Melakukan data cleaning pada dataset mentah",
+          "evidence": "melakukan data cleaning menggunakan Python dan pustaka Pandas",
+          "page": 1
+        },
+        {
+          "raw_skill": "Python",
+          "category": "language",
+          "competency": "Menggunakan bahasa pemrograman Python untuk pengolahan data",
+          "evidence": "melakukan data cleaning menggunakan Python dan pustaka Pandas",
+          "page": 1
+        },
+        {
+          "raw_skill": "Pandas",
+          "category": "framework",
+          "competency": "Mengolah dataframe menggunakan pustaka Pandas",
+          "evidence": "melakukan data cleaning menggunakan Python dan pustaka Pandas",
+          "page": 1
+        },
+        {
+          "raw_skill": "Visualisasi Data",
+          "category": "concept",
+          "competency": "Menyajikan visualisasi data interaktif",
+          "evidence": "menyajikan visualisasi data interaktif dan membuat laporan analitik",
+          "page": 2
+        }
+      ]
+    }
+  ]
+}

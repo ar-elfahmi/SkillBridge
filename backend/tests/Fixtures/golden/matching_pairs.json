@@ -1,0 +1,537 @@
+{
+  "_meta": {
+    "dataset": "golden-matching-pairs-v1",
+    "created_at": "2026-11-12",
+    "description": "24 pasangan berlabel manual (skill industri vs kandidat kompetensi RPS) untuk evaluasi Matching Accuracy, Gap Classification, dan kalibrasi SIM_FLOOR."
+  },
+  "pairs": [
+    {
+      "id": 1,
+      "skill": "Laravel Framework",
+      "category": "framework",
+      "aliases": ["Laravel", "PHP Laravel"],
+      "job_requirement": "Merancang dan membangun REST API menggunakan Laravel",
+      "job_vector": [0.85, 0.50, 0.15, 0.05, 0.0, 0.0, 0.0, 0.0],
+      "candidate": {
+        "id": 101,
+        "competency": "Mahasiswa mampu membangun aplikasi web dan REST API menggunakan framework Laravel",
+        "evidence": "membangun aplikasi web dan REST API menggunakan framework Laravel",
+        "verification_status": "verified",
+        "vector": [0.84, 0.52, 0.14, 0.04, 0.0, 0.0, 0.0, 0.0]
+      },
+      "llm_raw": {
+        "classification": "covered",
+        "matched_course_skill_id": 101,
+        "evidence": "membangun aplikasi web dan REST API menggunakan framework Laravel",
+        "reason": "RPS secara eksplisit mencakup pengembangan REST API dengan Laravel."
+      },
+      "ground_truth": "covered"
+    },
+    {
+      "id": 2,
+      "skill": "REST API",
+      "category": "concept",
+      "aliases": ["RESTful API", "REST"],
+      "job_requirement": "Merancang dan membangun layanan RESTful API",
+      "job_vector": [0.55, 0.80, 0.20, 0.10, 0.0, 0.0, 0.0, 0.0],
+      "candidate": {
+        "id": 102,
+        "competency": "Mahasiswa mampu merancang endpoint RESTful API dengan standar JSON",
+        "evidence": "merancang endpoint RESTful API dengan standar JSON",
+        "verification_status": "verified",
+        "vector": [0.56, 0.79, 0.21, 0.09, 0.0, 0.0, 0.0, 0.0]
+      },
+      "llm_raw": {
+        "classification": "covered",
+        "matched_course_skill_id": 102,
+        "evidence": "merancang endpoint RESTful API dengan standar JSON",
+        "reason": "Kompetensi RPS mencakup perancangan RESTful API secara langsung."
+      },
+      "ground_truth": "covered"
+    },
+    {
+      "id": 3,
+      "skill": "PostgreSQL",
+      "category": "tool",
+      "aliases": ["Postgres"],
+      "job_requirement": "Mengelola basis data PostgreSQL dan optimasi query",
+      "job_vector": [0.10, 0.20, 0.90, 0.35, 0.0, 0.0, 0.0, 0.0],
+      "candidate": {
+        "id": 103,
+        "competency": "Menulis query SQL kompleks pada PostgreSQL dan mengoptimalkan indeks",
+        "evidence": "query SQL kompleks pada PostgreSQL dan mengoptimalkan indeks",
+        "verification_status": "verified",
+        "vector": [0.12, 0.18, 0.91, 0.34, 0.0, 0.0, 0.0, 0.0]
+      },
+      "llm_raw": {
+        "classification": "covered",
+        "matched_course_skill_id": 103,
+        "evidence": "query SQL kompleks pada PostgreSQL dan mengoptimalkan indeks",
+        "reason": "Pengelolaan PostgreSQL dan optimasi indeks tercakup penuh."
+      },
+      "ground_truth": "covered"
+    },
+    {
+      "id": 4,
+      "skill": "React",
+      "category": "framework",
+      "aliases": ["ReactJS", "React.js"],
+      "job_requirement": "Membangun antarmuka pengguna interaktif menggunakan React",
+      "job_vector": [0.0, 0.10, 0.05, 0.92, 0.35, 0.0, 0.0, 0.0],
+      "candidate": {
+        "id": 104,
+        "competency": "Membangun Single Page Application interaktif menggunakan React",
+        "evidence": "Single Page Application interaktif menggunakan React",
+        "verification_status": "verified",
+        "vector": [0.0, 0.12, 0.04, 0.91, 0.37, 0.0, 0.0, 0.0]
+      },
+      "llm_raw": {
+        "classification": "covered",
+        "matched_course_skill_id": 104,
+        "evidence": "Single Page Application interaktif menggunakan React",
+        "reason": "Pengembangan SPA dengan React tercakup langsung."
+      },
+      "ground_truth": "covered"
+    },
+    {
+      "id": 5,
+      "skill": "Tailwind CSS",
+      "category": "framework",
+      "aliases": ["Tailwind", "TailwindCSS"],
+      "job_requirement": "Membuat tampilan responsif menggunakan Tailwind CSS",
+      "job_vector": [0.0, 0.0, 0.0, 0.40, 0.90, 0.15, 0.0, 0.0],
+      "candidate": {
+        "id": 105,
+        "competency": "Menerapkan responsive web design menggunakan Tailwind CSS",
+        "evidence": "menerapkan responsive web design menggunakan Tailwind CSS",
+        "verification_status": "verified",
+        "vector": [0.0, 0.0, 0.0, 0.38, 0.91, 0.14, 0.0, 0.0]
+      },
+      "llm_raw": {
+        "classification": "covered",
+        "matched_course_skill_id": 105,
+        "evidence": "menerapkan responsive web design menggunakan Tailwind CSS",
+        "reason": "Tailwind CSS untuk desain responsif tercakup di RPS."
+      },
+      "ground_truth": "covered"
+    },
+    {
+      "id": 6,
+      "skill": "Python",
+      "category": "language",
+      "aliases": ["Pemrograman Python"],
+      "job_requirement": "Menggunakan Python untuk analisis dan pemrosesan data",
+      "job_vector": [0.0, 0.0, 0.10, 0.0, 0.0, 0.92, 0.35, 0.0],
+      "candidate": {
+        "id": 106,
+        "competency": "Melakukan data cleaning dan analisis menggunakan Python",
+        "evidence": "data cleaning dan analisis menggunakan Python",
+        "verification_status": "verified",
+        "vector": [0.0, 0.0, 0.09, 0.0, 0.0, 0.93, 0.34, 0.0]
+      },
+      "llm_raw": {
+        "classification": "covered",
+        "matched_course_skill_id": 106,
+        "evidence": "data cleaning dan analisis menggunakan Python",
+        "reason": "Penggunaan Python untuk pengolahan data tercakup di RPS."
+      },
+      "ground_truth": "covered"
+    },
+    {
+      "id": 7,
+      "skill": "SQL",
+      "category": "language",
+      "aliases": ["Query SQL"],
+      "job_requirement": "Menulis query SQL yang efisien untuk analisis dan pelaporan",
+      "job_vector": [0.05, 0.15, 0.95, 0.20, 0.0, 0.10, 0.0, 0.0],
+      "candidate": {
+        "id": 107,
+        "competency": "Mahasiswa mampu menulis query SQL untuk agregasi dan join tabel",
+        "evidence": "menulis query SQL untuk agregasi dan join tabel",
+        "verification_status": "verified",
+        "vector": [0.06, 0.14, 0.94, 0.22, 0.0, 0.11, 0.0, 0.0]
+      },
+      "llm_raw": {
+        "classification": "covered",
+        "matched_course_skill_id": 107,
+        "evidence": "menulis query SQL untuk agregasi dan join tabel",
+        "reason": "Penulisan query SQL tercakup secara eksplisit."
+      },
+      "ground_truth": "covered"
+    },
+    {
+      "id": 8,
+      "skill": "MVC",
+      "category": "concept",
+      "aliases": ["Pola MVC", "Model-View-Controller"],
+      "job_requirement": "Memahami pola arsitektur MVC dalam pengembangan aplikasi web",
+      "job_vector": [0.80, 0.55, 0.10, 0.10, 0.0, 0.0, 0.0, 0.0],
+      "candidate": {
+        "id": 108,
+        "competency": "Menerapkan pola arsitektur MVC pada pengembangan aplikasi web",
+        "evidence": "pola arsitektur MVC pada pengembangan aplikasi web",
+        "verification_status": "verified",
+        "vector": [0.81, 0.54, 0.11, 0.09, 0.0, 0.0, 0.0, 0.0]
+      },
+      "llm_raw": {
+        "classification": "covered",
+        "matched_course_skill_id": 108,
+        "evidence": "pola arsitektur MVC pada pengembangan aplikasi web",
+        "reason": "Konsep MVC tercakup langsung pada CPMK."
+      },
+      "ground_truth": "covered"
+    },
+    {
+      "id": 9,
+      "skill": "Vue.js",
+      "category": "framework",
+      "aliases": ["Vue", "VueJS"],
+      "job_requirement": "Mengembangkan halaman web interaktif menggunakan Vue.js",
+      "job_vector": [0.0, 0.10, 0.0, 0.85, 0.45, 0.0, 0.0, 0.0],
+      "candidate": {
+        "id": 109,
+        "competency": "Membangun Single Page Application interaktif menggunakan React",
+        "evidence": "membangun Single Page Application interaktif menggunakan React",
+        "verification_status": "verified",
+        "vector": [0.0, 0.15, 0.0, 0.72, 0.58, 0.0, 0.30, 0.0]
+      },
+      "llm_raw": {
+        "classification": "covered",
+        "matched_course_skill_id": 109,
+        "evidence": "membangun Single Page Application interaktif menggunakan React",
+        "reason": "LLM menganggap React setara dengan Vue.js, namun guardrail menurunkan ke partial karena Vue.js tidak disebut."
+      },
+      "ground_truth": "partial"
+    },
+    {
+      "id": 10,
+      "skill": "Power BI",
+      "category": "tool",
+      "aliases": ["PowerBI", "Microsoft Power BI"],
+      "job_requirement": "Membuat dashboard dan visualisasi data menggunakan Power BI",
+      "job_vector": [0.0, 0.0, 0.20, 0.0, 0.0, 0.55, 0.80, 0.0],
+      "candidate": {
+        "id": 110,
+        "competency": "Menyajikan visualisasi data interaktif dan membuat laporan analitik",
+        "evidence": "menyajikan visualisasi data interaktif dan membuat laporan analitik",
+        "verification_status": "verified",
+        "vector": [0.0, 0.0, 0.25, 0.0, 0.0, 0.65, 0.65, 0.25]
+      },
+      "llm_raw": {
+        "classification": "covered",
+        "matched_course_skill_id": 110,
+        "evidence": "menyajikan visualisasi data interaktif dan membuat laporan analitik",
+        "reason": "Konsep visualisasi data tercakup, tetapi tool spesifik Power BI tidak disebutkan."
+      },
+      "ground_truth": "partial"
+    },
+    {
+      "id": 11,
+      "skill": "Git",
+      "category": "tool",
+      "aliases": ["GitHub", "Version Control"],
+      "job_requirement": "Menggunakan Git untuk version control dan kolaborasi tim",
+      "job_vector": [0.30, 0.30, 0.10, 0.10, 0.0, 0.0, 0.0, 0.88],
+      "candidate": {
+        "id": 111,
+        "competency": "Menggunakan Git untuk pengumpulan tugas proyek akhir",
+        "evidence": "Menggunakan Git untuk pengumpulan tugas proyek akhir",
+        "verification_status": "unverified",
+        "vector": [0.32, 0.28, 0.12, 0.10, 0.0, 0.0, 0.0, 0.87]
+      },
+      "llm_raw": {
+        "classification": "covered",
+        "matched_course_skill_id": 111,
+        "evidence": "Menggunakan Git untuk pengumpulan tugas proyek akhir",
+        "reason": "Kompetensi berasal dari input tambahan pengguna (unverified) sehingga maksimal partial."
+      },
+      "ground_truth": "partial"
+    },
+    {
+      "id": 12,
+      "skill": "Unit Testing",
+      "category": "practice",
+      "aliases": ["Software Testing", "Automated Testing"],
+      "job_requirement": "Menulis unit test otomatis dan menerapkan TDD pada layanan backend",
+      "job_vector": [0.80, 0.50, 0.0, 0.0, 0.0, 0.0, 0.0, 0.33],
+      "candidate": {
+        "id": 112,
+        "competency": "Melakukan pengujian fungsional dasar secara manual pada halaman web",
+        "evidence": "pengujian fungsional dasar secara manual pada halaman web",
+        "verification_status": "verified",
+        "vector": [0.40, 0.30, 0.50, 0.65, 0.0, 0.0, 0.0, 0.25]
+      },
+      "llm_raw": {
+        "classification": "partial",
+        "matched_course_skill_id": 112,
+        "evidence": "pengujian fungsional dasar secara manual pada halaman web",
+        "reason": "RPS hanya membahas pengujian manual dasar, belum mencakup automated unit testing."
+      },
+      "ground_truth": "partial"
+    },
+    {
+      "id": 13,
+      "skill": "Authentication",
+      "category": "concept",
+      "aliases": ["Autentikasi", "Login"],
+      "job_requirement": "Menerapkan autentikasi OAuth2, JWT, dan manajemen role",
+      "job_vector": [0.70, 0.65, 0.20, 0.0, 0.0, 0.0, 0.0, 0.20],
+      "candidate": {
+        "id": 113,
+        "competency": "Membuat form login sederhana menggunakan session PHP",
+        "evidence": "form login sederhana menggunakan session PHP",
+        "verification_status": "verified",
+        "vector": [0.60, 0.50, 0.30, 0.25, 0.0, 0.0, 0.0, 0.15]
+      },
+      "llm_raw": {
+        "classification": "partial",
+        "matched_course_skill_id": 113,
+        "evidence": "form login sederhana menggunakan session PHP",
+        "reason": "RPS mencakup autentikasi session dasar, belum mencakup OAuth2 dan JWT."
+      },
+      "ground_truth": "partial"
+    },
+    {
+      "id": 14,
+      "skill": "Express.js",
+      "category": "framework",
+      "aliases": ["Express", "ExpressJS"],
+      "job_requirement": "Membangun layanan REST API menggunakan Node.js dan Express.js",
+      "job_vector": [0.75, 0.60, 0.15, 0.15, 0.0, 0.0, 0.0, 0.0],
+      "candidate": {
+        "id": 114,
+        "competency": "Merancang dan membangun REST API menggunakan framework Laravel",
+        "evidence": "merancang dan membangun REST API menggunakan framework Laravel",
+        "verification_status": "verified",
+        "vector": [0.68, 0.58, 0.20, 0.05, 0.25, 0.0, 0.0, 0.0]
+      },
+      "llm_raw": {
+        "classification": "partial",
+        "matched_course_skill_id": 114,
+        "evidence": "merancang dan membangun REST API menggunakan framework Laravel",
+        "reason": "Konsep REST API tercakup melalui Laravel, namun framework Express.js tidak diajarkan."
+      },
+      "ground_truth": "partial"
+    },
+    {
+      "id": 15,
+      "skill": "Web Security",
+      "category": "concept",
+      "aliases": ["Keamanan Web", "OWASP"],
+      "job_requirement": "Memahami standar keamanan aplikasi web OWASP Top 10",
+      "job_vector": [0.65, 0.60, 0.25, 0.10, 0.0, 0.0, 0.0, 0.35],
+      "candidate": {
+        "id": 115,
+        "competency": "Melakukan validasi input form dan pencegahan SQL injection dasar",
+        "evidence": "validasi input form dan pencegahan SQL injection dasar",
+        "verification_status": "verified",
+        "vector": [0.58, 0.52, 0.35, 0.15, 0.0, 0.0, 0.0, 0.20]
+      },
+      "llm_raw": {
+        "classification": "covered",
+        "matched_course_skill_id": 115,
+        "evidence": " Kutipan palsu yang tidak ada di kandidat ",
+        "reason": "LLM memberikan kutipan halusinasi sehingga guardrail menurunkan dari covered ke partial."
+      },
+      "ground_truth": "partial"
+    },
+    {
+      "id": 16,
+      "skill": "Data Visualization",
+      "category": "concept",
+      "aliases": ["Visualisasi Data"],
+      "job_requirement": "Merancang dashboard analitik interaktif untuk eksekutif",
+      "job_vector": [0.0, 0.0, 0.15, 0.0, 0.0, 0.60, 0.78, 0.0],
+      "candidate": {
+        "id": 116,
+        "competency": "Membuat grafik batang dan garis sederhana menggunakan matplotlib",
+        "evidence": "grafik batang dan garis sederhana menggunakan matplotlib",
+        "verification_status": "verified",
+        "vector": [0.0, 0.0, 0.25, 0.0, 0.20, 0.52, 0.55, 0.35]
+      },
+      "llm_raw": {
+        "classification": "partial",
+        "matched_course_skill_id": 116,
+        "evidence": "grafik batang dan garis sederhana menggunakan matplotlib",
+        "reason": "Mencakup pembuatan grafik dasar namun belum sampai pembuatan dashboard interaktif."
+      },
+      "ground_truth": "partial"
+    },
+    {
+      "id": 17,
+      "skill": "Docker",
+      "category": "tool",
+      "aliases": ["Docker Container", "Containerization"],
+      "job_requirement": "Membungkus layanan aplikasi menggunakan Docker container",
+      "job_vector": [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.10, 0.99],
+      "candidate": {
+        "id": 117,
+        "competency": "Menyusun halaman web semantik dengan HTML5 dan CSS3",
+        "evidence": "menyusun halaman web semantik dengan HTML5 dan CSS3",
+        "verification_status": "verified",
+        "vector": [0.0, 0.0, 0.0, 0.80, 0.58, 0.0, 0.0, 0.12]
+      },
+      "llm_raw": {
+        "classification": "missing",
+        "matched_course_skill_id": null,
+        "evidence": null,
+        "reason": "Skor kemiripan di bawah sim_floor."
+      },
+      "ground_truth": "missing"
+    },
+    {
+      "id": 18,
+      "skill": "Redis",
+      "category": "tool",
+      "aliases": [],
+      "job_requirement": "Menggunakan Redis untuk caching dan message broker",
+      "job_vector": [0.10, 0.15, 0.15, 0.0, 0.0, 0.0, 0.0, 0.96],
+      "candidate": {
+        "id": 118,
+        "competency": "Memahami konsep statistika deskriptif dan inferensial",
+        "evidence": "memahami konsep statistika deskriptif dan inferensial",
+        "verification_status": "verified",
+        "vector": [0.0, 0.0, 0.10, 0.0, 0.0, 0.90, 0.40, 0.10]
+      },
+      "llm_raw": {
+        "classification": "missing",
+        "matched_course_skill_id": null,
+        "evidence": null,
+        "reason": "Skor kemiripan di bawah sim_floor."
+      },
+      "ground_truth": "missing"
+    },
+    {
+      "id": 19,
+      "skill": "CI/CD",
+      "category": "practice",
+      "aliases": ["Continuous Integration", "GitHub Actions"],
+      "job_requirement": "Membangun pipeline CI/CD otomatis untuk deployment produksi",
+      "job_vector": [0.05, 0.10, 0.0, 0.0, 0.0, 0.0, 0.0, 0.99],
+      "candidate": {
+        "id": 119,
+        "competency": "Melakukan perancangan basis data relasional menggunakan ERD",
+        "evidence": "perancangan basis data relasional menggunakan ERD",
+        "verification_status": "verified",
+        "vector": [0.0, 0.0, 0.95, 0.0, 0.0, 0.0, 0.0, 0.20]
+      },
+      "llm_raw": {
+        "classification": "missing",
+        "matched_course_skill_id": null,
+        "evidence": null,
+        "reason": "Skor kemiripan di bawah sim_floor."
+      },
+      "ground_truth": "missing"
+    },
+    {
+      "id": 20,
+      "skill": "Linux",
+      "category": "tool",
+      "aliases": ["Linux Server", "Bash"],
+      "job_requirement": "Administrasi server Linux dan scripting Bash",
+      "job_vector": [0.0, 0.05, 0.05, 0.0, 0.0, 0.0, 0.0, 0.99],
+      "candidate": {
+        "id": 120,
+        "competency": "Menerapkan responsive web design menggunakan Tailwind CSS",
+        "evidence": "menerapkan responsive web design menggunakan Tailwind CSS",
+        "verification_status": "verified",
+        "vector": [0.0, 0.0, 0.0, 0.40, 0.90, 0.0, 0.0, 0.15]
+      },
+      "llm_raw": {
+        "classification": "missing",
+        "matched_course_skill_id": null,
+        "evidence": null,
+        "reason": "Skor kemiripan di bawah sim_floor."
+      },
+      "ground_truth": "missing"
+    },
+    {
+      "id": 21,
+      "skill": "Tableau",
+      "category": "tool",
+      "aliases": [],
+      "job_requirement": "Membangun visualisasi bisnis interaktif dengan Tableau",
+      "job_vector": [0.0, 0.0, 0.0, 0.0, 0.0, 0.20, 0.98, 0.0],
+      "candidate": {
+        "id": 121,
+        "competency": "Menerapkan pemrograman berorientasi objek menggunakan PHP",
+        "evidence": "menerapkan pemrograman berorientasi objek menggunakan PHP",
+        "verification_status": "verified",
+        "vector": [0.90, 0.40, 0.0, 0.0, 0.0, 0.10, 0.10, 0.0]
+      },
+      "llm_raw": {
+        "classification": "missing",
+        "matched_course_skill_id": null,
+        "evidence": null,
+        "reason": "Skor kemiripan di bawah sim_floor."
+      },
+      "ground_truth": "missing"
+    },
+    {
+      "id": 22,
+      "skill": "Pandas",
+      "category": "framework",
+      "aliases": ["Python Pandas"],
+      "job_requirement": "Mengolah dataset berukuran besar dengan Python Pandas",
+      "job_vector": [0.0, 0.0, 0.0, 0.0, 0.0, 0.95, 0.30, 0.0],
+      "candidate": {
+        "id": 122,
+        "competency": "Membangun antarmuka pengguna dengan React dan Fetch API",
+        "evidence": "Membangun antarmuka pengguna dengan React dan Fetch API",
+        "verification_status": "verified",
+        "vector": [0.0, 0.10, 0.0, 0.90, 0.40, 0.15, 0.10, 0.0]
+      },
+      "llm_raw": {
+        "classification": "missing",
+        "matched_course_skill_id": null,
+        "evidence": null,
+        "reason": "Skor kemiripan di bawah sim_floor."
+      },
+      "ground_truth": "missing"
+    },
+    {
+      "id": 23,
+      "skill": "TypeScript",
+      "category": "language",
+      "aliases": ["TS"],
+      "job_requirement": "Mengembangkan aplikasi enterprise dengan TypeScript",
+      "job_vector": [0.0, 0.10, 0.0, 0.85, 0.50, 0.0, 0.0, 0.0],
+      "candidate": {
+        "id": 123,
+        "competency": "Menulis query SQL pada basis data MySQL",
+        "evidence": "Menulis query SQL pada basis data MySQL",
+        "verification_status": "verified",
+        "vector": [0.10, 0.10, 0.85, 0.35, 0.25, 0.0, 0.0, 0.0]
+      },
+      "llm_raw": {
+        "classification": "missing",
+        "matched_course_skill_id": null,
+        "evidence": null,
+        "reason": "Skor kemiripan di bawah sim_floor."
+      },
+      "ground_truth": "missing"
+    },
+    {
+      "id": 24,
+      "skill": "Node.js",
+      "category": "framework",
+      "aliases": ["NodeJS", "Node"],
+      "job_requirement": "Mengembangkan layanan mikro berbasis event-driven dengan Node.js",
+      "job_vector": [0.60, 0.60, 0.10, 0.45, 0.0, 0.0, 0.0, 0.25],
+      "candidate": {
+        "id": 124,
+        "competency": "Memahami protokol HTTP dan arsitektur client-server dasar",
+        "evidence": "Memahami protokol HTTP dan arsitektur client-server dasar",
+        "verification_status": "verified",
+        "vector": [0.45, 0.55, 0.30, 0.20, 0.40, 0.0, 0.0, 0.45]
+      },
+      "llm_raw": {
+        "classification": "covered",
+        "matched_course_skill_id": 9999,
+        "evidence": "Memahami protokol HTTP dan arsitektur client-server dasar",
+        "reason": "LLM mengembalikan ID kandidat di luar top-K (9999), sehingga guardrail menolak dan mengubah menjadi missing."
+      },
+      "ground_truth": "missing"
+    }
+  ]
+}

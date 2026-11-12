@@ -14,6 +14,7 @@ use App\Models\Skill;
 use App\Models\SkillMatch;
 use App\Modules\Matching\Services\CandidateFinder;
 use App\Modules\Matching\Services\MatchJudge;
+use App\Modules\Recommendation\Jobs\GenerateRecommendationsJob;
 use App\Modules\Rps\Enums\ExtractionStatus;
 use App\Modules\Rps\Enums\ReviewStatus;
 use Illuminate\Bus\Queueable;
@@ -226,7 +227,7 @@ class RunAnalysisJob implements ShouldQueue
                 'error_message' => null,
             ]);
 
-            \App\Modules\Recommendation\Jobs\GenerateRecommendationsJob::dispatch($analysis->id);
+            GenerateRecommendationsJob::dispatch($analysis->id);
         } catch (Throwable $e) {
             $analysis->update([
                 'status' => AnalysisStatus::Failed,
