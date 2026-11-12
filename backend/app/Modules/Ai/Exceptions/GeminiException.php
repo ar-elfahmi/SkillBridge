@@ -8,8 +8,8 @@ use RuntimeException;
 
 final class GeminiException extends RuntimeException
 {
-    public function __construct()
+    public function __construct(string $message = 'Layanan AI gagal memproses permintaan. Silakan coba lagi.')
     {
-        parent::__construct('Layanan AI gagal memproses permintaan. Silakan coba lagi.');
+        parent::__construct($message);
     }
 }

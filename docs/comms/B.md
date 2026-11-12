@@ -6,9 +6,30 @@
 - [x] T2.4 `GeminiClient` + `ai_runs` — selesai, di-merge ke `main` (PR #20).
 - [x] T2.5 `ExtractRpsMetadataJob` + endpoint RPS GET/PATCH/DELETE — selesai, di-merge ke `main` (PR #22).
 - [x] T3.2 `SkillNormalizer` & T3.3 `EvidenceVerifier` — selesai, di-merge ke `main` (PR #23).
-- [x] T3.4 `ExtractCompetenciesJob` + endpoint RPS extract & competencies — implementasi dan verifikasi selesai (branch `feat/T3.4-extract-competencies`); siap review & PR.
+- [x] T3.4 `ExtractCompetenciesJob` + endpoint RPS extract & competencies — selesai, di-merge ke `main` (PR #24).
+- [x] T4.1 `EmbeddingService`, T4.2 `Support/Cosine`, & T4.3 integrasi embedding — implementasi dan verifikasi selesai (branch `feat/T4.1-T4.3-embedding`); siap review & PR.
 
 ## Handoff
+
+#### HO-B-006 · 2026-11-12 · T4.1, T4.2, T4.3 · untuk: B (T5.3, T6.2), A
+- `Cosine` terpasang di `backend/app/Support/Cosine.php`:
+  - `Cosine::similarity(array $a, array $b): float`: menghitung kemiripan kosinus numerik presisi tinggi dengan validasi dimensi, proteksi vektor nol, dan clamping `[-1.0, 1.0]`.
+  - `Cosine::l2Normalize(array $vector): array`: normalisasi vektor ke panjang unit (norm L2 = 1.0).
+  - `Cosine::dotProduct(array $a, array $b): float`: operasi *dot product* langsung untuk vektor ternormalisasi.
+  - 11 unit test numerik lulus (`backend/tests/Unit/Support/CosineTest.php`).
+- `EmbeddingService` terpasang di `backend/app/Modules/Ai/EmbeddingService.php`:
+  - Menghasilkan vektor embedding melalui endpoint Gemini `:batchEmbedContents` (model: `gemini-embedding-001`, dimensi: 768, taskType: `SEMANTIC_SIMILARITY`).
+  - Seluruh vektor dinormalisasi L2 (`Cosine::l2Normalize`) sebelum disimpan dan dikembalikan.
+  - Caching cerdas lintas-tabel: memeriksa kecocokan `(text_hash, embedding_model, embedding_dimensions)` pada tabel `course_skills` dan `job_skills`. *Cache hit* tidak melakukan panggilan ke API eksternal. Perubahan model atau dimensi secara otomatis memicu pembuatan embedding baru.
+  - Metode batching: `embed(string $text)`, `embedBatch(array $texts)`, `embedCourseSkills(iterable $courseSkills)`, dan `embedJobSkills(iterable $jobSkills)`.
+  - Pencatatan audit ke `ai_runs` (`purpose = 'embedding'`).
+  - 9 feature test komprehensif lulus (`backend/tests/Feature/Ai/EmbeddingServiceTest.php`).
+- Integrasi ke `ExtractCompetenciesJob` (T4.3):
+  - Memanggil `EmbeddingService::embedCourseSkills()` di akhir ekstraksi kompetensi RPS.
+  - Format teks embedding: `"{canonical_skill}: {competency}"` (sesuai `docs/AI_PIPELINE.md §4`).
+  - Mengisi atribut `embedding`, `embedding_model`, `embedding_dimensions`, dan `text_hash` pada model `CourseSkill`.
+- Seluruh pengujian backend: Unit Support (11 tests), Feature AI (54 tests), Feature Competency (47 tests) lulus 100%. Pint `--test` lulus.
+- Breaking change: tidak.
 
 #### HO-B-005 · 2026-11-12 · T3.4 · untuk: A, C, B (T3.5, T4.3)
 - `ExtractCompetenciesJob` terpasang di `backend/app/Modules/Competency/Jobs/ExtractCompetenciesJob.php`:

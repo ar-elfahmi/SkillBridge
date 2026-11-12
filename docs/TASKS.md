@@ -46,10 +46,10 @@ Dok: `AI_PIPELINE.md §3`, `DATABASE.md (skills, course_skills)`
 
 ## Fase 4 — Embedding
 Dok: `AI_PIPELINE.md §4`
-- [ ] **T4.1** `EmbeddingService`: batch, normalisasi L2, `text_hash`, cache lintas `course_skills`/`job_skills`, simpan model & dimensi.
+- [x] **T4.1** `EmbeddingService`: batch, normalisasi L2, `text_hash`, cache lintas `course_skills`/`job_skills`, simpan model & dimensi.
   *Terima:* cache hit tidak memanggil API; model/dimensi berbeda memanggil ulang.
-- [ ] **T4.2** `Support/Cosine` + test numerik.
-- [ ] **T4.3** Sambungkan embedding ke akhir `ExtractCompetenciesJob`.
+- [x] **T4.2** `Support/Cosine` + test numerik.
+- [x] **T4.3** Sambungkan embedding ke akhir `ExtractCompetenciesJob`.
 
 ## Fase 5 — Industri (profesi & lowongan)
 Dok: `API.md §4`, `AI_PIPELINE.md §5`
