@@ -32,6 +32,8 @@ class ExtractCompetenciesJobTest extends TestCase
 
     private const URL = 'https://generativelanguage.googleapis.com/v1beta/models/test-flash:generateContent';
 
+    private const EMBED_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-embedding-001:batchEmbedContents';
+
     protected function setUp(): void
     {
         parent::setUp();
@@ -39,11 +41,26 @@ class ExtractCompetenciesJobTest extends TestCase
         config([
             'skillbridge.gemini.api_key' => 'fake-test-key',
             'skillbridge.gemini.flash_model' => 'test-flash',
+            'skillbridge.gemini.embedding_model' => 'gemini-embedding-001',
+            'skillbridge.gemini.embedding_dimensions' => 768,
             'skillbridge.gemini.timeout_seconds' => 30,
         ]);
 
         Http::preventStrayRequests();
         Sleep::fake();
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function geminiEmbeddingResponse(int $count = 5): array
+    {
+        $embeddings = [];
+        for ($i = 0; $i < $count; $i++) {
+            $embeddings[] = ['values' => array_fill(0, 768, 0.5)];
+        }
+
+        return ['embeddings' => $embeddings];
     }
 
     /**
@@ -109,6 +126,7 @@ class ExtractCompetenciesJobTest extends TestCase
 
         Http::fake([
             self::URL => Http::response($this->geminiSuccessResponse($mockPayload)),
+            self::EMBED_URL => Http::response($this->geminiEmbeddingResponse()),
         ]);
 
         $job = new ExtractCompetenciesJob($document->id);
@@ -141,12 +159,24 @@ class ExtractCompetenciesJobTest extends TestCase
         $this->assertSame(CompetencyReviewStatus::Pending, $item->review_status);
         $this->assertFalse($item->user_edited);
 
+        // Verify embedding fields (T4.3)
+        $this->assertNotNull($item->embedding);
+        $this->assertCount(768, $item->embedding);
+        $this->assertSame('gemini-embedding-001', $item->embedding_model);
+        $this->assertSame(768, $item->embedding_dimensions);
+        $this->assertNotNull($item->text_hash);
+
         // Verify ai_runs audit was recorded
         $run = AiRun::where('purpose', 'rps_extraction')->first();
         $this->assertNotNull($run);
         $this->assertSame('test-flash', $run->model);
         $this->assertSame('rps-extract-v1', $run->prompt_version);
         $this->assertSame('success', $run->status);
+
+        $embedRun = AiRun::where('purpose', 'embedding')->first();
+        $this->assertNotNull($embedRun);
+        $this->assertSame('gemini-embedding-001', $embedRun->model);
+        $this->assertSame('success', $embedRun->status);
 
         Http::assertSent(function (Request $request): bool {
             return $request->url() === self::URL
@@ -185,6 +215,7 @@ class ExtractCompetenciesJobTest extends TestCase
 
         Http::fake([
             self::URL => Http::response($this->geminiSuccessResponse($mockPayload)),
+            self::EMBED_URL => Http::response($this->geminiEmbeddingResponse()),
         ]);
 
         $job = new ExtractCompetenciesJob($document->id);
@@ -232,6 +263,7 @@ class ExtractCompetenciesJobTest extends TestCase
 
         Http::fake([
             self::URL => Http::response($this->geminiSuccessResponse($mockPayload)),
+            self::EMBED_URL => Http::response($this->geminiEmbeddingResponse()),
         ]);
 
         $job = new ExtractCompetenciesJob($document->id);
@@ -296,6 +328,7 @@ class ExtractCompetenciesJobTest extends TestCase
 
         Http::fake([
             self::URL => Http::response($this->geminiSuccessResponse($mockPayload)),
+            self::EMBED_URL => Http::response($this->geminiEmbeddingResponse()),
         ]);
 
         $job = new ExtractCompetenciesJob($document->id);
@@ -372,6 +405,7 @@ class ExtractCompetenciesJobTest extends TestCase
 
         Http::fake([
             self::URL => Http::response($this->geminiSuccessResponse($mockPayload)),
+            self::EMBED_URL => Http::response($this->geminiEmbeddingResponse()),
         ]);
 
         $job = new ExtractCompetenciesJob($document->id);
@@ -423,6 +457,7 @@ class ExtractCompetenciesJobTest extends TestCase
 
         Http::fake([
             self::URL => Http::response($this->geminiSuccessResponse($mockPayload)),
+            self::EMBED_URL => Http::response($this->geminiEmbeddingResponse()),
         ]);
 
         $job = new ExtractCompetenciesJob($document->id);

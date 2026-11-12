@@ -11,6 +11,7 @@ use App\Enums\SkillCategory;
 use App\Enums\VerificationStatus;
 use App\Models\CourseSkill;
 use App\Models\RpsDocument;
+use App\Modules\Ai\EmbeddingService;
 use App\Modules\Ai\Exceptions\GeminiException;
 use App\Modules\Ai\GeminiClient;
 use App\Modules\Competency\Services\EvidenceVerifier;
@@ -56,7 +57,9 @@ class ExtractCompetenciesJob implements ShouldQueue
         GeminiClient $gemini,
         SkillNormalizer $skillNormalizer,
         EvidenceVerifier $evidenceVerifier,
+        ?EmbeddingService $embeddingService = null,
     ): void {
+        $embeddingService ??= app(EmbeddingService::class);
         $document = RpsDocument::find($this->rpsDocumentId);
 
         if ($document === null || $document->parse_status !== ParseStatus::Parsed) {
@@ -253,12 +256,18 @@ class ExtractCompetenciesJob implements ShouldQueue
                         'text_hash' => null,
                     ]);
                 }
-
-                $document->update([
-                    'extraction_status' => ExtractionStatus::Completed,
-                    'error_message' => null,
-                ]);
             });
+
+            // Step 6: Generate and attach embeddings (T4.3)
+            $courseSkills = $document->courseSkills()->with('skillEntry')->get();
+            if ($courseSkills->isNotEmpty()) {
+                $embeddingService->embedCourseSkills($courseSkills, $document);
+            }
+
+            $document->update([
+                'extraction_status' => ExtractionStatus::Completed,
+                'error_message' => null,
+            ]);
         } catch (Throwable $e) {
             $document->update([
                 'extraction_status' => ExtractionStatus::Failed,
