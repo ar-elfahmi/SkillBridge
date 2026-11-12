@@ -33,6 +33,17 @@ class RpsDocumentResource extends JsonResource
                 'semester' => $this->course->semester,
                 'study_program' => $this->course->study_program,
             ],
+            'detected_metadata' => $this->detected_metadata === null ? null : [
+                'code' => $this->detected_metadata['code'] ?? null,
+                'name' => $this->detected_metadata['name'] ?? null,
+                'credits' => isset($this->detected_metadata['credits']) && $this->detected_metadata['credits'] !== null
+                    ? (int) $this->detected_metadata['credits']
+                    : null,
+                'semester' => isset($this->detected_metadata['semester']) && $this->detected_metadata['semester'] !== null
+                    ? (int) $this->detected_metadata['semester']
+                    : null,
+                'study_program' => $this->detected_metadata['study_program'] ?? null,
+            ],
             'page_count' => $this->page_count,
             'error_message' => $this->error_message,
             'created_at' => $this->created_at?->toIso8601String(),
