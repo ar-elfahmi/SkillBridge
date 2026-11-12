@@ -5,9 +5,27 @@
 ## Status
 - [x] T2.4 `GeminiClient` + `ai_runs` — selesai, di-merge ke `main` (PR #20).
 - [x] T2.5 `ExtractRpsMetadataJob` + endpoint RPS GET/PATCH/DELETE — selesai, di-merge ke `main` (PR #22).
-- [x] T3.2 `SkillNormalizer` & T3.3 `EvidenceVerifier` — implementasi dan verifikasi selesai (branch `feat/T3.2-skill-normalizer`); siap review & PR.
+- [x] T3.2 `SkillNormalizer` & T3.3 `EvidenceVerifier` — selesai, di-merge ke `main` (PR #23).
+- [x] T3.4 `ExtractCompetenciesJob` + endpoint RPS extract & competencies — implementasi dan verifikasi selesai (branch `feat/T3.4-extract-competencies`); siap review & PR.
 
 ## Handoff
+
+#### HO-B-005 · 2026-11-12 · T3.4 · untuk: A, C, B (T3.5, T4.3)
+- `ExtractCompetenciesJob` terpasang di `backend/app/Modules/Competency/Jobs/ExtractCompetenciesJob.php`:
+  - Membaca seluruh halaman `rps_pages` dalam chunks (15 halaman per chunk) dengan penanda `[[PAGE n]]`.
+  - Menggunakan prompt template `backend/resources/prompts/rps-extract-v1.txt` dan Gemini Structured Outputs (`purpose = rps_extraction`, `prompt_version = rps-extract-v1`, `subject = RpsDocument`).
+  - Memvalidasi skema respons JSON `{course, competencies: [{skill, category, competency, evidence, source_type, source_reference, week, page}]}`. Skema invalid menghasilkan retry otomatis dan bila gagal menjadi `extraction_status = failed` dengan pesan error yang aman.
+  - Memverifikasi bukti via `EvidenceVerifier` (T3.3): bukti cocok menghasilkan `verification_status = verified` (dengan koreksi halaman); bukti fiktif/tidak ditemukan menghasilkan `unverified` dan `page = null` (tidak dipercaya).
+  - Menormalisasi nama skill via `SkillNormalizer` (T3.2): memetakan ke entri `Skill` kanonik di database (case-insensitive & via aliases JSONB) atau membuat `Skill` baru secara otomatis.
+  - Deduplikasi: menggabungkan item dengan pasangan `skill_id` + `source_reference` sama, memprioritaskan rekaman terverifikasi.
+  - Menyimpan ke `course_skills` di dalam DB transaction secara idempoten (`origin = ai`, `review_status = pending`, `user_edited = false`).
+  - Konfigurasi job: `tries = 3`, backoff `[5, 15, 30]`, middleware `WithoutOverlapping(rpsDocumentId)`.
+- Endpoint terpasang di `backend/routes/api/rps.php` (ditangani `CompetencyController`):
+  - `POST /api/rps/{id}/extract` (202 Accepted): Gerbang konfirmasi metadata. Membuat atau mencocokkan `courses` berdasarkan kode unik `code`, memperbarui `course_id`, `metadata_confirmed_at`, dan status `processing`, lalu mendispatch `ExtractCompetenciesJob`. Validasi: non-owner (404), belum parsed (422), kode kosong (422), sedang diproses (422).
+  - `GET /api/rps/{id}/competencies` (200 OK): Mengembalikan daftar seluruh kompetensi dokumen RPS terurut ID, termasuk field `canonical_skill` dari model `Skill`, badge `verification_status`, `origin`, `review_status`, dan `user_edited` sesuai kontrak `docs/API.md §3`. Kompetensi `rejected` tetap disertakan.
+- `CourseSkillResource` di `backend/app/Modules/Competency/Http/Resources/CourseSkillResource.php`.
+- Seluruh 47 test di `backend/tests/Feature/Competency/` lulus (321 assertion). 62 test di `backend/tests/Feature/Rps/` lulus. Pint `--test` lulus.
+- Breaking change: tidak; mengimplementasikan rute baru sesuai kontrak API.
 
 #### HO-B-004 · 2026-11-12 · T3.2 & T3.3 · untuk: B (T3.4), A
 - `SkillNormalizer` terpasang di `backend/app/Modules/Competency/Services/SkillNormalizer.php`:

@@ -38,7 +38,7 @@ Dok: `AI_PIPELINE.md §3`, `DATABASE.md (skills, course_skills)`
 - [x] **T3.1** Migrasi `skills`, `course_skills`; seeder kamus awal (Laravel Framework, Git, REST API, Docker, dst.) dengan aliases.
 - [x] **T3.2** `SkillNormalizer` (alias → kanonik, buat baru bila perlu) + test.
 - [x] **T3.3** `EvidenceVerifier` (normalisasi teks, substring per halaman) + test halusinasi.
-- [ ] **T3.4** `ExtractCompetenciesJob`: prompt `rps-extract-v1`, validasi skema, verifikasi bukti, normalisasi, dedup, simpan. `POST /api/rps/{id}/extract`, `GET /api/rps/{id}/competencies`.
+- [x] **T3.4** `ExtractCompetenciesJob`: prompt `rps-extract-v1`, validasi skema, verifikasi bukti, normalisasi, dedup, simpan. `POST /api/rps/{id}/extract`, `GET /api/rps/{id}/competencies`.
   *Terima:* skema invalid → retry → `failed`; bukti palsu → `unverified`.
 - [ ] **T3.5** Frontend `/rps/:id`: status, tabel kompetensi, bukti, badge verifikasi.
 - [ ] **T3.6** Konfirmasi hasil ekstraksi. Migrasi kolom `rps_documents.review_status/reviewed_at` dan `course_skills.origin/review_status/user_edited` (+ `evidence` nullable). Endpoint `PATCH/POST/DELETE .../competencies`, `POST /api/rps/{id}/confirm-review`; edit memicu embedding ulang; update `RunAnalysisJob`/prasyarat. Frontend `CompetencyReviewTable` + tombol konfirmasi.
