@@ -24,7 +24,7 @@ class DatabaseSeeder extends Seeder
 
         $seeders = [SkillSeeder::class, CareerSeeder::class, SampleJobPostingSeeder::class];
 
-        if (env('SEED_PARTS_JOBS', false) && ! app()->runningUnitTests()) {
+        if (! app()->runningUnitTests() && (bool) env('SEED_PARTS_JOBS', true) && PartsJobPostingSeeder::resolvePartsDirectory() !== null) {
             $seeders[] = PartsJobPostingSeeder::class;
         }
 
