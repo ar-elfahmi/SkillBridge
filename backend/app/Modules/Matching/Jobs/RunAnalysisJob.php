@@ -225,6 +225,8 @@ class RunAnalysisJob implements ShouldQueue
                 'model_versions' => $modelVersions,
                 'error_message' => null,
             ]);
+
+            \App\Modules\Recommendation\Jobs\GenerateRecommendationsJob::dispatch($analysis->id);
         } catch (Throwable $e) {
             $analysis->update([
                 'status' => AnalysisStatus::Failed,
