@@ -8,9 +8,43 @@
 - [x] T3.2 `SkillNormalizer` & T3.3 `EvidenceVerifier` — selesai, di-merge ke `main` (PR #23).
 - [x] T3.4 `ExtractCompetenciesJob` + endpoint RPS extract & competencies — selesai, di-merge ke `main` (PR #24).
 - [x] T4.1 `EmbeddingService`, T4.2 `Support/Cosine`, & T4.3 integrasi embedding — selesai, di-merge ke `main` (PR #25).
-- [x] T5.3 `ExtractJobSkillsJob` + endpoint jobs & careers — implementasi dan verifikasi selesai (branch `feat/T5.3-job-skills-and-endpoints`); siap review & PR.
+- [x] T5.3 `ExtractJobSkillsJob` + endpoint jobs & careers — selesai, di-merge ke `main` (PR #26).
+- [x] T6.2 `CandidateFinder`, T6.3 `MatchJudge` & `ClassificationGuardrails`, T6.4 `RunAnalysisJob` & Endpoints Analisis — implementasi dan verifikasi selesai (branch `feat/T6-matching-and-analysis`); siap review & PR.
 
 ## Handoff
+
+#### HO-B-008 · 2026-11-12 · T6.2, T6.3, T6.4 · untuk: A, C, B (T7.2-T7.4)
+- `CandidateFinder` terpasang di `backend/app/Modules/Matching/Services/CandidateFinder.php`:
+  - Pencarian top-K kandidat kompetensi RPS berdasarkan cosine similarity terhadap vektor target embedding skill industri.
+  - Mengabaikan kandidat dengan embedding kosong/null, menangani dimensi berbeda & zero vector secara aman via `Cosine::similarity`.
+  - Mengurutkan skor secara descending dengan tie-breaker deterministik (`course_skill_id` ascending).
+  - 6 unit test numerik lulus (`backend/tests/Unit/Matching/CandidateFinderTest.php`).
+- `MatchJudge` dan `ClassificationGuardrails` terpasang di `backend/app/Modules/Matching/Services/`:
+  - Menggunakan prompt template `backend/resources/prompts/match-judge-v1.txt` (`purpose = 'match_judge'`).
+  - Ambang batas minimum `sim_floor` (default 0.50): skor di bawah floor langsung diklasifikasikan sebagai `missing` (`judged_by = rule`) tanpa panggilan API LLM (hemat kuota dan latensi).
+  - Guardrail deterministik Laravel (`ClassificationGuardrails`):
+    - Skor di bawah `sim_floor` tidak boleh menghasilkan selain `missing`.
+    - `matched_course_skill_id` harus valid dan terdapat dalam daftar kandidat top-K (jika tidak valid -> diubah menjadi `missing`).
+    - Verifikasi bukti substring terhadap teks kompetensi atau bukti kandidat via `EvidenceVerifier` (jika tidak cocok -> `covered` diturunkan ke `partial` dan `evidence` dikosongkan).
+    - Skill kategori teknologi spesifik (`isTechnologySpecific()`: language, framework, tool) wajib memuat nama teknologi atau alias pada kompetensi/bukti (jika tidak -> diturunkan ke `partial`).
+    - Kompetensi `unverified` tidak boleh menghasilkan `covered` (maksimal `partial`).
+  - 6 feature test komprehensif lulus (`backend/tests/Feature/Matching/MatchJudgeTest.php`).
+- `RunAnalysisJob` terpasang di `backend/app/Modules/Matching/Jobs/RunAnalysisJob.php`:
+  - Validasi prasyarat teknis: RPS berstatus `completed` & `confirmed`, dan seluruh lowongan kerja terpilih berstatus `completed`.
+  - Agregasi skill industri per `skill_id`: menghitung `demand_count` unik per lowongan, memilih perwakilan `JobSkill` dengan deskripsi persyaratan terpanjang sebagai target embedding, dan mengumpulkan semua `source_job_skill_ids`.
+  - Menjalankan pencocokan top-K dan penilaian hakim AI ber-guardrail untuk setiap skill unik di dalam transaksi DB idempoten.
+  - Menghitung ringkasan `summary`: `total_skills`, `covered`, `partial`, `missing`, dan `coverage_percentage` (`covered / total_skills * 100`, partial tidak dihitung).
+  - Mencatat jejak audit `model_versions` (`judge_model`, `embedding_model`, `embedding_dimensions`, `prompt_version`, `sim_floor`, `sim_high`, `top_k`).
+  - 2 feature test lulus (`backend/tests/Feature/Matching/RunAnalysisJobTest.php`).
+- Endpoints Analisis & Skill Gap di `backend/routes/api/analyses.php` (di-load di `backend/routes/api.php`):
+  - `POST /api/analyses` (202 Accepted): validasi input FormRequest `StoreAnalysisRequest`, validasi kepemilikan RPS (non-owner 404), verifikasi kesesuaian `career_id` seluruh lowongan, dispatch `RunAnalysisJob`.
+  - `GET /api/analyses` (200 OK): daftar riwayat analisis terpaginasi milik pengguna (`AnalysisResource`).
+  - `GET /api/analyses/{id}` (200 OK): status, ringkasan `summary`, nama profesi, nama mata kuliah, dan `model_versions` (non-owner 404 via `AnalysisPolicy`).
+  - `GET /api/analyses/{id}/matches` (200 OK): rincian pemetaan per skill industri, bukti lowongan kerja (`job_evidence`), kompetensi RPS yang cocok (`matched_competency`), skor kemiripan, dan flag `self_declared` (`SkillMatchResource`).
+  - `DELETE /api/analyses/{id}` (204 No Content): penghapusan analisis beserta relasi matches (cascade).
+  - 8 feature test lulus (`backend/tests/Feature/Matching/AnalysisApiTest.php`).
+- Seluruh 23 test modul Matching lulus 100% (94 assertions). Seluruh pengujian backend regresi (174 tests, 979 assertions) lulus 100%. Pint code style lulus.
+- Breaking change: tidak. Sesuai kontrak `docs/API.md §5`.
 
 #### HO-B-007 · 2026-11-12 · T5.3 · untuk: A, C, B (T6.2, T6.4)
 - `ExtractJobSkillsJob` terpasang di `backend/app/Modules/Industry/Jobs/ExtractJobSkillsJob.php`:
