@@ -273,13 +273,6 @@ class EmbeddingService
      */
     private function callGeminiBatchEmbed(array $texts, string $model, int $dimensions, ?Model $subject): array
     {
-        $key = config('skillbridge.gemini.api_key');
-        $timeout = (int) config('skillbridge.gemini.timeout_seconds', 60);
-
-        if (! is_string($key) || trim($key) === '') {
-            throw new GeminiException('Kunci API Gemini belum dikonfigurasi.');
-        }
-
         $requests = [];
         $cleanModel = ltrim($model, 'models/');
 
@@ -302,6 +295,22 @@ class EmbeddingService
             $inputHash = hash('sha256', json_encode($payload, JSON_THROW_ON_ERROR));
         } catch (JsonException) {
             throw new InvalidArgumentException('Parameter embedding tidak valid.');
+        }
+
+        $mode = strtolower(trim((string) config('skillbridge.gemini.mode', 'gemini')));
+        if ($mode === 'offline') {
+            return $this->runOfflineBatchEmbed($texts, $model, $dimensions, $inputHash, $subject);
+        }
+
+        $key = config('skillbridge.gemini.api_key');
+        $timeout = (int) config('skillbridge.gemini.timeout_seconds', 60);
+
+        if (! is_string($key) || trim($key) === '') {
+            if (in_array($mode, ['fallback', 'auto'], true)) {
+                return $this->runOfflineBatchEmbed($texts, $model, $dimensions, $inputHash, $subject);
+            }
+
+            throw new GeminiException('Kunci API Gemini belum dikonfigurasi.');
         }
 
         for ($attempt = 1; $attempt <= 3; $attempt++) {
@@ -365,6 +374,10 @@ class EmbeddingService
 
             $retryable = $response === null || in_array($response->status(), [408, 429], true) || $response->serverError();
             if (! $retryable || $attempt === 3) {
+                if (in_array($mode, ['fallback', 'auto'], true)) {
+                    return $this->runOfflineBatchEmbed($texts, $model, $dimensions, $inputHash, $subject);
+                }
+
                 throw new GeminiException;
             }
 
@@ -372,5 +385,35 @@ class EmbeddingService
         }
 
         throw new GeminiException;
+    }
+
+    /**
+     * @param  list<string>  $texts
+     * @return list<list<float>>
+     */
+    private function runOfflineBatchEmbed(
+        array $texts,
+        string $model,
+        int $dimensions,
+        string $inputHash,
+        ?Model $subject,
+    ): array {
+        $started = hrtime(true);
+        $vectors = (new OfflineAiEngine)->embedBatch($texts, $dimensions);
+
+        AiRun::create([
+            'purpose' => 'embedding',
+            'model' => $model,
+            'prompt_version' => null,
+            'input_hash' => $inputHash,
+            'status' => 'success',
+            'latency_ms' => (int) ((hrtime(true) - $started) / 1_000_000),
+            'usage' => null,
+            'error' => null,
+            'subject_type' => $subject?->getMorphClass(),
+            'subject_id' => $subject?->getKey(),
+        ]);
+
+        return $vectors;
     }
 }
