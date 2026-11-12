@@ -26,3 +26,4 @@ Route::middleware('auth:sanctum')->group(function (): void {
 
 require __DIR__.'/api/rps.php';
 require __DIR__.'/api/industry.php';
+require __DIR__.'/api/analyses.php';
