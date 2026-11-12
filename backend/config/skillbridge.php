@@ -17,6 +17,8 @@ return [
 
     // --- AI (Modules/Ai) ---
     'gemini' => [
+        // Execution mode: "gemini" (strict cloud API), "offline" (100% local PHP engine), or "fallback" (cloud with local fallback).
+        'mode' => env('SKILLBRIDGE_AI_MODE', 'gemini'),
         // Backend only. Never expose to frontend, logs or commits.
         'api_key' => env('GEMINI_API_KEY'),
         // Model names change over time: always set from env, never hardcode.

@@ -29,16 +29,6 @@ final class GeminiClient
         ?Model $subject = null,
         array $responseSchema = [],
     ): array {
-        $key = config('skillbridge.gemini.api_key');
-        $model = config('skillbridge.gemini.flash_model');
-        $timeout = config('skillbridge.gemini.timeout_seconds');
-
-        if (! is_string($key) || trim($key) === ''
-            || ! is_string($model) || ! preg_match('/\A[a-zA-Z0-9][a-zA-Z0-9._-]{0,254}\z/', $model)
-            || ! is_int($timeout) || $timeout < 1) {
-            throw new GeminiException;
-        }
-
         if (! in_array($purpose, ['rps_metadata', 'rps_extraction', 'job_extraction', 'match_judge', 'recommendation'], true)
             || trim($prompt) === '' || strlen($prompt) > 100_000
             || ($promptVersion !== null && ! preg_match('/\A[a-zA-Z0-9][a-zA-Z0-9._-]{0,254}\z/', $promptVersion))
@@ -59,6 +49,27 @@ final class GeminiClient
             $inputHash = hash('sha256', json_encode($payload, JSON_THROW_ON_ERROR));
         } catch (JsonException) {
             throw new InvalidArgumentException('Parameter panggilan AI tidak valid.');
+        }
+
+        $mode = strtolower(trim((string) config('skillbridge.gemini.mode', 'gemini')));
+        if ($mode === 'offline') {
+            return $this->runOffline($purpose, $prompt, $promptVersion, $inputHash, $subject);
+        }
+
+        $key = config('skillbridge.gemini.api_key');
+        $model = config('skillbridge.gemini.flash_model');
+        $timeout = config('skillbridge.gemini.timeout_seconds');
+
+        $hasValidConfig = is_string($key) && trim($key) !== ''
+            && is_string($model) && preg_match('/\A[a-zA-Z0-9][a-zA-Z0-9._-]{0,254}\z/', $model)
+            && is_int($timeout) && $timeout >= 1;
+
+        if (! $hasValidConfig) {
+            if (in_array($mode, ['fallback', 'auto'], true)) {
+                return $this->runOffline($purpose, $prompt, $promptVersion, $inputHash, $subject);
+            }
+
+            throw new GeminiException;
         }
 
         for ($attempt = 1; $attempt <= 3; $attempt++) {
@@ -113,6 +124,10 @@ final class GeminiClient
             $retryable = $response === null || in_array($response->status(), [408, 429], true) || $response->serverError();
 
             if (! $retryable || $attempt === 3) {
+                if (in_array($mode, ['fallback', 'auto'], true)) {
+                    return $this->runOffline($purpose, $prompt, $promptVersion, $inputHash, $subject);
+                }
+
                 throw new GeminiException;
             }
 
@@ -120,6 +135,35 @@ final class GeminiClient
         }
 
         throw new GeminiException;
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function runOffline(
+        string $purpose,
+        #[SensitiveParameter] string $prompt,
+        ?string $promptVersion,
+        string $inputHash,
+        ?Model $subject,
+    ): array {
+        $started = hrtime(true);
+        $data = (new OfflineAiEngine)->generateEnvelope($purpose, $prompt);
+
+        AiRun::create([
+            'purpose' => $purpose,
+            'model' => 'offline-local-v1',
+            'prompt_version' => $promptVersion,
+            'input_hash' => $inputHash,
+            'status' => 'success',
+            'latency_ms' => (int) ((hrtime(true) - $started) / 1_000_000),
+            'usage' => $data['usageMetadata'] ?? null,
+            'error' => null,
+            'subject_type' => $subject?->getMorphClass(),
+            'subject_id' => $subject?->getKey(),
+        ]);
+
+        return $data;
     }
 
     private function responseError(mixed $data): ?string

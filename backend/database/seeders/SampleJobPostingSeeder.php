@@ -7,9 +7,9 @@ namespace Database\Seeders;
 use App\Models\JobPosting;
 use App\Models\JobSkill;
 use App\Models\Skill;
+use App\Modules\Ai\OfflineAiEngine;
 use App\Modules\Industry\Services\JobPostingImporter;
 use App\Modules\Rps\Enums\ExtractionStatus;
-use App\Support\Cosine;
 use Illuminate\Database\Seeder;
 use RuntimeException;
 
@@ -47,6 +47,7 @@ class SampleJobPostingSeeder extends Seeder
         $skillsByName = Skill::all()->keyBy(fn (Skill $s) => mb_strtolower($s->canonical_name));
         $model = (string) config('skillbridge.gemini.embedding_model', 'gemini-embedding-001');
         $dimensions = (int) config('skillbridge.gemini.embedding_dimensions', 768);
+        $offlineEngine = new OfflineAiEngine;
 
         foreach ($this->sampleSkillsByTitle() as $title => $skillItems) {
             $posting = JobPosting::query()
@@ -76,7 +77,7 @@ class SampleJobPostingSeeder extends Seeder
                         'skill' => $item['raw_skill'],
                         'requirement_text' => $item['requirement_text'],
                         'evidence' => $item['evidence'],
-                        'embedding' => $this->deterministicEmbedding($textHash, $dimensions),
+                        'embedding' => $offlineEngine->embedText($embedText, $dimensions),
                         'embedding_model' => $model,
                         'embedding_dimensions' => $dimensions,
                         'text_hash' => $textHash,
@@ -88,25 +89,6 @@ class SampleJobPostingSeeder extends Seeder
                 'extraction_status' => ExtractionStatus::Completed,
             ]);
         }
-    }
-
-    /**
-     * Generates a deterministic L2-normalized vector from a SHA-256 hash seed
-     * so offline seeding never triggers external HTTP calls.
-     *
-     * @return list<float>
-     */
-    private function deterministicEmbedding(string $seedHash, int $dimensions): array
-    {
-        $dim = max(1, $dimensions);
-        $raw = [];
-        for ($i = 0; $i < $dim; $i++) {
-            $chunk = substr(hash('sha256', "{$seedHash}:{$i}"), 0, 8);
-            $intVal = (int) hexdec($chunk);
-            $raw[] = (($intVal / 0xFFFFFFFF) * 2.0) - 1.0;
-        }
-
-        return Cosine::l2Normalize($raw);
     }
 
     /**

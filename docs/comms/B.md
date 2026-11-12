@@ -11,9 +11,20 @@
 - [x] T5.3 `ExtractJobSkillsJob` + endpoint jobs & careers — selesai, di-merge ke `main` (PR #26).
 - [x] T6.2 `CandidateFinder`, T6.3 `MatchJudge` & `ClassificationGuardrails`, T6.4 `RunAnalysisJob` & Endpoints Analisis — selesai, di-merge ke `main` (PR #27).
 - [x] T7.2 `GenerateRecommendationsJob`, T7.3 Endpoint GET recommendations — selesai, di-merge ke `main` (PR #28).
-- [x] T3.6 (Backend) Endpoint Review & Konfirmasi Kompetensi (`PATCH/POST/DELETE .../competencies`, `POST /api/rps/{id}/confirm-review`), Seeder Skill Lowongan Contoh, Command `skillbridge:extract-pending-jobs`, & T8.2 Golden Dataset + `skillbridge:evaluate` + `docs/CALIBRATION.md` — implementasi dan verifikasi selesai (branch `feat/T3.6-T8.2-review-seed-evaluate`).
+- [x] T3.6 (Backend) Endpoint Review & Konfirmasi Kompetensi (`PATCH/POST/DELETE .../competencies`, `POST /api/rps/{id}/confirm-review`), Seeder Skill Lowongan Contoh, Command `skillbridge:extract-pending-jobs`, & T8.2 Golden Dataset + `skillbridge:evaluate` + `docs/CALIBRATION.md` — selesai, di-merge ke `main` (PR #29).
+- [x] `OfflineAiEngine` (`SKILLBRIDGE_AI_MODE=gemini|offline|fallback`) — mesin AI lokal super-ringan di dalam Laravel (0 MB RAM ekstra, tanpa service eksternal) — implementasi dan verifikasi selesai (branch `feat/offline-ai-engine`).
 
 ## Handoff
+
+#### HO-B-011 · 2026-11-12 · Offline & Auto-Fallback AI Engine · untuk: A, C
+- `OfflineAiEngine` terpasang di `backend/app/Modules/Ai/OfflineAiEngine.php` dan terintegrasi langsung ke `GeminiClient` serta `EmbeddingService`:
+  - Konfigurasi via `.env` `SKILLBRIDGE_AI_MODE` (`config('skillbridge.gemini.mode')`):
+    - `gemini` (default): memanggil Gemini API secara ketat seperti semula (tidak mengubah perilaku default / test yang ada).
+    - `offline`: menjalankan seluruh pipeline AI (ekstraksi metadata RPS, ekstraksi kompetensi RPS, ekstraksi skill lowongan, embedding 768 dimensi berbasis *semantic feature hashing*, penilaian matching, dan rekomendasi belajar) **100% lokal di dalam PHP/Laravel** tanpa memanggil HTTP eksternal dan tanpa membutuhkan `GEMINI_API_KEY`.
+    - `fallback` (atau `auto`): menggunakan Gemini API bila tersedia, dan otomatis beralih ke `OfflineAiEngine` bila `GEMINI_API_KEY` kosong atau Gemini mengalami gangguan / limit kuota (`429`), sehingga demo dan produksi VPS dijamin bebas gagal.
+  - 0 MB tambahan RAM pada VPS dan tidak memerlukan instalasi Python/service baru saat deploy (100% patuh `docs/ARCHITECTURE.md`).
+  - 3 feature test *end-to-end* lulus (`backend/tests/Feature/Ai/OfflineAiEngineTest.php`).
+- Breaking change: tidak.
 
 #### HO-B-010 · 2026-11-12 · T3.6 (Backend), T5.2/T5.3, T8.2 · untuk: A, C
 - **T3.6 Backend Review & Konfirmasi Kompetensi** di `backend/app/Modules/Competency/Http/Controllers/CompetencyController.php` & `backend/routes/api/rps.php`:
