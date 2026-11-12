@@ -7,9 +7,35 @@
 - [x] T2.5 `ExtractRpsMetadataJob` + endpoint RPS GET/PATCH/DELETE — selesai, di-merge ke `main` (PR #22).
 - [x] T3.2 `SkillNormalizer` & T3.3 `EvidenceVerifier` — selesai, di-merge ke `main` (PR #23).
 - [x] T3.4 `ExtractCompetenciesJob` + endpoint RPS extract & competencies — selesai, di-merge ke `main` (PR #24).
-- [x] T4.1 `EmbeddingService`, T4.2 `Support/Cosine`, & T4.3 integrasi embedding — implementasi dan verifikasi selesai (branch `feat/T4.1-T4.3-embedding`); siap review & PR.
+- [x] T4.1 `EmbeddingService`, T4.2 `Support/Cosine`, & T4.3 integrasi embedding — selesai, di-merge ke `main` (PR #25).
+- [x] T5.3 `ExtractJobSkillsJob` + endpoint jobs & careers — implementasi dan verifikasi selesai (branch `feat/T5.3-job-skills-and-endpoints`); siap review & PR.
 
 ## Handoff
+
+#### HO-B-007 · 2026-11-12 · T5.3 · untuk: A, C, B (T6.2, T6.4)
+- `ExtractJobSkillsJob` terpasang di `backend/app/Modules/Industry/Jobs/ExtractJobSkillsJob.php`:
+  - Menggabungkan teks `description` dan `qualifications` lowongan kerja.
+  - Menggunakan prompt template `backend/resources/prompts/job-extract-v1.txt` (`purpose = 'job_extraction'`, `promptVersion = 'job-extract-v1'`, `subject = JobPosting`).
+  - Menggunakan Gemini Structured Outputs skema `{skills: [{skill, category, requirement_text, evidence}]}`.
+  - Verifikasi bukti kutipan anti-halusinasi via `EvidenceVerifier`: jika kutipan `evidence` tidak ditemukan sebagai substring dari teks lowongan (setelah normalisasi whitespace, smart quotes, dan hyphens), skill dibuang/diabaikan.
+  - Normalisasi nama skill ke kamus kanonik via `SkillNormalizer` (membuat entri `Skill` baru secara otomatis jika belum ada).
+  - Deduplikasi berdasarkan `skill_id`, menyimpan record dengan `requirement_text` terpanjang.
+  - Transaksi DB idempoten: menghapus `job_skills` sebelumnya dan menyimpan record baru.
+  - Menghasilkan vektor embedding via `EmbeddingService::embedJobSkills()` dengan format `"{canonical_skill}: {requirement_text}"` (dimensi 768, L2-normalized).
+  - Menandai status ekstraksi menjadi `completed` atau `failed` dengan backoff `[5, 15, 30]` dan middleware `WithoutOverlapping(jobPostingId)`.
+- Endpoints Industri & Karir di `backend/routes/api/industry.php` (di-load di `backend/routes/api.php`):
+  - `GET /api/careers`: mengembalikan daftar seluruh profesi/karir yang tersedia (`CareerResource`).
+  - `POST /api/jobs`: membuat lowongan manual baru milik pengguna yang terautentikasi (`source = manual`, `is_curated = false`, `created_by = user.id`, `extraction_status = processing`), merespons `202 Accepted`, dan mendispatch `ExtractJobSkillsJob`.
+  - `GET /api/jobs`: daftar lowongan kerja terpaginasi (15 item/halaman) dengan filter visibilitas (menampilkan lowongan kurasi `is_curated = true` atau lowongan manual milik pengguna sendiri, mengisolasi lowongan manual milik pengguna lain) dan filter opsional `career_id`.
+  - `GET /api/jobs/{id}`: detail lowongan kerja beserta relasi `career` dan `skills` (termasuk `evidence`, `requirement_text`, `canonical_name`, dan `category`). Akses lowongan manual milik pengguna lain mengembalikan `404 Not Found`.
+- Form Request & API Resources:
+  - `StoreJobPostingRequest`: validasi `career_id`, `company`, `title`, `description`, `qualifications`, `location`, `employment_type`, `source_url`.
+  - `CareerResource`, `JobPostingResource`, `JobSkillResource`.
+- Pengujian Feature:
+  - `backend/tests/Feature/Industry/ExtractJobSkillsJobTest.php` (7 tests, 27 assertions): ekstraksi skill, verifikasi anti-halusinasi bukti palsu, pembuatan skill baru otomatis, deduplikasi skill, rerun idempoten, penanganan Gemini failure, embedding generation.
+  - `backend/tests/Feature/Industry/JobPostingApiTest.php` (7 tests, 39 assertions): create manual job 202, job listing visibility isolation, filtering by career_id, job detail 200 & skills relation, non-owner manual job 404, list careers 200.
+  - Total pengujian modul Industry: 14 tests, 66 assertions lulus 100%. Pint code styling lulus.
+- Breaking change: tidak. Sesuai kontrak `docs/API.md §4`.
 
 #### HO-B-006 · 2026-11-12 · T4.1, T4.2, T4.3 · untuk: B (T5.3, T6.2), A
 - `Cosine` terpasang di `backend/app/Support/Cosine.php`:
