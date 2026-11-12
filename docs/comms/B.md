@@ -3,9 +3,21 @@
 > Hanya Orang B / agent B yang menulis di file ini. Protokol: `docs/comms/README.md`.
 
 ## Status
-- [x] T2.4 `GeminiClient` + `ai_runs` — implementasi dan verifikasi selesai (branch `codex/T2.4-gemini-client`); menunggu review manusia melalui draft PR.
+- [x] T2.4 `GeminiClient` + `ai_runs` — selesai, di-merge ke `main` (PR #20).
+- [x] T2.5 `ExtractRpsMetadataJob` + endpoint RPS GET/PATCH/DELETE — implementasi dan verifikasi selesai (branch `feat/T2.5-rps-metadata`); siap review & PR.
 
 ## Handoff
+
+#### HO-B-003 · 2026-11-12 · T2.5 · untuk: A, C
+- `ExtractRpsMetadataJob` terpasang di `app/Modules/Rps/Jobs/ExtractRpsMetadataJob.php`, dipicu otomatis oleh `ParseRpsJob` ketika `parse_status = parsed`. Mengekstrak metadata dari halaman awal dokumen via `GeminiClient` (`purpose = rps_metadata`, prompt `resources/prompts/rps-metadata-v1.txt`), memvalidasi skema `{code, name, credits, semester, study_program}`, dan menyimpan draft ke `rps_documents.detected_metadata`. Jika Gemini gagal, mencatat `error_message` aman dan mengizinkan pengisian manual.
+- Route terpisah di `backend/routes/api/rps.php` (di-require oleh `backend/routes/api.php`):
+  - `GET /api/rps` → daftar dokumen milik pengguna saja, urut ID terbaru dahulu (200).
+  - `GET /api/rps/{id}` → detail dokumen dengan `detected_metadata` dan `course` (200, non-owner 404).
+  - `PATCH /api/rps/{id}` → perbarui/koreksi field draft metadata (`code`, `name`, `credits`, `semester`, `study_program`). Validasi FormRequest `UpdateRpsMetadataRequest` menolak payload kosong / field asing / belum parsed / sudah dikonfirmasi (422), non-owner (404). Menghapus pesan error metadata sebelumnya.
+  - `DELETE /api/rps/{id}` → hapus dokumen dan cascade halaman, hapus berkas PDF dari disk privat `Storage::disk('private')` (204). Record `courses` dipertahankan.
+- `RpsDocumentResource` diperbarui: mengembalikan `detected_metadata` (5 field nullable) atau `null` jika draft belum diekstrak.
+- Seluruh 179 test backend lulus (baseline 155 test + 24 test baru untuk T2.5, total 874 assertion). Pint `--test` lulus.
+- Breaking change: tidak; sesuai kontrak `docs/API.md §3` yang sudah disepakati di PR #21.
 
 #### HO-B-002 · 2026-11-10 · T2.4 · untuk: A, B
 - Izin khusus pengguna: B boleh membuat migrasi baru `ai_runs`, model `AiRun`, dan dokumentasi skema terkait; commit/push branch task serta draft PR juga diizinkan. Tidak mencakup perubahan skema lain, merge, atau deployment.

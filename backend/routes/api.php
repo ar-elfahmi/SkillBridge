@@ -23,3 +23,5 @@ Route::prefix('auth')->group(function (): void {
 Route::middleware('auth:sanctum')->group(function (): void {
     Route::post('rps', RpsUploadController::class)->middleware('throttle:upload');
 });
+
+require __DIR__.'/api/rps.php';

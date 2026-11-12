@@ -99,7 +99,9 @@ class ParseRpsJob implements ShouldQueue
             ]);
         });
 
-        // Next step (metadata extraction, T2.5) is dispatched by Modules/Ai once available.
+        if ($document->fresh()?->parse_status === ParseStatus::Parsed) {
+            ExtractRpsMetadataJob::dispatch($document->id);
+        }
     }
 
     public function failed(?Throwable $exception): void

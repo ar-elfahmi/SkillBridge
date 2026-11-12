@@ -30,7 +30,7 @@ Dok: `DATABASE.md`, `API.md §3`, `AI_PIPELINE.md §1–2`
 - [x] **T2.3** `ParseRpsJob`: teks per halaman → `rps_pages`; deteksi `needs_ocr`; status benar.
   *Terima:* fixture PDF digital dan PDF kosong teks diuji.
 - [x] **T2.4** Klien Gemini (`Modules/Ai/GeminiClient`) berbasis `Http` dengan timeout, retry terbatas, pencatatan `ai_runs`; fake di test. Tabel `ai_runs`.
-- [ ] **T2.5** `ExtractRpsMetadataJob` + `PATCH /api/rps/{id}` + `GET /api/rps`, `GET /api/rps/{id}`, `DELETE`.
+- [x] **T2.5** `ExtractRpsMetadataJob` + `PATCH /api/rps/{id}` + `GET /api/rps`, `GET /api/rps/{id}`, `DELETE`.
 - [ ] **T2.6** Frontend: `/rps/upload` (dropzone, progress, form metadata, notifikasi pemrosesan pihak ketiga) dan polling status.
 
 ## Fase 3 — Ekstraksi kompetensi
