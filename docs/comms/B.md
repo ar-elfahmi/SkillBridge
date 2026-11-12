@@ -4,9 +4,26 @@
 
 ## Status
 - [x] T2.4 `GeminiClient` + `ai_runs` — selesai, di-merge ke `main` (PR #20).
-- [x] T2.5 `ExtractRpsMetadataJob` + endpoint RPS GET/PATCH/DELETE — implementasi dan verifikasi selesai (branch `feat/T2.5-rps-metadata`); siap review & PR.
+- [x] T2.5 `ExtractRpsMetadataJob` + endpoint RPS GET/PATCH/DELETE — selesai, di-merge ke `main` (PR #22).
+- [x] T3.2 `SkillNormalizer` & T3.3 `EvidenceVerifier` — implementasi dan verifikasi selesai (branch `feat/T3.2-skill-normalizer`); siap review & PR.
 
 ## Handoff
+
+#### HO-B-004 · 2026-11-12 · T3.2 & T3.3 · untuk: B (T3.4), A
+- `SkillNormalizer` terpasang di `backend/app/Modules/Competency/Services/SkillNormalizer.php`:
+  - Menormalisasi nama skill mentah ke model `Skill` kanonik: kolaps whitespace, in-memory cache per instans, case-insensitive match pada `canonical_name`, dan case-insensitive match pada array `aliases` JSONB PostgreSQL (`jsonb_array_elements_text`).
+  - Jika belum ada di kamus, membuat record `Skill` baru secara otomatis dengan kategori opsional (`SkillCategory|string|null`) dan aliases kosong (`[]`), menangani concurrency / unique constraint violation secara anggun.
+  - Menyediakan helper: `canonicalName(?string $rawName): ?string`, `skillId(?string $rawName): ?string`, dan `clearCache(): void`.
+- `EvidenceVerifier` dan DTO `EvidenceVerificationResult` di `backend/app/Modules/Competency/Services/`:
+  - Memverifikasi kutipan bukti teks terhadap isi dokumen RPS (`RpsDocument` atau koleksi `RpsPage`).
+  - Normalisasi teks: smart quotes (`“”, «»` → `"`, `‘’` → `'`), dashes (`–, —, −` → `-`), kolaps whitespace berturut-turut.
+  - Substring matching multi-strategi: memeriksa halaman yang diklaim (`claimedPageNumber`), fallback mencari ke seluruh halaman dokumen jika nomor halaman salah / kosong (mengoreksi nomor halaman dan status menjadi `verified`), dan mendeteksi halusinasi jika tidak ditemukan di halaman manapun (`status = unverified`, `page = null`).
+  - Menghasilkan DTO immutable `EvidenceVerificationResult` dengan properti: `status` (`verified` / `unverified`), `matchedPageNumber`, `matchedText`, `normalizedEvidence`, dan `isVerified()`.
+- Test komprehensif:
+  - `backend/tests/Feature/Competency/SkillNormalizerTest.php` (9 test, 34 assertion): canonical match, alias match, new skill creation, in-memory caching, whitespace collapse, race condition handling.
+  - `backend/tests/Feature/Competency/EvidenceVerifierTest.php` (11 test, 31 assertion): direct page match, smart quotes/dashes normalization, wrong page correction, missing page fallback, hallucination / unverified detection, empty/whitespace inputs.
+  - Total `tests/Feature/Competency`: 30 test, 224 assertion lulus 100%. Pint `--test` lulus.
+- Breaking change: tidak; service domain internal baru tanpa mengubah skema tabel maupun endpoint publik.
 
 #### HO-B-003 · 2026-11-12 · T2.5 · untuk: A, C
 - `ExtractRpsMetadataJob` terpasang di `app/Modules/Rps/Jobs/ExtractRpsMetadataJob.php`, dipicu otomatis oleh `ParseRpsJob` ketika `parse_status = parsed`. Mengekstrak metadata dari halaman awal dokumen via `GeminiClient` (`purpose = rps_metadata`, prompt `resources/prompts/rps-metadata-v1.txt`), memvalidasi skema `{code, name, credits, semester, study_program}`, dan menyimpan draft ke `rps_documents.detected_metadata`. Jika Gemini gagal, mencatat `error_message` aman dan mengizinkan pengisian manual.
