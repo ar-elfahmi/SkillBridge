@@ -204,9 +204,19 @@ class ExtractRpsMetadataJob implements ShouldQueue
             return null;
         }
 
+        $cleanCode = $code !== null ? trim($code) : null;
+        if ($cleanCode !== null && preg_match('/^[.\s…_—-]+$/u', $cleanCode)) {
+            $cleanCode = null;
+        }
+
+        $cleanName = $name !== null ? trim($name) : null;
+        if ($cleanName !== null && preg_match('/^[.\s…_—-]+$/u', $cleanName)) {
+            $cleanName = null;
+        }
+
         return [
-            'code' => $code !== null ? trim($code) : null,
-            'name' => $name !== null ? trim($name) : null,
+            'code' => $cleanCode,
+            'name' => $cleanName,
             'credits' => $credits,
             'semester' => $semester,
             'study_program' => $studyProgram !== null ? trim($studyProgram) : null,

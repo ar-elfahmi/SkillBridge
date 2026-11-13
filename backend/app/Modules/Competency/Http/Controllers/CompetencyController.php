@@ -44,8 +44,12 @@ class CompetencyController extends Controller
         }
 
         $metadata = $document->detected_metadata ?? [];
-        $code = isset($metadata['code']) && is_string($metadata['code']) ? trim($metadata['code']) : '';
-        if ($code === '') {
+        $reqCode = $request->input('code');
+        $code = is_string($reqCode) && trim($reqCode) !== ''
+            ? trim($reqCode)
+            : (isset($metadata['code']) && is_string($metadata['code']) ? trim($metadata['code']) : '');
+
+        if ($code === '' || preg_match('/^[.\s…_—-]+$/u', $code)) {
             return response()->json([
                 'message' => 'Kode mata kuliah pada metadata wajib diisi sebelum ekstraksi kompetensi.',
                 'errors' => [
