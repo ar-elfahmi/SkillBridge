@@ -6,17 +6,19 @@ import { DashboardPage } from '@/routes/pages/DashboardPage'
 import { LoginPage } from '@/routes/pages/LoginPage'
 import { RegisterPage } from '@/routes/pages/RegisterPage'
 import { RpsDetailPage } from '@/routes/pages/RpsDetailPage'
+import { SimpleTestPage } from '@/routes/pages/SimpleTestPage'
 
 /**
- * Route sesuai docs/FRONTEND.md section 2 (RPS upload disatukan di Dashboard).
+ * Route aplikasi dengan halaman pengujian sederhana di root dan /test.
  */
 export const router = createBrowserRouter([
+  { path: '/', element: <SimpleTestPage /> },
+  { path: '/test', element: <SimpleTestPage /> },
   { path: '/login', element: <LoginPage /> },
   { path: '/register', element: <RegisterPage /> },
   {
     element: <RequireAuth />,
     children: [
-      { path: '/', element: <DashboardPage /> },
       { path: '/dashboard', element: <DashboardPage /> },
       { path: '/rps/:id', element: <RpsDetailPage /> },
       { path: '/analyses/new', element: <AnalysesNewPage /> },

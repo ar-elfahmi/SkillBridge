@@ -92,7 +92,7 @@ class ExtractCompetenciesJob implements ShouldQueue
 
         if (! in_array($mode, ['offline', 'fallback', 'auto'], true)
             && (! is_string($key) || trim($key) === ''
-                || ! is_string($model) || ! preg_match('/\A[a-zA-Z0-9][a-zA-Z0-9._-]{0,254}\z/', $model)
+                || ! is_string($model) || ! preg_match('/\A[a-zA-Z0-9][a-zA-Z0-9._\/-]{0,254}\z/', $model)
                 || ! is_int($timeout) || $timeout < 1)) {
             $document->update([
                 'extraction_status' => ExtractionStatus::Failed,

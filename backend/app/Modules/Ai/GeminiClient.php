@@ -56,12 +56,25 @@ final class GeminiClient
             return $this->runOffline($purpose, $prompt, $promptVersion, $inputHash, $subject);
         }
 
-        $key = config('skillbridge.gemini.api_key');
-        $model = config('skillbridge.gemini.flash_model');
-        $timeout = config('skillbridge.gemini.timeout_seconds');
+        $provider = strtolower(trim((string) config('skillbridge.gemini.provider', config('skillbridge.ai.provider', 'gemini'))));
+        $baseUrl = config('skillbridge.gemini.base_url', config('skillbridge.ai.base_url'));
+        $key = config('skillbridge.gemini.api_key', config('skillbridge.ai.api_key'));
+        $model = config('skillbridge.gemini.flash_model', config('skillbridge.ai.model'));
+        $timeout = (int) config('skillbridge.gemini.timeout_seconds', config('skillbridge.ai.timeout_seconds', 60));
+
+        if (is_string($model)) {
+            $modelTrimmed = strtolower(trim($model));
+            if (in_array($modelTrimmed, ['deepseek', 'deepsek'], true)) {
+                $model = 'deepseek/deepseek-v4.1-flash';
+            } elseif (in_array($modelTrimmed, ['deepseek-pro', 'deepsek-pro'], true)) {
+                $model = 'deepseek/deepseek-v4-pro';
+            }
+        }
+
+        $isOpenAi = ! empty($baseUrl) || in_array($provider, ['openai', 'openai_compatible', 'tokenrouter', 'openrouter', 'custom'], true);
 
         $hasValidConfig = is_string($key) && trim($key) !== ''
-            && is_string($model) && preg_match('/\A[a-zA-Z0-9][a-zA-Z0-9._-]{0,254}\z/', $model)
+            && is_string($model) && preg_match('/\A[a-zA-Z0-9][a-zA-Z0-9._\/-]{0,254}\z/', $model)
             && is_int($timeout) && $timeout >= 1;
 
         if (! $hasValidConfig) {
@@ -79,16 +92,92 @@ final class GeminiClient
             $error = 'connection_error';
 
             try {
-                $response = Http::withHeaders(['x-goog-api-key' => $key])
-                    ->acceptJson()
-                    ->asJson()
-                    ->timeout($timeout)
-                    ->connectTimeout(min(10, $timeout))
-                    ->withoutRedirecting()
-                    ->post("https://generativelanguage.googleapis.com/v1beta/models/{$model}:generateContent", $payload);
+                if ($isOpenAi) {
+                    $endpoint = is_string($baseUrl) && trim($baseUrl) !== '' ? trim($baseUrl) : 'https://api.openai.com/v1/chat/completions';
+                    if (! str_ends_with($endpoint, '/chat/completions')) {
+                        $endpoint = rtrim($endpoint, '/').'/chat/completions';
+                    }
 
-                $data = $response->json();
-                $error = $response->successful() ? $this->responseError($data) : 'http_'.$response->status();
+                    $openAiPayload = [
+                        'model' => $model,
+                        'messages' => [
+                            ['role' => 'user', 'content' => $prompt],
+                        ],
+                    ];
+
+                    if ($responseSchema !== [] || str_contains($prompt, 'JSON')) {
+                        $openAiPayload['response_format'] = ['type' => 'json_object'];
+                    }
+
+                    $req = Http::withToken($key)
+                        ->acceptJson()
+                        ->asJson()
+                        ->timeout($timeout)
+                        ->connectTimeout(min(10, $timeout))
+                        ->withoutRedirecting();
+
+                    if (app()->isLocal() || ! empty(env('AI_SKIP_SSL_VERIFY', false))) {
+                        $req = $req->withoutVerifying();
+                    }
+
+                    $response = $req->post($endpoint, $openAiPayload);
+                    $rawJson = $response->json();
+
+                    if ($response->successful() && is_array($rawJson)) {
+                        $choice = $rawJson['choices'][0] ?? null;
+                        $content = $choice['message']['content'] ?? null;
+
+                        if (is_string($content) && trim($content) !== '') {
+                            // Strip reasoning tags if present (e.g. <think>...</think>)
+                            $cleanContent = (string) preg_replace('/<think>.*?<\/think>/s', '', $content);
+                            $cleanContent = trim($cleanContent);
+
+                            // Strip markdown json code block if present
+                            if (str_starts_with($cleanContent, '```json') && str_ends_with($cleanContent, '```')) {
+                                $cleanContent = trim(substr($cleanContent, 7, -3));
+                            } elseif (str_starts_with($cleanContent, '```') && str_ends_with($cleanContent, '```')) {
+                                $cleanContent = trim(substr($cleanContent, 3, -3));
+                            }
+
+                            $usageRaw = $rawJson['usage'] ?? [];
+                            $data = [
+                                'candidates' => [
+                                    [
+                                        'content' => [
+                                            'parts' => [
+                                                ['text' => $cleanContent],
+                                            ],
+                                            'role' => 'model',
+                                        ],
+                                        'finishReason' => 'STOP',
+                                        'index' => 0,
+                                    ],
+                                ],
+                                'usageMetadata' => [
+                                    'promptTokenCount' => $usageRaw['prompt_tokens'] ?? null,
+                                    'candidatesTokenCount' => $usageRaw['completion_tokens'] ?? null,
+                                    'totalTokenCount' => $usageRaw['total_tokens'] ?? null,
+                                ],
+                            ];
+                            $error = null;
+                        } else {
+                            $error = 'invalid_response';
+                        }
+                    } else {
+                        $error = 'http_'.$response->status();
+                    }
+                } else {
+                    $response = Http::withHeaders(['x-goog-api-key' => $key])
+                        ->acceptJson()
+                        ->asJson()
+                        ->timeout($timeout)
+                        ->connectTimeout(min(10, $timeout))
+                        ->withoutRedirecting()
+                        ->post("https://generativelanguage.googleapis.com/v1beta/models/{$model}:generateContent", $payload);
+
+                    $data = $response->json();
+                    $error = $response->successful() ? $this->responseError($data) : 'http_'.$response->status();
+                }
             } catch (ConnectionException) {
                 // Never retain provider exceptions: they can contain request data.
             }

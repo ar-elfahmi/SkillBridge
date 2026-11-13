@@ -75,7 +75,7 @@ class ExtractRpsMetadataJob implements ShouldQueue
 
         if (! in_array($mode, ['offline', 'fallback', 'auto'], true)
             && (! is_string($key) || trim($key) === ''
-                || ! is_string($model) || ! preg_match('/\A[a-zA-Z0-9][a-zA-Z0-9._-]{0,254}\z/', $model)
+                || ! is_string($model) || ! preg_match('/\A[a-zA-Z0-9][a-zA-Z0-9._\/-]{0,254}\z/', $model)
                 || ! is_int($timeout) || $timeout < 1)) {
             return;
         }
@@ -124,6 +124,23 @@ class ExtractRpsMetadataJob implements ShouldQueue
             $validated = $this->validateMetadata($decoded);
             if ($validated === null) {
                 throw new GeminiException('Skema metadata hasil ekstraksi AI tidak valid.');
+            }
+
+            // Fallback course code detection if code is null
+            if ($validated['code'] === null) {
+                if (preg_match('/\b([A-Z]{2,5}[-\s]?\d{3,10}[A-Z]?)\b/u', $combinedText, $codeMatch)) {
+                    $validated['code'] = strtoupper((string) preg_replace('/\s+/', '', $codeMatch[1]));
+                } elseif ($document->original_name !== null && preg_match('/^([A-Z]{2,5}[-\s]?\d{3,10}[A-Z]?)[_\s-]/i', $document->original_name, $fileMatch)) {
+                    $validated['code'] = strtoupper($fileMatch[1]);
+                }
+            }
+
+            // Fallback course name detection if name is null
+            if ($validated['name'] === null && $document->original_name !== null) {
+                $base = pathinfo($document->original_name, PATHINFO_FILENAME);
+                if (preg_match('/^[A-Z0-9]+[_\s-]+(.+)$/i', $base, $nameMatch)) {
+                    $validated['name'] = ucwords(trim(str_replace(['_', '-'], ' ', $nameMatch[1])));
+                }
             }
 
             $document->update([

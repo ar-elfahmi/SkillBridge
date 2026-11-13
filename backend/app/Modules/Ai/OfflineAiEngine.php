@@ -195,8 +195,18 @@ final class OfflineAiEngine
      */
     private function extractRpsMetadata(string $text): array
     {
+        $code = null;
+        if (preg_match('/(?:Kode\s+(?:Mata\s+Kuliah|MK)|Course\s+Code)\s*[:\-]?\s*\b([A-Z]{2,5}[-\s]?\d{3,10}[A-Z]?)\b/iu', $text, $m)) {
+            $code = strtoupper((string) preg_replace('/\s+/', '', $m[1]));
+        } elseif (preg_match('/\b([A-Z]{2,5}\d{3,10}[A-Z]?)\b/', $text, $m)) {
+            $code = $m[1];
+        }
+
         $name = null;
-        if (preg_match('/(?:Mata\s+Kuliah|Course\s+Name|Nama\s+MK)\s*[:\-]\s*([^\n\r(|]+)/iu', $text, $m)) {
+        if ($code && preg_match('/(?:Bobot|MK|Penyusunan)\s*[\r\n]+([A-Za-z\s]+?)\s*[\r\n]+' . preg_quote($code, '/') . '/iu', $text, $m)) {
+            $name = trim(preg_replace('/\s+/', ' ', $m[1]));
+        }
+        if ($name === null && preg_match('/(?:Mata\s+Kuliah|Course\s+Name|Nama\s+MK)\s*[:\-]\s*([^\n\r(|]+)/iu', $text, $m)) {
             $name = trim($m[1], " \t\n\r\0\x0B:.-…");
         }
         if ($name === null && preg_match('/Mata\s+kuliah\s+([A-Z][a-zA-Z\s]{4,60}?)\s+(?:membahas|merupakan|adalah|mempelajari)\b/u', $text, $m)) {
@@ -209,27 +219,24 @@ final class OfflineAiEngine
             }
         }
 
-        $code = null;
-        if (preg_match('/(?:Kode\s+(?:Mata\s+Kuliah|MK)|Course\s+Code)\s*[:\-]?\s*\b([A-Z]{2,5}[-\s]?\d{3,4}[A-Z]?)\b/iu', $text, $m)) {
-            $code = strtoupper((string) preg_replace('/\s+/', '', $m[1]));
-        } elseif (preg_match('/\b([A-Z]{2,4}\d{3,4}[A-Z]?)\b/', $text, $m)) {
-            $code = $m[1];
-        }
-
         $credits = null;
-        if (preg_match('/(?:Bobot|SKS|Kredit)\s*[:\-]?\s*(\d{1,2})\s*(?:SKS)?/iu', $text, $m)) {
+        if (preg_match('/T:\s*(\d{1,2})\s*P:\s*(\d{1,2})/iu', $text, $m)) {
+            $credits = (int) $m[1] + (int) $m[2];
+        } elseif (preg_match('/(?:Bobot|SKS|Kredit)\s*[:\-]?\s*(\d{1,2})\s*(?:SKS)?/iu', $text, $m)) {
             $credits = (int) $m[1];
         } elseif (preg_match('/\b(\d{1,2})\s*SKS\b/iu', $text, $m)) {
             $credits = (int) $m[1];
         }
 
         $semester = null;
-        if (preg_match('/Semester\s*[:\-]?\s*(\d{1,2})/iu', $text, $m)) {
+        if (preg_match('/(?:T:\d+\s*P:\d+)\s*(\d{1,2})\b/iu', $text, $m)) {
+            $semester = (int) $m[1];
+        } elseif (preg_match('/Semester\s*[:\-]?\s*(\d{1,2})/iu', $text, $m)) {
             $semester = (int) $m[1];
         }
 
         $studyProgram = null;
-        if (preg_match('/(?:Program\s+Studi|Prodi|Jurusan)\s*[:\-]\s*([^\n\r.|]+)/iu', $text, $m)) {
+        if (preg_match('/(?:Program\s+Studi|Prodi|Jurusan)\s*[:\-]?\s*([^\n\r.|]+)/iu', $text, $m)) {
             $studyProgram = trim($m[1], " \t\n\r\0\x0B:.-");
         }
 

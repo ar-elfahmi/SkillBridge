@@ -110,6 +110,7 @@ export interface Career {
   name: string
   slug: string
   description: string | null
+  job_postings_count?: number
 }
 
 export interface JobSkill {
@@ -135,6 +136,7 @@ export interface JobPosting {
   source_url: string | null
   collected_at: string | null
   dataset_version: string | null
+  is_synthetic?: boolean
   extraction_status: ExtractionStatus
   skills?: JobSkill[]
   created_at?: string

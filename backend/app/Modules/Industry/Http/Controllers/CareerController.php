@@ -14,7 +14,9 @@ class CareerController extends Controller
 {
     public function index(Request $request): AnonymousResourceCollection
     {
-        $careers = Career::orderBy('name')->get();
+        $careers = Career::withCount('jobPostings')
+            ->orderBy('name')
+            ->get();
 
         return CareerResource::collection($careers);
     }

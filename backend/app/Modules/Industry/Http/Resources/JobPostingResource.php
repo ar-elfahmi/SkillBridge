@@ -36,6 +36,7 @@ class JobPostingResource extends JsonResource
             'source_url' => $this->source_url,
             'collected_at' => $this->collected_at?->toDateString(),
             'dataset_version' => $this->dataset_version,
+            'is_synthetic' => str_starts_with((string) $this->dataset_version, 'synthetic') || str_starts_with((string) $this->description, '[DESKRIPSI SINTETIS'),
             'extraction_status' => $this->extraction_status->value,
             'skills' => JobSkillResource::collection($this->whenLoaded('jobSkills')),
             'created_at' => $this->created_at?->toIso8601String(),

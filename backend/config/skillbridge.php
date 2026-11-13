@@ -16,13 +16,30 @@ declare(strict_types=1);
 return [
 
     // --- AI (Modules/Ai) ---
+    'ai' => [
+        // Provider: 'openai' (OpenAI-compatible / tokenrouter / OpenRouter), 'gemini', or 'offline'
+        'provider' => env('AI_PROVIDER', env('AI_BASE_URL') ? 'openai' : 'gemini'),
+        'base_url' => env('AI_BASE_URL'),
+        'api_key' => env('AI_API_KEY') ?: env('GEMINI_API_KEY'),
+        'model' => env('AI_MODEL') ?: env('GEMINI_FLASH_MODEL', 'deepseek/deepseek-v4.1-flash'),
+        'mode' => env('SKILLBRIDGE_AI_MODE', 'fallback'),
+        'timeout_seconds' => (int) env('AI_TIMEOUT_SECONDS', env('GEMINI_TIMEOUT_SECONDS', 60)),
+    ],
     'gemini' => [
+        'provider' => env('AI_PROVIDER', env('AI_BASE_URL') ? 'openai' : 'gemini'),
+        'base_url' => env('AI_BASE_URL'),
         // Execution mode: "gemini" (strict cloud API), "offline" (100% local PHP engine), or "fallback" (cloud with local fallback).
         'mode' => env('SKILLBRIDGE_AI_MODE', 'gemini'),
         // Backend only. Never expose to frontend, logs or commits.
-        'api_key' => env('GEMINI_API_KEY'),
+        'api_key' => env('AI_API_KEY') ?: env('GEMINI_API_KEY'),
         // Model names change over time: always set from env, never hardcode.
-        'flash_model' => env('GEMINI_FLASH_MODEL'),
+        'flash_model' => (function () {
+            $m = env('AI_MODEL') ?: env('GEMINI_FLASH_MODEL', 'gemini-2.5-flash');
+            if (in_array(strtolower(trim((string) $m)), ['deepseek', 'deepsek'], true)) {
+                return 'deepseek/deepseek-v4.1-flash';
+            }
+            return $m;
+        })(),
         'embedding_model' => env('GEMINI_EMBEDDING_MODEL', 'gemini-embedding-001'),
         'embedding_dimensions' => (int) env('GEMINI_EMBEDDING_DIMENSIONS', 768),
         'timeout_seconds' => (int) env('GEMINI_TIMEOUT_SECONDS', 60),
