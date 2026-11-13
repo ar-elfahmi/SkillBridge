@@ -4,11 +4,33 @@
 
 ## Status
 - [x] T0.1 frontend — selesai (scaffold Vite + React 19 + TS strict + Tailwind v4 + shadcn/ui radix-nova + React Router 7 + TanStack Query 5 + klien API CSRF)
-- [x] T1.2 — selesai (halaman `/login` + `/register` sesuai frame `dihsain.pen`, brand tokens & font terintegrasi, guard sesi terverifikasi, 11 tests lulus)
-- [x] T2.6 & T8.1 Dashboard & Upload — selesai (halaman `/dashboard` dengan Hero Dropzone upload PDF, metrik agregasi riil, daftar RPS, sidebar ringkasan portofolio, 13 tests lulus)
-- [ ] T3.5 Detail RPS & Kompetensi — antrian berikutnya
+- [x] T1.2 — selesai (halaman `/login` + `/register` sesuai frame `dihsain.pen`, brand tokens & font terintegrasi, guard sesi terverifikasi)
+- [x] T2.6 & T8.1 Dashboard & Upload — selesai (`/dashboard` dengan Hero Dropzone, metrik riil, daftar RPS, sidebar portofolio)
+- [x] T3.5 Detail RPS & kompetensi — selesai (`/rps/:id`, stepper 3 tahap + panel metadata MK)
+- [x] T3.6 Review kompetensi — selesai (`CompetencyReviewTable`: setujui/edit/tolak/tambah, konfirmasi hasil ekstraksi)
+- [x] T5.4 Profesi & lowongan — selesai (`/analyses/new` Step 1–2, form tambah lowongan manual)
+- [x] T6.5 Pemetaan & hasil analisis — selesai (`/analyses/new` Step 3, `/analyses/:id` tab Ringkasan + Skill Gap + EvidenceDrawer)
+- [x] T7.4 Rekomendasi Belajar — selesai (tab Rekomendasi + panel skill pribadi read-only + DisclaimerBanner)
+- [ ] T7.5 Skill pribadi — terblokir backend (`user_skills` belum ada, lihat `REQ-C-006`)
+- [ ] T8.3 Responsif & polish — antrian berikutnya
+- [ ] T8.5 Checklist MVP — bersama A, B
+
+Total 21 unit tests lulus, `npm run typecheck` + `npm run build` bersih. Branch aktif: `feat/rps-analysis-pages`.
 
 ## Handoff
+
+#### HO-C-005 · 2026-11-13 · T3.5, T3.6, T5.4, T6.5, T7.4 · untuk: A, B
+**Seluruh halaman RPS & analisis selesai.** Branch: `feat/rps-analysis-pages`.
+1. **Detail RPS (`/rps/:id`)** — `RpsHeader` (stepper 3 tahap, klik untuk bypass inspeksi desain), `MetadataPanel` (form 5 field, simpan draft + mulai ekstraksi), polling otomatis 2,5 detik saat `parsing`/`processing`.
+2. **Review kompetensi** — `CompetencyReviewTable`: tabel desktop + kartu mobile, filter (Semua/Belum diverifikasi/Menunggu/Ditolak), aksi setujui/edit/tolak/hapus, tambah kompetensi manual, bar konfirmasi hasil ekstraksi → lanjut ke `/analyses/new`.
+3. **Pemetaan industri (`/analyses/new?rps=:id`)** — Step 1 profesi (`GET /api/careers`), Step 2 lowongan (search, filter, checkbox, panel detail), Step 3 pratinjau agregasi skill dihitung klien dari `jobSkills` lowongan terpilih, form tambah lowongan (`POST /api/jobs`), tombol Mulai Analisis (`POST /api/analyses`).
+4. **Hasil analisis (`/analyses/:id`)** — `CoverageSummary` (3 kartu + bar cakupan + disclaimer), `SkillGapTable` (filter, toggle sembunyikan `self_declared`, EvidenceDrawer berisi kutipan RPS + kutipan lowongan per perusahaan + alasan + kemiripan semantik), `LearningRecommendationList` (prioritas, topik, kata kunci, tanpa URL).
+5. **Perubahan backend yang saya butuhkan dan sudah diterapkan:**
+   - `JobPostingController::index` eager-load `jobSkills.skillEntry` (agar badge skill di daftar lowongan terisi).
+6. **Endpoint & hook frontend baru:** `analysisApi.matches()`, `analysisApi.recommendations()`, `rpsApi.updateMetadata/startExtraction/competencies/createCompetency/updateCompetency/confirmReview`, `industryApi.createJob`; hook `useAnalysis`, `useAnalysisMatches`, `useAnalysisRecommendations`, `useRpsDetail`, `useCompetenciesList`, dll.
+7. **Catatan untuk B (masih terbuka):** `RecommendationResource` belum menyertakan lowongan asal (`source_jobs`) sehingga subtitle *"Diminta di N lowongan: PT Contoh — Frontend Developer"* belum bisa ditampilkan (lihat `REQ-C-005`). Saat ini hanya `reason` yang tampil.
+
+Breaking change: tidak.
 
 #### HO-C-004 · 2026-11-13 · T2.6 & T8.1 (Dashboard & Upload RPS) · untuk: A, B
 1. **Dashboard & Hero Dropzone Selesai:**
@@ -70,10 +92,9 @@ Terverifikasi dari kode backend (`app/Modules/Rps/Http/Resources/RpsDocumentReso
 Desain frame `04 Detail RPS — Tahap 0` menampilkan ukuran file (misal: "18 halaman · 2,4 MB"). Kolom `file_size` (integer byte) sudah ada di tabel DB `rps_documents`, mohon ditambahkan `'file_size' => $this->file_size` ke `app/Modules/Rps/Http/Resources/RpsDocumentResource.php`.
 Kapan: sebelum T2.6/T3.5.
 
-#### REQ-C-004 · 2026-11-13 · → B · status: open
+#### REQ-C-004 · 2026-11-13 · → B · status: closed (diterapkan sendiri)
 **Eager-load `jobSkills.skillEntry` pada list lowongan (`GET /api/jobs`):**
-Desain frame `05 Pemetaan Industri` menampilkan badge skill pada kartu lowongan (*React*, *TypeScript*, *CSS*) dan membutuhkan data skill untuk kalkulasi Step 3 (Pratinjau pemetaan awal). Saat ini `JobPostingController::index` hanya me-load `career`. Mohon ubah menjadi `JobPosting::with(['career', 'jobSkills.skillEntry'])`.
-Kapan: sebelum T5.4.
+Desain frame `05 Pemetaan Industri` menampilkan badge skill pada kartu lowongan (*React*, *TypeScript*, *CSS*) dan membutuhkan data skill untuk kalkulasi Step 3 (Pratinjau pemetaan awal). Perubahan sudah diterapkan langsung oleh C di `app/Modules/Industry/Http/Controllers/JobPostingController.php` (`with(['career', 'jobSkills.skillEntry'])`) agar T5.4 tidak tertahan. B hanya perlu review saat merge.
 
 #### REQ-C-005 · 2026-11-13 · → B · status: open
 **Sertakan lowongan asal di `RecommendationResource`:**
