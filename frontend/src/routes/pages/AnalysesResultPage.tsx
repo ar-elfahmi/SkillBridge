@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useQueryClient } from '@tanstack/react-query'
 import { Link, useParams, useNavigate } from 'react-router-dom'
 import { AlertCircle, ArrowLeft, Check, Clock3, Info } from 'lucide-react'
 import { DashboardTopbar } from '@/components/dashboard/DashboardTopbar'
@@ -6,6 +7,7 @@ import { CoverageSummary } from '@/components/analysis/CoverageSummary'
 import { SkillGapTable } from '@/components/analysis/SkillGapTable'
 import { LearningRecommendationList } from '@/components/analysis/LearningRecommendationList'
 import { SelfDeclaredSkillsPanel } from '@/components/analysis/SelfDeclaredSkillsPanel'
+import { queryKeys } from '@/lib/query/keys'
 import {
   useAddMySkill,
   useAnalysis,
@@ -26,6 +28,7 @@ export function AnalysesResultPage() {
   const navigate = useNavigate()
   const analysisId = id ? parseInt(id, 10) : 0
 
+  const queryClient = useQueryClient()
   const { data: user } = useMe()
   const logout = useLogout()
   const { data: analysis, isLoading, isError } = useAnalysis(analysisId)
@@ -54,7 +57,9 @@ export function AnalysesResultPage() {
   function declareSkill(skill: string) {
     addSkill.mutate(
       { skill, analysis_id: analysisId },
-      { onSuccess: () => setRecoStale(true) },
+      // self_declared dihitung backend saat /matches dibaca → cukup refetch,
+      // stroke kartu & tabel skill gap ikut hijau tanpa refresh halaman.
+      { onSuccess: () => queryClient.invalidateQueries({ queryKey: [...queryKeys.analysis(analysisId), 'matches'] }) },
     )
   }
 
@@ -223,7 +228,12 @@ export function AnalysesResultPage() {
               reportedFromAnalysis={reco?.meta.self_declared_skills ?? []}
               onAdd={declareSkill}
               onRemove={(id) =>
-                removeSkill.mutate(id, { onSuccess: () => setRecoStale(true) })
+                removeSkill.mutate(id, {
+                  onSuccess: () =>
+                    queryClient.invalidateQueries({
+                      queryKey: [...queryKeys.analysis(analysisId), 'matches'],
+                    }),
+                })
               }
               isAdding={addSkill.isPending}
             />

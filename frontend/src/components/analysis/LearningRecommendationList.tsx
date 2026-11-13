@@ -86,7 +86,12 @@ export function LearningRecommendationList({
               <button
                 type="button"
                 onClick={() => onAlreadyLearned(r.skill)}
-                className="w-fit rounded-lg border border-border-warm px-3 py-1.5 text-[11px] font-semibold text-text-primary transition-colors hover:border-brand hover:text-brand"
+                disabled={declaredSkills.has(r.skill)}
+                className={`w-fit rounded-lg border px-3 py-1.5 text-[11px] font-semibold transition-colors ${
+                  declaredSkills.has(r.skill)
+                    ? 'cursor-default border-success/40 bg-success/10 text-success'
+                    : 'border-border-warm text-text-primary hover:border-brand hover:text-brand'
+                }`}
               >
                 {copy.analysesResult.alreadyLearned}
               </button>
