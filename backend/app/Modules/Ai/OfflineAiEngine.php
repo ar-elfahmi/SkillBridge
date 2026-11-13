@@ -197,7 +197,16 @@ final class OfflineAiEngine
     {
         $name = null;
         if (preg_match('/(?:Mata\s+Kuliah|Course\s+Name|Nama\s+MK)\s*[:\-]\s*([^\n\r(|]+)/iu', $text, $m)) {
-            $name = trim($m[1], " \t\n\r\0\x0B:.-");
+            $name = trim($m[1], " \t\n\r\0\x0B:.-…");
+        }
+        if ($name === null && preg_match('/Mata\s+kuliah\s+([A-Z][a-zA-Z\s]{4,60}?)\s+(?:membahas|merupakan|adalah|mempelajari)\b/u', $text, $m)) {
+            $name = trim($m[1]);
+        }
+        if ($name === null && preg_match('/(?:Mata\s+Kuliah(?:\s*\(MK\))?|Course\s+Name|Nama\s+MK)\s*[:\-]?\s*[\r\n]+([^:\r\n(|]+)/iu', $text, $m)) {
+            $raw = trim((string) preg_replace('/\s+/', ' ', $m[1]), " \t\n\r\0\x0B:.-…");
+            if (mb_strlen($raw) >= 3 && ! preg_match('/^(?:Kode|Bobot|SKS|Semester|Rumpun|Dosen)/iu', $raw)) {
+                $name = $raw;
+            }
         }
 
         $code = null;

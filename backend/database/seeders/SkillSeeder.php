@@ -71,6 +71,8 @@ class SkillSeeder extends Seeder
             'Data Visualization' => [$c, ['Visualisasi Data']],
             'Statistics' => [$c, ['Statistika', 'Statistik']],
             'Data Cleaning' => [$c, ['Data Wrangling', 'Pembersihan Data', 'Data Preprocessing']],
+            'Data Analysis' => [$p, ['Analisis Data', 'Data Analytics', 'Analisa Data']],
+            'Quantitative Research' => [$c, ['Riset Kuantitatif', 'Penelitian Kuantitatif', 'Analisis Kuantitatif', 'Input-Output']],
             'Fetch API' => [$c, ['AJAX', 'Asynchronous JavaScript']],
 
             // Practices
