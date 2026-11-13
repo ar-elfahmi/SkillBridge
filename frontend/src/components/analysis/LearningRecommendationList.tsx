@@ -40,7 +40,7 @@ export function LearningRecommendationList({
               key={r.skill}
               className={`flex flex-col gap-3 rounded-2xl border bg-white p-5 shadow-sm transition-colors ${
                 declaredSkills.has(r.skill)
-                  ? 'border-success/60'
+                  ? 'border-success/30'
                   : 'border-border-warm'
               }`}
             >
