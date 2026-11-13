@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { analysisApi, authApi, industryApi, rpsApi } from '@/lib/api/endpoints'
+import { analysisApi, authApi, industryApi, meApi, rpsApi } from '@/lib/api/endpoints'
 import { queryKeys } from '@/lib/query/keys'
 import type { User } from '@/types/api'
 
@@ -255,5 +255,45 @@ export function useAnalysisRecommendations(id: number, enabled = true) {
     queryFn: () => analysisApi.recommendations(id),
     select: (res) => res,
     enabled: enabled && Number.isInteger(id) && id > 0,
+  })
+}
+
+export function useMySkills() {
+  return useQuery({
+    queryKey: queryKeys.meSkills,
+    queryFn: meApi.skills,
+    select: (res) => res.data,
+  })
+}
+
+export function useAddMySkill() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (payload: Parameters<typeof meApi.addSkill>[0]) => meApi.addSkill(payload),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.meSkills })
+    },
+  })
+}
+
+export function useRemoveMySkill() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (id: number) => meApi.removeSkill(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.meSkills })
+    },
+  })
+}
+
+export function useRefreshRecommendations() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (analysisId: number) => analysisApi.refreshRecommendations(analysisId),
+    onSuccess: (_, analysisId) => {
+      queryClient.invalidateQueries({
+        queryKey: [...queryKeys.analysis(analysisId), 'recommendations'],
+      })
+    },
   })
 }

@@ -1,9 +1,9 @@
-import type { Recommendation, SelfDeclaredSkill } from '@/types/api'
+import type { Recommendation } from '@/types/api'
 import { copy } from '@/lib/copy'
 
 interface LearningRecommendationListProps {
   recommendations: Recommendation[]
-  selfDeclaredSkills: SelfDeclaredSkill[]
+  onAlreadyLearned: (skill: string) => void
 }
 
 const PRIORITY_STYLE = {
@@ -14,7 +14,7 @@ const PRIORITY_STYLE = {
 
 export function LearningRecommendationList({
   recommendations,
-  selfDeclaredSkills,
+  onAlreadyLearned,
 }: LearningRecommendationListProps) {
   return (
     <div className="flex flex-col gap-4">
@@ -76,39 +76,18 @@ export function LearningRecommendationList({
                   {r.details.learning_keywords.join(', ')}
                 </p>
               )}
+
+              <button
+                type="button"
+                onClick={() => onAlreadyLearned(r.skill)}
+                className="w-fit rounded-lg border border-border-warm px-3 py-1.5 text-[11px] font-semibold text-text-primary transition-colors hover:border-brand hover:text-brand"
+              >
+                {copy.analysesResult.alreadyLearned}
+              </button>
             </div>
           ))}
         </div>
       )}
-
-      {/* Self Declared Panel */}
-      <div className="flex flex-col gap-3 rounded-2xl border border-border-warm bg-surface-subtle p-5">
-        <span className="text-xs font-bold text-text-primary">
-          {copy.analysesResult.selfDeclaredTitle}
-        </span>
-
-        {selfDeclaredSkills.length > 0 ? (
-          <div className="flex flex-col gap-2">
-            {selfDeclaredSkills.map((s) => (
-              <div
-                key={s.skill}
-                className="flex items-center justify-between rounded-lg bg-white px-3 py-2 text-xs"
-              >
-                <span className="font-semibold text-text-primary">{s.skill}</span>
-                <span className="text-[10px] text-text-secondary">{copy.status[s.classification]}</span>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <p className="text-[11px] text-text-secondary">
-            Belum ada skill yang dilaporkan.
-          </p>
-        )}
-
-        <p className="border-t border-border-warm pt-2 text-[11px] text-text-secondary">
-          {copy.analysesResult.selfDeclaredNote}
-        </p>
-      </div>
     </div>
   )
 }

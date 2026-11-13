@@ -4,6 +4,7 @@ import { AnalysesNewPage } from '@/routes/pages/AnalysesNewPage'
 import { AnalysesResultPage } from '@/routes/pages/AnalysesResultPage'
 import { DashboardPage } from '@/routes/pages/DashboardPage'
 import { LoginPage } from '@/routes/pages/LoginPage'
+import { ProfilePage } from '@/routes/pages/ProfilePage'
 import { RegisterPage } from '@/routes/pages/RegisterPage'
 import { RpsDetailPage } from '@/routes/pages/RpsDetailPage'
 
@@ -21,6 +22,7 @@ export const router = createBrowserRouter([
       { path: '/rps/:id', element: <RpsDetailPage /> },
       { path: '/analyses/new', element: <AnalysesNewPage /> },
       { path: '/analyses/:id', element: <AnalysesResultPage /> },
+      { path: '/profile', element: <ProfilePage /> },
     ],
   },
 ])

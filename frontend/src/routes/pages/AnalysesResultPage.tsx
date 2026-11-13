@@ -1,16 +1,21 @@
 import { useState } from 'react'
 import { Link, useParams, useNavigate } from 'react-router-dom'
-import { AlertCircle, ArrowLeft, Check, Clock3, RefreshCw } from 'lucide-react'
+import { AlertCircle, ArrowLeft, Check, Clock3, Info, RefreshCw } from 'lucide-react'
 import { DashboardTopbar } from '@/components/dashboard/DashboardTopbar'
 import { CoverageSummary } from '@/components/analysis/CoverageSummary'
 import { SkillGapTable } from '@/components/analysis/SkillGapTable'
 import { LearningRecommendationList } from '@/components/analysis/LearningRecommendationList'
+import { SelfDeclaredSkillsPanel } from '@/components/analysis/SelfDeclaredSkillsPanel'
 import {
+  useAddMySkill,
   useAnalysis,
   useAnalysisMatches,
   useAnalysisRecommendations,
   useLogout,
   useMe,
+  useMySkills,
+  useRefreshRecommendations,
+  useRemoveMySkill,
 } from '@/lib/query/hooks'
 import { copy } from '@/lib/copy'
 
@@ -32,7 +37,21 @@ export function AnalysesResultPage() {
   )
   const { data: reco } = useAnalysisRecommendations(analysisId, isCompleted)
 
+  const { data: mySkills = [] } = useMySkills()
+  const addSkill = useAddMySkill()
+  const removeSkill = useRemoveMySkill()
+  const refreshReco = useRefreshRecommendations()
+
   const [tab, setTab] = useState<Tab>('summary')
+  // Skill pribadi berubah setelah rekomendasi dimuat → tampilkan banner perbarui.
+  const [recoStale, setRecoStale] = useState(false)
+
+  function declareSkill(skill: string) {
+    addSkill.mutate(
+      { skill, analysis_id: analysisId },
+      { onSuccess: () => setRecoStale(true) },
+    )
+  }
 
   function handleLogout() {
     logout.mutate(undefined, { onSuccess: () => navigate('/login') })
@@ -175,10 +194,43 @@ export function AnalysesResultPage() {
         ) : tab === 'skillGap' ? (
           <SkillGapTable matches={matches} isLoading={isMatchesLoading} />
         ) : (
-          <LearningRecommendationList
-            recommendations={reco?.data ?? []}
-            selfDeclaredSkills={reco?.meta.self_declared_skills ?? []}
-          />
+          <div className="flex flex-col gap-4">
+            {recoStale && (
+              <div className="flex flex-col gap-2 rounded-xl border border-border-warm bg-[#FBF0D9]/60 p-3 text-xs text-warning sm:flex-row sm:items-center sm:justify-between">
+                <span className="flex items-center gap-2">
+                  <Info className="size-4 shrink-0" aria-hidden="true" />
+                  {copy.analysesResult.recoStaleBanner}
+                </span>
+                <button
+                  type="button"
+                  onClick={() =>
+                    refreshReco.mutate(analysisId, { onSuccess: () => setRecoStale(false) })
+                  }
+                  disabled={refreshReco.isPending}
+                  className="w-fit rounded-lg bg-brand px-3 py-1.5 text-[11px] font-bold text-white hover:bg-brand-hover disabled:opacity-50"
+                >
+                  {refreshReco.isPending
+                    ? copy.analysesResult.recoRefreshPending
+                    : copy.analysesResult.recoRefreshBtn}
+                </button>
+              </div>
+            )}
+
+            <LearningRecommendationList
+              recommendations={reco?.data ?? []}
+              onAlreadyLearned={declareSkill}
+            />
+
+            <SelfDeclaredSkillsPanel
+              skills={mySkills}
+              reportedFromAnalysis={reco?.meta.self_declared_skills ?? []}
+              onAdd={declareSkill}
+              onRemove={(id) =>
+                removeSkill.mutate(id, { onSuccess: () => setRecoStale(true) })
+              }
+              isAdding={addSkill.isPending}
+            />
+          </div>
         )}
       </main>
 

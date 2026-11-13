@@ -22,6 +22,28 @@ class RecommendationController extends Controller
     /**
      * Get learning recommendations for a completed analysis.
      */
+    /**
+     * Regenerate recommendations so newly declared personal skills are excluded.
+     * Classification and coverage are not recomputed.
+     */
+    public function refresh(Request $request, Analysis $analysis): JsonResponse
+    {
+        Gate::authorize('view', $analysis);
+
+        if ($analysis->status !== AnalysisStatus::Completed) {
+            return response()->json([
+                'message' => 'Analisis belum selesai diproses.',
+            ], 422);
+        }
+
+        GenerateRecommendationsJob::dispatch($analysis->id);
+
+        return response()->json([
+            'message' => 'Rekomendasi sedang diperbarui.',
+            'analysis_id' => $analysis->id,
+        ], 202);
+    }
+
     public function index(Request $request, Analysis $analysis): JsonResponse
     {
         Gate::authorize('view', $analysis);
