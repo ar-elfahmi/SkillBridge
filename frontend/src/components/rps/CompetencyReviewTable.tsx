@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Check, CircleDashed, Minus, Pencil, Plus, Quote, Trash2, X } from 'lucide-react'
+import { Check, ChevronDown, CircleDashed, Minus, Pencil, Plus, Quote, Trash2, X } from 'lucide-react'
 import type { CourseSkill, CreateCompetencyPayload } from '@/types/api'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -112,52 +112,22 @@ export function CompetencyReviewTable({
           </div>
         </div>
 
-        {/* Filter Pills */}
-        <div className="flex flex-wrap items-center gap-1.5 rounded-lg bg-surface-subtle p-1">
-          <button
-            type="button"
-            onClick={() => setFilter('all')}
-            className={`rounded-md px-3 py-1 text-xs font-semibold transition-colors ${
-              filter === 'all'
-                ? 'bg-white text-brand shadow-xs'
-                : 'text-text-secondary hover:text-text-primary'
-            }`}
+        {/* Filter Dropdown */}
+        <div className="relative w-full sm:w-60">
+          <select
+            aria-label="Filter kompetensi"
+            value={filter}
+            onChange={(e) => setFilter(e.target.value as 'all' | 'unverified' | 'pending' | 'rejected')}
+            className="w-full appearance-none rounded-lg border border-border-warm bg-white px-3 py-2 pr-9 text-xs font-semibold text-text-primary shadow-xs outline-none focus:border-brand"
           >
-            {copy.rpsDetail.review.filterAll} ({totalCount})
-          </button>
-          <button
-            type="button"
-            onClick={() => setFilter('unverified')}
-            className={`rounded-md px-3 py-1 text-xs font-semibold transition-colors ${
-              filter === 'unverified'
-                ? 'bg-white text-brand shadow-xs'
-                : 'text-text-secondary hover:text-text-primary'
-            }`}
-          >
-            {copy.rpsDetail.review.filterUnverified} ({unverifiedCount})
-          </button>
-          <button
-            type="button"
-            onClick={() => setFilter('pending')}
-            className={`rounded-md px-3 py-1 text-xs font-semibold transition-colors ${
-              filter === 'pending'
-                ? 'bg-white text-brand shadow-xs'
-                : 'text-text-secondary hover:text-text-primary'
-            }`}
-          >
-            {copy.rpsDetail.review.filterPending} ({pendingCount})
-          </button>
-          <button
-            type="button"
-            onClick={() => setFilter('rejected')}
-            className={`rounded-md px-3 py-1 text-xs font-semibold transition-colors ${
-              filter === 'rejected'
-                ? 'bg-white text-brand shadow-xs'
-                : 'text-text-secondary hover:text-text-primary'
-            }`}
-          >
-            {copy.rpsDetail.review.filterRejected}
-          </button>
+            <option value="all">{copy.rpsDetail.review.filterAll} ({totalCount})</option>
+            <option value="unverified">
+              {copy.rpsDetail.review.filterUnverified} ({unverifiedCount})
+            </option>
+            <option value="pending">{copy.rpsDetail.review.filterPending} ({pendingCount})</option>
+            <option value="rejected">{copy.rpsDetail.review.filterRejected}</option>
+          </select>
+          <ChevronDown className="pointer-events-none absolute right-3 top-2.5 size-4 text-text-secondary" />
         </div>
       </div>
 
