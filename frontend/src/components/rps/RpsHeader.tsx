@@ -66,13 +66,6 @@ export function RpsHeader({ document, currentStep, onStepChange }: RpsHeaderProp
             {statusLabel}
           </span>
         </div>
-
-        <Link
-          to="/dashboard"
-          className="text-xs font-semibold text-brand hover:underline md:text-sm"
-        >
-          {copy.rpsDetail.backToDashboard}
-        </Link>
       </div>
 
       {/* Stage Stepper (dapat diklik langsung untuk bypass inspeksi desain) */}

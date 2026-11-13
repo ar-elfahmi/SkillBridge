@@ -148,13 +148,6 @@ export function AnalysesResultPage() {
               {statusLabel}
             </span>
 
-            <Link
-              to="/dashboard"
-              className="hidden text-xs font-semibold text-brand hover:underline md:inline"
-            >
-              {copy.analysesResult.backToDashboard}
-            </Link>
-
             <button
               type="button"
               onClick={() => navigate(0)}

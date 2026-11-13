@@ -109,7 +109,6 @@ describe('AnalysesResultPage', () => {
 
     expect(await screen.findByText('Pemrograman Web')).toBeInTheDocument()
     expect(screen.getByText('Analisis selesai')).toBeInTheDocument()
-    expect(screen.getAllByText('Kembali ke Beranda')[0]).toBeInTheDocument()
     expect(screen.getAllByText('41,7%').length).toBeGreaterThan(0)
     expect(screen.getAllByText('Tercakup').length).toBeGreaterThan(0)
   })
