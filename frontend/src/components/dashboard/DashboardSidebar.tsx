@@ -54,7 +54,7 @@ export function DashboardSidebar({
 
       {/* Ringkasan Akun & Status */}
       <div className="flex flex-col gap-3 rounded-2xl border border-border-warm bg-white p-4 shadow-sm">
-        <span className="text-xs font-bold text-text-primary">Status Portofolio</span>
+        <span className="text-xs font-bold text-text-primary">Status</span>
         <div className="flex flex-col gap-2">
           <div className="flex items-center justify-between rounded-lg bg-surface-subtle px-3 py-2 text-xs">
             <span className="text-text-secondary">Dokumen RPS</span>
