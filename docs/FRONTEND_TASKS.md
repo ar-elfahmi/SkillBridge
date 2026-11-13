@@ -22,7 +22,7 @@ Semua task dianggap selesai saat:
 | # | Task | Route | Prioritas |
 |---|---|---|---|
 | 1 | T1.2 Login/Register + guard | `/login`, `/register` | ✅ selesai |
-| 2 | T2.6 Upload RPS | `/rps/upload` | demo inti |
+| 2 | T2.6 Upload RPS (Hero Dropzone) | `/dashboard` | demo inti |
 | 3 | T3.5 Detail RPS & kompetensi | `/rps/:id` | demo inti |
 | 4 | T3.6 Review kompetensi (bersama) | `/rps/:id` | demo inti |
 | 5 | T5.4 Profesi & lowongan | `/analyses/new` (+ `/analyses/:id` untuk preview) | demo inti |
@@ -43,17 +43,16 @@ Semua task dianggap selesai saat:
 - **Komponen:** `LoginPage`, `RegisterPage`, `RequireAuth`, `BrandLogo`, `Button`, `Input`, `Label`
 - **Status:** selesai, ter-commit di branch `feat/T1.2-auth-frontend`
 
-## T2.6 — Upload RPS + polling
+## T2.6 — Upload RPS (Hero Dropzone di Dashboard)
 
-- **Route:** `/rps/upload`
-- **Desain:** alur upload RPS di `docs/dihsain.pen`
-- **Endpoint:** `POST /api/rps` (202), `GET /api/rps/{id}` (polling), `PATCH /api/rps/{id}` (metadata)
-- **Komponen:** dropzone PDF, progress upload, form metadata (`name`, `code`, `credits`, `semester`, `study_program`), notifikasi "pemrosesan pihak ketiga" (AI)
+- **Route:** `/dashboard` (terintegrasi di hero section Dashboard, route terpisah `/rps/upload` dihapus)
+- **Desain:** `03 Dashboard — Desktop/Mobile` (komponen `Upload RPS Hero` / `Mobile Upload RPS Hero`)
+- **Endpoint:** `POST /api/rps` (202), redirect ke `/rps/:id` (Tahap 0 Metadata)
+- **Komponen:** dropzone PDF, progress upload, notifikasi "pemrosesan pihak ketiga" (AI)
 - **Kriteria:**
-  - Validasi klien: tipe PDF + ukuran (UX saja; server tetap validasi)
+  - Validasi klien: file tipe PDF, ukuran maks 10 MB
   - Tangani error: 409 (duplikat → tawarkan buka dokumen yang ada), 413, 422, 429
-  - Polling `GET /api/rps/{id}` tiap 2–3 detik selama `parse_status` `pending/parsing`, berhenti saat `parsed/needs_ocr/failed`
-  - `needs_ocr` → tampilkan penjelasan PDF hasil scan, sarankan PDF digital
+  - Setelah upload diterima (202) → langsung redirect ke `/rps/{id}` (Detail RPS Tahap 0) untuk review metadata AI dan ekstraksi kompetensi
 
 ## T3.5 — Detail RPS & tabel kompetensi
 

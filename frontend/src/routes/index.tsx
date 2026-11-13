@@ -6,10 +6,9 @@ import { DashboardPage } from '@/routes/pages/DashboardPage'
 import { LoginPage } from '@/routes/pages/LoginPage'
 import { RegisterPage } from '@/routes/pages/RegisterPage'
 import { RpsDetailPage } from '@/routes/pages/RpsDetailPage'
-import { RpsUploadPage } from '@/routes/pages/RpsUploadPage'
 
 /**
- * Route sesuai docs/FRONTEND.md section 2.
+ * Route sesuai docs/FRONTEND.md section 2 (RPS upload disatukan di Dashboard).
  */
 export const router = createBrowserRouter([
   { path: '/login', element: <LoginPage /> },
@@ -19,7 +18,6 @@ export const router = createBrowserRouter([
     children: [
       { path: '/', element: <DashboardPage /> },
       { path: '/dashboard', element: <DashboardPage /> },
-      { path: '/rps/upload', element: <RpsUploadPage /> },
       { path: '/rps/:id', element: <RpsDetailPage /> },
       { path: '/analyses/new', element: <AnalysesNewPage /> },
       { path: '/analyses/:id', element: <AnalysesResultPage /> },
