@@ -31,7 +31,7 @@ Dok: `DATABASE.md`, `API.md §3`, `AI_PIPELINE.md §1–2`
   *Terima:* fixture PDF digital dan PDF kosong teks diuji.
 - [x] **T2.4** Klien Gemini (`Modules/Ai/GeminiClient`) berbasis `Http` dengan timeout, retry terbatas, pencatatan `ai_runs`; fake di test. Tabel `ai_runs`.
 - [x] **T2.5** `ExtractRpsMetadataJob` + `PATCH /api/rps/{id}` + `GET /api/rps`, `GET /api/rps/{id}`, `DELETE`.
-- [ ] **T2.6** Frontend: `/rps/upload` (dropzone, progress, form metadata, notifikasi pemrosesan pihak ketiga) dan polling status.
+- [x] **T2.6** Frontend: Unggah RPS terintegrasi di Hero Dropzone Dashboard (`/dashboard`) dengan validasi format/ukuran, penanganan duplikat (409), dan navigasi ke `/rps/:id`.
 
 ## Fase 3 — Ekstraksi kompetensi
 Dok: `AI_PIPELINE.md §3`, `DATABASE.md (skills, course_skills)`
@@ -79,7 +79,7 @@ Dok: `AI_PIPELINE.md §7`
 
 ## Fase 8 — Penyelesaian
 Dok: `TESTING.md`, `SECURITY.md`, `FRONTEND.md`
-- [ ] **T8.1** Rate limiting, batas kuota AI, pesan error ramah, halaman riwayat/dashboard.
+- [ ] **T8.1** Rate limiting, batas kuota AI, pesan error ramah, halaman riwayat/dashboard (frontend dashboard selesai di T2.6/T8.1).
 - [x] **T8.2** Golden dataset + `skillbridge:evaluate` (precision/recall/F1) dan dokumen `docs/CALIBRATION.md`.
 - [ ] **T8.3** Responsif (375/768/1280), loading/empty/error state, audit kata-kata UI.
 - [ ] **T8.4** Deploy ke VPS: Nginx (serve build statis frontend + reverse proxy ke PHP-FPM), PostgreSQL, Redis, queue worker via systemd/Supervisor, HTTPS (Certbot), storage PDF di disk privat di luar web root, backup DB + storage terjadwal, domain same-site untuk cookie.

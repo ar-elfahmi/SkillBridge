@@ -14,11 +14,15 @@ const INFO_POINT_ICONS = [Upload, ClipboardCheck, Columns2]
 
 function registerErrorMessage(error: unknown): string {
   if (error instanceof ApiRequestError) {
-    const emailErr = error.body.errors?.email?.[0]
-    if (emailErr) return emailErr
-    const passErr = error.body.errors?.password?.[0]
-    if (passErr) return passErr
-    if (error.body.message) return error.body.message
+    if (error.status === 422) {
+      const emailErr = error.body.errors?.email?.[0]
+      if (emailErr) return emailErr
+      const passErr = error.body.errors?.password?.[0]
+      if (passErr) return passErr
+      if (error.body.message) return error.body.message
+    }
+    // Error status >= 500 atau status lain jangan tampilkan pesan raw database
+    return copy.auth.genericError
   }
   return copy.auth.genericError
 }
