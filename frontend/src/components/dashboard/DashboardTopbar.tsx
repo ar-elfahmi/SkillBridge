@@ -55,9 +55,17 @@ export function DashboardTopbar({ user, onLogout, onSearch }: DashboardTopbarPro
 
         <div
           title={user?.name}
-          className="flex size-10 items-center justify-center rounded-full bg-brand text-xs font-bold text-white shadow-sm"
+          className="flex size-10 shrink-0 items-center justify-center rounded-full bg-brand text-xs font-bold text-white shadow-sm"
         >
           {initials}
+        </div>
+
+        {/* Identitas pengguna (desktop) */}
+        <div className="hidden min-w-0 flex-col md:flex">
+          <span className="truncate text-xs font-semibold text-text-primary">
+            {user?.name}
+          </span>
+          <span className="truncate text-[11px] text-text-secondary">{user?.email}</span>
         </div>
 
         <button
@@ -68,6 +76,17 @@ export function DashboardTopbar({ user, onLogout, onSearch }: DashboardTopbarPro
           className="flex size-10 items-center justify-center rounded-full text-text-secondary transition-colors hover:bg-surface-subtle hover:text-danger md:hidden"
         >
           <LogOut className="size-4" aria-hidden="true" />
+        </button>
+
+        {/* Tombol keluar (desktop) */}
+        <button
+          type="button"
+          onClick={onLogout}
+          aria-label="Keluar"
+          className="ml-1 hidden items-center gap-1.5 rounded-lg border border-border-warm px-3 py-1.5 text-xs font-semibold text-text-secondary transition-colors hover:border-danger/40 hover:bg-brand-soft/40 hover:text-danger md:flex"
+        >
+          <LogOut className="size-3.5" aria-hidden="true" />
+          Keluar
         </button>
       </div>
     </header>
