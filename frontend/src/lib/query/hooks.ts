@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { authApi } from '@/lib/api/endpoints'
+import { analysisApi, authApi, industryApi, rpsApi } from '@/lib/api/endpoints'
 import { queryKeys } from '@/lib/query/keys'
 import type { User } from '@/types/api'
 
@@ -53,3 +53,46 @@ export function useLogout() {
     },
   })
 }
+
+export function useRpsList() {
+  return useQuery({
+    queryKey: queryKeys.rps,
+    queryFn: rpsApi.list,
+    select: (res) => res.data,
+  })
+}
+
+export function useUploadRps() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (file: File) => rpsApi.upload(file),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.rps })
+    },
+  })
+}
+
+export function useAnalysesList() {
+  return useQuery({
+    queryKey: queryKeys.analyses,
+    queryFn: analysisApi.list,
+    select: (res) => res.data,
+  })
+}
+
+export function useCareersList() {
+  return useQuery({
+    queryKey: queryKeys.careers,
+    queryFn: industryApi.careers,
+    select: (res) => res.data,
+  })
+}
+
+export function useJobsList(careerId?: number) {
+  return useQuery({
+    queryKey: queryKeys.jobs(careerId),
+    queryFn: () => industryApi.jobs(careerId),
+    select: (res) => res.data,
+  })
+}
+

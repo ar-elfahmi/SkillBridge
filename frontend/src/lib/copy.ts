@@ -60,5 +60,46 @@ export const copy = {
     missing: 'Belum ditemukan dalam RPS',
   },
 
+  dashboard: {
+    searchPlaceholder: 'Cari RPS, skill, atau lowongan',
+    uploadEyebrow: 'UNGGAH RPS',
+    uploadTitle: 'Unggah RPS',
+    uploadDescDesktop:
+      'Unggah PDF RPS. Sistem membaca dokumen dan menyiapkan kompetensi untuk Anda tinjau.',
+    uploadDescMobile: 'Unggah PDF RPS dan mulai tinjau kompetensi.',
+    uploadDropTitle: 'Pilih atau tarik PDF RPS',
+    uploadNote: 'PDF · Maks. 10 MB',
+    chooseFile: 'Pilih File',
+    uploading: 'Mengunggah…',
+    uploadSuccess: 'RPS berhasil diunggah. Menuju ke tinjauan metadata…',
+    uploadDuplicate: 'RPS ini sudah pernah Anda unggah.',
+    openExisting: 'Buka Dokumen',
+    fileTooLarge: 'Ukuran PDF melebihi batas 10 MB.',
+    invalidFile: 'Berkas harus berupa PDF yang valid.',
+    stats: {
+      missingSkillsLabel: 'Skill yang kurang',
+      missingSkillsNote: 'skill · prioritas analisis',
+      matchedJobsLabel: 'Lowongan cocok',
+      matchedJobsNote: 'lowongan cocok · data industri',
+      careersLabel: 'Profil pekerjaan',
+      careersNote: 'profil pekerjaan · Target aktif',
+    },
+    analyzedRpsTitle: 'RPS dianalisis',
+    viewAll: 'Lihat semua →',
+    emptyRps: 'Belum ada RPS yang diunggah. Mulai dengan mengunggah PDF RPS di atas.',
+    sidebar: {
+      heading: 'Ringkasan',
+      ownedSkillsTitle: 'Skill yang sudah dimiliki',
+      ownedSkillsNote: 'Dilaporkan pengguna',
+      viewAllSkills: 'Lihat semua skill →',
+      recentActivityTitle: 'Aktivitas terbaru',
+    },
+    nav: {
+      home: 'Beranda',
+      upload: 'Unggah RPS',
+      profile: 'Profil',
+    },
+  },
+
   sampleDataLabel: 'Data contoh',
 } as const

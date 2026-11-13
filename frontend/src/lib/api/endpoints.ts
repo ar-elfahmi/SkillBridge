@@ -1,6 +1,8 @@
 import { api } from '@/lib/api/client'
 import type {
+  Analysis,
   Career,
+  CreateAnalysisPayload,
   JobPosting,
   RpsDocument,
   User,
@@ -44,3 +46,12 @@ export const industryApi = {
     ),
   job: (id: number) => api.get<{ data: JobPosting }>(`/jobs/${id}`),
 }
+
+export const analysisApi = {
+  list: () => api.get<{ data: Analysis[] }>('/analyses'),
+  show: (id: number) => api.get<{ data: Analysis }>(`/analyses/${id}`),
+  create: (payload: CreateAnalysisPayload) =>
+    api.post<{ data: Analysis }>('/analyses', payload),
+  remove: (id: number) => api.delete<void>(`/analyses/${id}`),
+}
+
