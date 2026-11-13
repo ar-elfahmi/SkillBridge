@@ -29,4 +29,28 @@ return Application::configure(basePath: dirname(__DIR__))
 
             return null;
         });
+
+        // Tangani database down / query exception agar tidak bocor raw SQLSTATE ke response JSON
+        $exceptions->render(function (\Throwable $e, Request $request) {
+            if ($request->is('api/*') || $request->is('sanctum/*') || $request->expectsJson()) {
+                if ($e instanceof \Illuminate\Validation\ValidationException) {
+                    return null; // Biarkan Laravel merender 422 standard
+                }
+                if ($e instanceof \Illuminate\Http\Exceptions\HttpResponseException) {
+                    return null; // Biarkan respons kustom (seperti response rate limit 429) langsung dikembalikan
+                }
+                if ($e instanceof \Symfony\Component\HttpKernel\Exception\HttpExceptionInterface) {
+                    if ($e->getStatusCode() < 500) {
+                        return null; // 401, 403, 404, 409, 429 tetap sesuai exception aslinya
+                    }
+                }
+
+                // Error sistem / 500 / Database exception: sembunyikan pesan internal
+                return response()->json([
+                    'message' => 'Terjadi kesalahan pada sistem. Silakan coba beberapa saat lagi.',
+                ], 500);
+            }
+
+            return null;
+        });
     })->create();
