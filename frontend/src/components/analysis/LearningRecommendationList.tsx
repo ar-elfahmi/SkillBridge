@@ -38,9 +38,9 @@ export function LearningRecommendationList({
           {recommendations.map((r) => (
             <div
               key={r.skill}
-              className={`flex flex-col gap-3 rounded-2xl border bg-white p-5 shadow-sm transition-colors ${
+              className={`flex flex-col gap-3 rounded-2xl border-2 bg-white p-5 shadow-sm transition-colors ${
                 declaredSkills.has(r.skill)
-                  ? 'border-success/30'
+                  ? 'border-success/80 '
                   : 'border-border-warm'
               }`}
             >
