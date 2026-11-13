@@ -21,7 +21,7 @@ Jika ada yang ambigu, tanya dulu.
 Dok: `API.md §2`, `SECURITY.md`
 - [x] **T1.1** Register/login/logout/me dengan Sanctum SPA; kolom `users.role` (hanya `student`; role `study_program` dihapus 2026-11-10).
   *Terima:* test auth lulus; CSRF cookie bekerja dari frontend lokal.
-- [ ] **T1.2** Halaman `/login` dan `/register` + guard sesi di frontend.
+- [x] **T1.2** Halaman `/login` dan `/register` + guard sesi di frontend.
 
 ## Fase 2 — Upload & parsing RPS
 Dok: `DATABASE.md`, `API.md §3`, `AI_PIPELINE.md §1–2`

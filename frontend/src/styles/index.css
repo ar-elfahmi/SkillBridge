@@ -2,13 +2,28 @@
 @import "tw-animate-css";
 /* Varian & keyframe Radix dari paket shadcn, di-vendor agar build tidak bergantung CLI. */
 @import "./shadcn.css";
-@import "@fontsource-variable/geist";
+@import "@fontsource-variable/plus-jakarta-sans";
+@import "@fontsource/dm-serif-display";
 
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
+    --color-brand: var(--brand);
+    --color-brand-hover: var(--brand-hover);
+    --color-brand-soft: var(--brand-soft);
+    --color-surface-canvas: var(--surface-canvas);
+    --color-surface-elevated: var(--surface-elevated);
+    --color-surface-subtle: var(--surface-subtle);
+    --color-text-primary: var(--text-primary);
+    --color-text-secondary: var(--text-secondary);
+    --color-border-warm: var(--border-warm);
+    --color-success: var(--success);
+    --color-warning: var(--warning);
+    --color-danger: var(--danger);
+    --color-info: var(--info);
+    --font-display: "DM Serif Display", Georgia, serif;
+    --font-sans: "Plus Jakarta Sans Variable", sans-serif;
     --font-heading: var(--font-sans);
-    --font-sans: 'Geist Variable', sans-serif;
     --color-sidebar-ring: var(--sidebar-ring);
     --color-sidebar-border: var(--sidebar-border);
     --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -50,6 +65,20 @@
 }
 
 :root {
+    /* Token brand dari docs/dihsain.pen */
+    --brand: #9a0002;
+    --brand-hover: #7a0002;
+    --brand-soft: #f3ded9;
+    --surface-canvas: #efe6de;
+    --surface-elevated: #fff9f4;
+    --surface-subtle: #f7eee6;
+    --text-primary: #201b19;
+    --text-secondary: #6b5d57;
+    --border-warm: #d9c3b8;
+    --success: #2f6b4f;
+    --warning: #8a5300;
+    --danger: #b3261e;
+    --info: #315d8c;
     --background: oklch(1 0 0);
     --foreground: oklch(0.145 0 0);
     --card: oklch(1 0 0);

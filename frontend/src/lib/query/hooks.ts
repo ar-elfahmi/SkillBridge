@@ -13,6 +13,26 @@ export function useMe() {
   })
 }
 
+export function useRegister() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: ({
+      name,
+      email,
+      password,
+      passwordConfirmation,
+    }: {
+      name: string
+      email: string
+      password: string
+      passwordConfirmation: string
+    }) => authApi.register(name, email, password, passwordConfirmation),
+    onSuccess: (response: { data: User }) => {
+      queryClient.setQueryData(queryKeys.me, response)
+    },
+  })
+}
+
 export function useLogin() {
   const queryClient = useQueryClient()
   return useMutation({
