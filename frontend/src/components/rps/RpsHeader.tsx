@@ -37,6 +37,12 @@ export function RpsHeader({ document, currentStep, onStepChange }: RpsHeaderProp
 
   const StatusIcon = statusIcon
 
+  const steps = [
+    { index: 1 as const, label: copy.rpsDetail.stepper.step1 },
+    { index: 2 as const, label: copy.rpsDetail.stepper.step2 },
+    { index: 3 as const, label: copy.rpsDetail.stepper.step3 },
+  ]
+
   return (
     <div className="flex flex-col gap-6">
       {/* Top Document Meta Bar */}
@@ -51,7 +57,7 @@ export function RpsHeader({ document, currentStep, onStepChange }: RpsHeaderProp
           </Link>
 
           <div className="flex flex-col">
-            <h1 className="font-display text-base font-normal text-text-primary md:text-xl">
+            <h1 className="font-display text-xl font-normal text-text-primary md:text-3xl">
               {document.original_name}
             </h1>
             <span className="text-xs text-text-secondary">
@@ -68,79 +74,41 @@ export function RpsHeader({ document, currentStep, onStepChange }: RpsHeaderProp
         </span>
       </div>
 
-      {/* Stage Stepper (dapat diklik langsung untuk bypass inspeksi desain) */}
-      <div className="flex items-center justify-between rounded-xl bg-white p-4 shadow-sm md:px-8">
-        {/* Step 1: Konfirmasi metadata */}
-        <button
-          type="button"
-          onClick={() => onStepChange?.(1)}
-          className="flex items-center gap-3 text-left transition-opacity hover:opacity-80"
-        >
-          <div
-            className={`flex size-8 shrink-0 items-center justify-center rounded-full text-xs font-bold ${currentStep > 1
-              ? 'bg-success text-white'
-              : 'bg-brand text-white shadow'
-              }`}
-          >
-            {currentStep > 1 ? <Check className="size-4" /> : '1'}
-          </div>
-          <span
-            className={`text-xs font-semibold md:text-sm ${currentStep === 1 ? 'text-brand' : 'text-text-primary'
-              }`}
-          >
-            {copy.rpsDetail.stepper.step1}
-          </span>
-        </button>
+      {/* Stage Stepper — dapat diklik untuk bypass inspeksi desain */}
+      <ol className="grid grid-cols-[auto_1fr_auto_1fr_auto] items-center gap-3 rounded-xl bg-white p-4 shadow-sm md:gap-5 md:px-6">
+        {steps.map((step, i) => {
+          const done = currentStep > step.index
+          const active = currentStep === step.index
+          const marker = done ? 'bg-success text-white' : active ? 'bg-brand text-white shadow-sm' : 'bg-surface-canvas text-text-secondary'
 
-        <div className="h-0.5 flex-1 bg-border-warm mx-4 hidden sm:block" />
+          return (
+            <li key={step.index} className="contents">
+              {i > 0 && <span aria-hidden="true" className="h-0.5 w-full rounded-full bg-border-warm" />}
 
-        {/* Step 2: Tinjau kompetensi */}
-        <button
-          type="button"
-          onClick={() => onStepChange?.(2)}
-          className="flex items-center gap-3 text-left transition-opacity hover:opacity-80"
-        >
-          <div
-            className={`flex size-8 shrink-0 items-center justify-center rounded-full text-xs font-bold ${currentStep > 2
-              ? 'bg-success text-white'
-              : currentStep === 2
-                ? 'bg-brand text-white shadow'
-                : 'bg-surface-canvas text-text-secondary'
-              }`}
-          >
-            {currentStep > 2 ? <Check className="size-4" /> : '2'}
-          </div>
-          <span
-            className={`text-xs font-semibold md:text-sm ${currentStep === 2 ? 'text-brand' : 'text-text-secondary'
-              }`}
-          >
-            {copy.rpsDetail.stepper.step2}
-          </span>
-        </button>
-
-        <div className="h-0.5 flex-1 bg-border-warm mx-4 hidden sm:block" />
-
-        {/* Step 3: Petakan industri */}
-        <Link
-          to={`/analyses/new?rps=${document.id}`}
-          className="flex items-center gap-3 text-left transition-opacity hover:opacity-80"
-        >
-          <div
-            className={`flex size-8 shrink-0 items-center justify-center rounded-full text-xs font-bold ${currentStep === 3
-              ? 'bg-brand text-white shadow'
-              : 'bg-surface-canvas text-text-secondary'
-              }`}
-          >
-            3
-          </div>
-          <span
-            className={`text-xs font-semibold md:text-sm ${currentStep === 3 ? 'text-brand' : 'text-text-secondary'
-              }`}
-          >
-            {copy.rpsDetail.stepper.step3}
-          </span>
-        </Link>
-      </div>
+              <button
+                type="button"
+                onClick={() => onStepChange?.(step.index)}
+                aria-current={active ? 'step' : undefined}
+                aria-label={step.label}
+                className="flex items-center gap-2.5 rounded-lg text-left outline-none transition-opacity hover:opacity-80 focus-visible:ring-2 focus-visible:ring-brand/40 md:gap-3"
+              >
+                <span
+                  className={`flex size-8 shrink-0 items-center justify-center rounded-full text-[13px] font-semibold tabular-nums leading-none ${marker}`}
+                >
+                  {done ? <Check className="size-4" aria-hidden="true" /> : step.index}
+                </span>
+                <span
+                  className={`hidden whitespace-nowrap text-sm font-semibold leading-none sm:inline ${
+                    active ? 'text-brand' : done ? 'text-text-primary' : 'text-text-secondary'
+                  }`}
+                >
+                  {step.label}
+                </span>
+              </button>
+            </li>
+          )
+        })}
+      </ol>
     </div>
   )
 }
