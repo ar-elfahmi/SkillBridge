@@ -224,3 +224,36 @@ export function useCreateAnalysis() {
 }
 
 
+
+export function useAnalysis(id: number) {
+  return useQuery({
+    queryKey: queryKeys.analysis(id),
+    queryFn: () => analysisApi.show(id),
+    select: (res) => res.data,
+    enabled: Number.isInteger(id) && id > 0,
+    refetchInterval: (query) => {
+      const data = query.state.data?.data
+      if (!data) return false
+      if (data.status === 'queued' || data.status === 'processing') return 2500
+      return false
+    },
+  })
+}
+
+export function useAnalysisMatches(id: number, enabled = true) {
+  return useQuery({
+    queryKey: [...queryKeys.analysis(id), 'matches'] as const,
+    queryFn: () => analysisApi.matches(id),
+    select: (res) => res.data,
+    enabled: enabled && Number.isInteger(id) && id > 0,
+  })
+}
+
+export function useAnalysisRecommendations(id: number, enabled = true) {
+  return useQuery({
+    queryKey: [...queryKeys.analysis(id), 'recommendations'] as const,
+    queryFn: () => analysisApi.recommendations(id),
+    select: (res) => res,
+    enabled: enabled && Number.isInteger(id) && id > 0,
+  })
+}

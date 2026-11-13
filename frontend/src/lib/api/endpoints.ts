@@ -6,7 +6,9 @@ import type {
   CreateAnalysisPayload,
   CreateCompetencyPayload,
   JobPosting,
+  RecommendationsResponse,
   RpsDocument,
+  SkillMatch,
   UpdateCompetencyPayload,
   UpdateRpsMetadataPayload,
   User,
@@ -83,6 +85,10 @@ export const analysisApi = {
   show: (id: number) => api.get<{ data: Analysis }>(`/analyses/${id}`),
   create: (payload: CreateAnalysisPayload) =>
     api.post<{ data: Analysis }>('/analyses', payload),
+  matches: (id: number) =>
+    api.get<{ data: SkillMatch[] }>(`/analyses/${id}/matches`),
+  recommendations: (id: number) =>
+    api.get<RecommendationsResponse>(`/analyses/${id}/recommendations`),
   remove: (id: number) => api.delete<void>(`/analyses/${id}`),
 }
 
