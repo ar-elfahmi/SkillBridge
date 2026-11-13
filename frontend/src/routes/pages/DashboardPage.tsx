@@ -124,7 +124,6 @@ export function DashboardPage() {
           user={user}
           rpsCount={rpsList.length}
           analysesCount={analysesList.length}
-          onLogout={handleLogout}
         />
       </main>
 

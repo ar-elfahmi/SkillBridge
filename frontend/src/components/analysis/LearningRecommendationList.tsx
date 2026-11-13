@@ -4,6 +4,7 @@ import { copy } from '@/lib/copy'
 interface LearningRecommendationListProps {
   recommendations: Recommendation[]
   onAlreadyLearned: (skill: string) => void
+  declaredSkills: Set<string>
 }
 
 const PRIORITY_STYLE = {
@@ -15,6 +16,7 @@ const PRIORITY_STYLE = {
 export function LearningRecommendationList({
   recommendations,
   onAlreadyLearned,
+  declaredSkills,
 }: LearningRecommendationListProps) {
   return (
     <div className="flex flex-col gap-4">
@@ -36,7 +38,11 @@ export function LearningRecommendationList({
           {recommendations.map((r) => (
             <div
               key={r.skill}
-              className="flex flex-col gap-3 rounded-2xl border border-border-warm bg-white p-5 shadow-sm"
+              className={`flex flex-col gap-3 rounded-2xl border bg-white p-5 shadow-sm transition-colors ${
+                declaredSkills.has(r.skill)
+                  ? 'border-success/60'
+                  : 'border-border-warm'
+              }`}
             >
               <div className="flex items-start justify-between gap-3">
                 <span className="text-sm font-bold text-brand">{r.skill}</span>

@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Link, useParams, useNavigate } from 'react-router-dom'
-import { AlertCircle, ArrowLeft, Check, Clock3, Info, RefreshCw } from 'lucide-react'
+import { AlertCircle, ArrowLeft, Check, Clock3, Info } from 'lucide-react'
 import { DashboardTopbar } from '@/components/dashboard/DashboardTopbar'
 import { CoverageSummary } from '@/components/analysis/CoverageSummary'
 import { SkillGapTable } from '@/components/analysis/SkillGapTable'
@@ -45,6 +45,11 @@ export function AnalysesResultPage() {
   const [tab, setTab] = useState<Tab>('summary')
   // Skill pribadi berubah setelah rekomendasi dimuat → tampilkan banner perbarui.
   const [recoStale, setRecoStale] = useState(false)
+
+  // Skill pribadi yang cocok dengan skill industri pada analisis ini
+  const declaredSkillNames = new Set(
+    matches.filter((m) => m.self_declared).map((m) => m.skill),
+  )
 
   function declareSkill(skill: string) {
     addSkill.mutate(
@@ -166,15 +171,6 @@ export function AnalysesResultPage() {
               <StatusIcon className="size-3.5" />
               {statusLabel}
             </span>
-
-            <button
-              type="button"
-              onClick={() => navigate(0)}
-              className="flex items-center gap-1.5 rounded-lg border border-border-warm px-3 py-1.5 text-xs font-semibold text-text-primary hover:bg-surface-subtle"
-            >
-              <RefreshCw className="size-3.5" />
-              {copy.analysesResult.refresh}
-            </button>
           </div>
         </div>
 
@@ -219,6 +215,7 @@ export function AnalysesResultPage() {
             <LearningRecommendationList
               recommendations={reco?.data ?? []}
               onAlreadyLearned={declareSkill}
+              declaredSkills={declaredSkillNames}
             />
 
             <SelfDeclaredSkillsPanel

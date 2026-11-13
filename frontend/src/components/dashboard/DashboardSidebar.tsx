@@ -1,4 +1,3 @@
-import { LogOut } from 'lucide-react'
 import type { User } from '@/types/api'
 import { copy } from '@/lib/copy'
 
@@ -6,14 +5,12 @@ interface DashboardSidebarProps {
   user?: User
   rpsCount: number
   analysesCount: number
-  onLogout: () => void
 }
 
 export function DashboardSidebar({
   user,
   rpsCount,
   analysesCount,
-  onLogout,
 }: DashboardSidebarProps) {
   const initials = user?.name
     ? user.name
@@ -42,14 +39,6 @@ export function DashboardSidebar({
             Mahasiswa
           </span>
         </div>
-        <button
-          type="button"
-          onClick={onLogout}
-          className="mt-1 flex items-center gap-1.5 rounded-lg px-3 py-1 text-xs font-semibold text-danger hover:bg-brand-soft/40 transition-colors"
-        >
-          <LogOut className="size-3.5" aria-hidden="true" />
-          <span>Keluar</span>
-        </button>
       </div>
 
       {/* Ringkasan Akun & Status */}
