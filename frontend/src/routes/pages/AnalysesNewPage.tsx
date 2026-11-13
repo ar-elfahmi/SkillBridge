@@ -187,7 +187,7 @@ export function AnalysesNewPage() {
               <ArrowLeft className="size-4" />
             </Link>
             <div className="flex flex-col">
-              <h1 className="font-display text-2xl font-normal text-text-primary md:text-3xl">
+              <h1 className="font-display text-xl font-normal text-text-primary md:text-3xl">
                 {copy.analysesNew.pageTitle}
               </h1>
               <span className="text-xs text-text-secondary md:text-sm">
