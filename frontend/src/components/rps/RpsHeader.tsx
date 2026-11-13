@@ -58,14 +58,14 @@ export function RpsHeader({ document, currentStep, onStepChange }: RpsHeaderProp
               {document.page_count ? `${document.page_count} halaman` : 'Dokumen PDF'}
             </span>
           </div>
-
-          <span
-            className={`ml-2 inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold ${chipClass}`}
-          >
-            <StatusIcon className="size-3.5" aria-hidden="true" />
-            {statusLabel}
-          </span>
         </div>
+
+        <span
+          className={`inline-flex w-fit items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold ${chipClass}`}
+        >
+          <StatusIcon className="size-3.5" aria-hidden="true" />
+          {statusLabel}
+        </span>
       </div>
 
       {/* Stage Stepper (dapat diklik langsung untuk bypass inspeksi desain) */}
@@ -77,18 +77,16 @@ export function RpsHeader({ document, currentStep, onStepChange }: RpsHeaderProp
           className="flex items-center gap-3 text-left transition-opacity hover:opacity-80"
         >
           <div
-            className={`flex size-8 shrink-0 items-center justify-center rounded-full text-xs font-bold ${
-              currentStep > 1
-                ? 'bg-success text-white'
-                : 'bg-brand text-white shadow'
-            }`}
+            className={`flex size-8 shrink-0 items-center justify-center rounded-full text-xs font-bold ${currentStep > 1
+              ? 'bg-success text-white'
+              : 'bg-brand text-white shadow'
+              }`}
           >
             {currentStep > 1 ? <Check className="size-4" /> : '1'}
           </div>
           <span
-            className={`text-xs font-semibold md:text-sm ${
-              currentStep === 1 ? 'text-brand' : 'text-text-primary'
-            }`}
+            className={`text-xs font-semibold md:text-sm ${currentStep === 1 ? 'text-brand' : 'text-text-primary'
+              }`}
           >
             {copy.rpsDetail.stepper.step1}
           </span>
@@ -103,20 +101,18 @@ export function RpsHeader({ document, currentStep, onStepChange }: RpsHeaderProp
           className="flex items-center gap-3 text-left transition-opacity hover:opacity-80"
         >
           <div
-            className={`flex size-8 shrink-0 items-center justify-center rounded-full text-xs font-bold ${
-              currentStep > 2
-                ? 'bg-success text-white'
-                : currentStep === 2
+            className={`flex size-8 shrink-0 items-center justify-center rounded-full text-xs font-bold ${currentStep > 2
+              ? 'bg-success text-white'
+              : currentStep === 2
                 ? 'bg-brand text-white shadow'
                 : 'bg-surface-canvas text-text-secondary'
-            }`}
+              }`}
           >
             {currentStep > 2 ? <Check className="size-4" /> : '2'}
           </div>
           <span
-            className={`text-xs font-semibold md:text-sm ${
-              currentStep === 2 ? 'text-brand' : 'text-text-secondary'
-            }`}
+            className={`text-xs font-semibold md:text-sm ${currentStep === 2 ? 'text-brand' : 'text-text-secondary'
+              }`}
           >
             {copy.rpsDetail.stepper.step2}
           </span>
@@ -130,18 +126,16 @@ export function RpsHeader({ document, currentStep, onStepChange }: RpsHeaderProp
           className="flex items-center gap-3 text-left transition-opacity hover:opacity-80"
         >
           <div
-            className={`flex size-8 shrink-0 items-center justify-center rounded-full text-xs font-bold ${
-              currentStep === 3
-                ? 'bg-brand text-white shadow'
-                : 'bg-surface-canvas text-text-secondary'
-            }`}
+            className={`flex size-8 shrink-0 items-center justify-center rounded-full text-xs font-bold ${currentStep === 3
+              ? 'bg-brand text-white shadow'
+              : 'bg-surface-canvas text-text-secondary'
+              }`}
           >
             3
           </div>
           <span
-            className={`text-xs font-semibold md:text-sm ${
-              currentStep === 3 ? 'text-brand' : 'text-text-secondary'
-            }`}
+            className={`text-xs font-semibold md:text-sm ${currentStep === 3 ? 'text-brand' : 'text-text-secondary'
+              }`}
           >
             {copy.rpsDetail.stepper.step3}
           </span>
