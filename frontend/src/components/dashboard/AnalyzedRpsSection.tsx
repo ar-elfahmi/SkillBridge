@@ -62,10 +62,16 @@ export function AnalyzedRpsSection({
             const isCompleted = doc.review_status === 'confirmed'
             const isNeedReview = doc.review_status === 'unreviewed'
 
+            // Sudah dianalisis → langsung ke hasil analisis; belum → ke detail RPS
+            const hasResult = analysis?.status === 'completed'
+            const target = hasResult
+              ? `/analyses/${analysis.analysis_id}`
+              : `/rps/${doc.id}`
+
             return (
               <Link
                 key={doc.id}
-                to={`/rps/${doc.id}`}
+                to={target}
                 className="group flex flex-col gap-3 rounded-2xl border border-border-warm bg-white p-4.5 shadow-sm transition-all hover:border-brand hover:shadow-md"
               >
                 <div className="flex items-center gap-3">

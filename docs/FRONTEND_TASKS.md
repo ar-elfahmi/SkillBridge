@@ -24,11 +24,11 @@ Semua task dianggap selesai saat:
 | 1 | T1.2 Login/Register + guard | `/login`, `/register` | ✅ selesai |
 | 2 | T2.6 Upload RPS (Hero Dropzone) | `/dashboard` | ✅ selesai |
 | 3 | T8.1 Dashboard Riwayat | `/dashboard` | ✅ selesai (FE) |
-| 4 | T3.5 Detail RPS & kompetensi | `/rps/:id` | demo inti |
-| 5 | T3.6 Review kompetensi (bersama) | `/rps/:id` | demo inti |
-| 6 | T5.4 Profesi & lowongan | `/analyses/new` (+ `/analyses/:id` untuk preview) | demo inti |
-| 7 | T6.5 Analisis + Ringkasan/Skill Gap | `/analyses/new`, `/analyses/:id` | demo inti |
-| 8 | T7.4 Rekomendasi + Disclaimer | `/analyses/:id` | demo inti |
+| 4 | T3.5 Detail RPS & kompetensi | `/rps/:id` | ✅ selesai |
+| 5 | T3.6 Review kompetensi (bersama) | `/rps/:id` | ✅ selesai |
+| 6 | T5.4 Profesi & lowongan | `/analyses/new` (+ `/analyses/:id` untuk preview) | ✅ selesai |
+| 7 | T6.5 Analisis + Ringkasan/Skill Gap | `/analyses/new`, `/analyses/:id` | ✅ selesai |
+| 8 | T7.4 Rekomendasi + Disclaimer | `/analyses/:id` | ✅ selesai |
 | 9 | T7.5 Skill pribadi (bersama) | `/analyses/:id` | demo inti |
 | 10 | T8.3 Responsif & polish | seluruh halaman | akhir |
 | 11 | T8.5 Checklist MVP (bersama) | — | akhir |
@@ -55,6 +55,7 @@ Semua task dianggap selesai saat:
   - Setelah upload diterima (202) → langsung redirect ke `/rps/{id}` (Detail RPS Tahap 0) untuk review metadata AI dan ekstraksi kompetensi
 
 ## T3.5 — Detail RPS & tabel kompetensi
+- **Status:** selesai — `RpsDetailPage`, `RpsHeader`, `MetadataPanel`. Stepper 3 tahap dapat diklik (bypass) untuk inspeksi desain.
 
 - **Route:** `/rps/:id`
 - **Desain:** `04 Detail RPS — Tahap 0/1 — Desktop/Mobile`
@@ -65,6 +66,7 @@ Semua task dianggap selesai saat:
   - Tiap baris kompetensi tampilkan `evidence` + `source_reference` + `page`, dengan badge verifikasi (`verified/unverified`)
 
 ## T3.6 — Review kompetensi (bersama)
+- **Status:** selesai — `CompetencyReviewTable` (tabel desktop + kartu mobile), filter status, tambah/edit/tolak kompetensi, tombol konfirmasi hasil ekstraksi.
 
 - **Route:** `/rps/:id` (tahap review)
 - **Endpoint:** `PATCH /api/rps/{id}/competencies/{cid}`, `POST /api/rps/{id}/competencies`, `DELETE /api/rps/{id}/competencies/{cid}`, `POST /api/rps/{id}/confirm-review`
@@ -75,6 +77,7 @@ Semua task dianggap selesai saat:
   - `origin=user` ditandai tidak terverifikasi
 
 ## T5.4 — Profesi & lowongan
+- **Status:** selesai — `AnalysesNewPage` Step 1 & 2: dropdown profesi, daftar lowongan dengan badge skill, panel detail lowongan, form tambah lowongan manual. Backend `GET /api/jobs` sekarang eager-load `jobSkills.skillEntry`.
 
 - **Route:** `/analyses/new?rps={id}`
 - **Desain:** `05 Pemetaan Industri — Desktop/Mobile`
@@ -85,6 +88,7 @@ Semua task dianggap selesai saat:
   - Form manual: `career_id`, `title`, `company`, `description`, `source_url` (opsional)
 
 ## T6.5 — Buat analisis + Ringkasan/Skill Gap/EvidenceDrawer
+- **Status:** selesai — `AnalysesNewPage` Step 3 (pratinjau agregasi skill dari `job_skills`) + `AnalysesResultPage` tab Ringkasan (`CoverageSummary`) dan Skill Gap (`SkillGapTable` + `EvidenceDrawer`).
 
 - **Route:** `/analyses/new?rps={id}`, `/analyses/:id`
 - **Desain:** `05 Pemetaan Industri`, `06 Hasil Analisis — Ringkasan/Skill Gap`
@@ -98,6 +102,7 @@ Semua task dianggap selesai saat:
   - Disertai `DisclaimerBanner`
 
 ## T7.4 — Rekomendasi + Disclaimer
+- **Status:** selesai — `LearningRecommendationList`. Panel skill pribadi dirender *read-only*; tombol tambah/hapus menunggu T7.5 (backend `user_skills` belum ada).
 
 - **Route:** `/analyses/:id` (tab "Rekomendasi Belajar")
 - **Endpoint:** `GET /api/analyses/{id}/recommendations`

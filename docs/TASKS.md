@@ -40,8 +40,8 @@ Dok: `AI_PIPELINE.md §3`, `DATABASE.md (skills, course_skills)`
 - [x] **T3.3** `EvidenceVerifier` (normalisasi teks, substring per halaman) + test halusinasi.
 - [x] **T3.4** `ExtractCompetenciesJob`: prompt `rps-extract-v1`, validasi skema, verifikasi bukti, normalisasi, dedup, simpan. `POST /api/rps/{id}/extract`, `GET /api/rps/{id}/competencies`.
   *Terima:* skema invalid → retry → `failed`; bukti palsu → `unverified`.
-- [ ] **T3.5** Frontend `/rps/:id`: status, tabel kompetensi, bukti, badge verifikasi.
-- [ ] **T3.6** Konfirmasi hasil ekstraksi. Migrasi kolom `rps_documents.review_status/reviewed_at` dan `course_skills.origin/review_status/user_edited` (+ `evidence` nullable). Endpoint `PATCH/POST/DELETE .../competencies`, `POST /api/rps/{id}/confirm-review`; edit memicu embedding ulang; update `RunAnalysisJob`/prasyarat. Frontend `CompetencyReviewTable` + tombol konfirmasi.
+- [x] **T3.5** Frontend `/rps/:id`: status, tabel kompetensi, bukti, badge verifikasi.
+- [x] **T3.6** Konfirmasi hasil ekstraksi. Migrasi kolom `rps_documents.review_status/reviewed_at` dan `course_skills.origin/review_status/user_edited` (+ `evidence` nullable). Endpoint `PATCH/POST/DELETE .../competencies`, `POST /api/rps/{id}/confirm-review`; edit memicu embedding ulang; update `RunAnalysisJob`/prasyarat. Frontend `CompetencyReviewTable` + tombol konfirmasi.
   *Terima:* analisis ditolak (422) sebelum konfirmasi; `rejected` tidak jadi kandidat; kompetensi `origin=user` maksimal `partial`; policy hanya pemilik.
 
 ## Fase 4 — Embedding
@@ -56,7 +56,7 @@ Dok: `API.md §4`, `AI_PIPELINE.md §5`
 - [x] **T5.1** Migrasi `careers`, `job_postings`, `job_skills`; seeder profesi (Backend, Frontend, Full Stack, Data Analyst).
 - [x] **T5.2** Perintah `skillbridge:import-jobs {file}` (CSV/JSON: perusahaan, posisi, deskripsi, kualifikasi, `source_url`, `collected_at`, `dataset_version`) + seeder contoh berlabel "data contoh".
 - [x] **T5.3** `ExtractJobSkillsJob` (prompt `job-extract-v1`), normalisasi, embedding. `POST /api/jobs`, `GET /api/jobs`, `GET /api/jobs/{id}`, `GET /api/careers`.
-- [ ] **T5.4** Frontend: pilih profesi, daftar lowongan (perusahaan, posisi, skill, sumber), form tambah lowongan manual.
+- [x] **T5.4** Frontend: pilih profesi, daftar lowongan (perusahaan, posisi, skill, sumber), form tambah lowongan manual.
 - [x] **T5.5** Perintah `skillbridge:scrape-jobs {remotive|arbeitnow|himalayas|jobicy}` → file JSON (format `import-jobs`) dari API publik yang mengizinkan akses otomatis; hanya rumpun TI (kategori sumber + `exclude_title_keywords`); pemetaan ke 21 profesi TI (`CareerSeeder`) via `config('skillbridge.scraping.career_keywords')`; tanpa menulis DB.
 
 ## Fase 6 — Matching & Skill Gap
@@ -66,14 +66,14 @@ Dok: `AI_PIPELINE.md §6`, `API.md §5`
 - [x] **T6.3** `MatchJudge` (prompt `match-judge-v1`) + `ClassificationGuardrails` (id kandidat valid, bukti, nama teknologi, unverified→max partial, floor).
 - [x] **T6.4** `RunAnalysisJob`: agregasi skill per `skill_id` + `demand_count`, klasifikasi, `summary`, `model_versions`. Endpoint `POST /api/analyses`, `GET /api/analyses`, `GET /api/analyses/{id}`, `GET .../matches`, `DELETE`.
   *Terima:* prasyarat 422; persentase = covered/total; partial tidak dihitung.
-- [ ] **T6.5** Frontend `/analyses/new` (pemetaan awal) dan tab Ringkasan + Skill Gap + EvidenceDrawer di `/analyses/:id`.
+- [x] **T6.5** Frontend `/analyses/new` (pemetaan awal) dan tab Ringkasan + Skill Gap + EvidenceDrawer di `/analyses/:id`.
 
 ## Fase 7 — Rekomendasi
 Dok: `AI_PIPELINE.md §7`
 - [x] **T7.1** Migrasi `recommendations`; `PriorityCalculator` sesuai aturan + test.
 - [x] **T7.2** `GenerateRecommendationsJob` untuk rekomendasi belajar mahasiswa (prompt `reco-v1`), validasi skema, tanpa URL.
 - [x] **T7.3** `GET /api/analyses/{id}/recommendations`.
-- [ ] **T7.4** Frontend tab Rekomendasi Belajar + DisclaimerBanner.
+- [x] **T7.4** Frontend tab Rekomendasi Belajar + DisclaimerBanner.
 - [ ] **T7.5** Skill pribadi (Tahap 4). Migrasi `user_skills`; `GET/POST/DELETE /api/me/skills` (hanya `student`, normalisasi via `SkillNormalizer`, idempoten); `self_declared` pada `GET .../matches`; `GenerateRecommendationsJob` mengecualikan skill pribadi + `meta.self_declared_skills`; `POST /api/analyses/{id}/recommendations/refresh`. Frontend `SelfDeclaredSkillAction` dan `SelfDeclaredSkillsPanel`.
   *Terima:* `summary`/`classification` tidak berubah setelah menambah skill pribadi; hanya pemilik yang dapat membaca/menghapus; refresh idempotent; teks UI memakai "dilaporkan pengguna", bukan "dikuasai".
 

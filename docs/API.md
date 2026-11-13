@@ -132,7 +132,7 @@ Kompetensi `rejected` tetap dikembalikan (agar bisa dipulihkan) tetapi tidak dip
 | Method | Endpoint | Fungsi |
 |---|---|---|
 | GET | `/api/careers` | Daftar profesi |
-| GET | `/api/jobs?career_id={id}` | Lowongan sesuai profesi (paginate) |
+| GET | `/api/jobs?career_id={id}` | Lowongan sesuai profesi (paginate). Sudah menyertakan relasi `career` dan `jobSkills` (array `skills`) agar kartu lowongan dapat menampilkan chip skill tanpa request tambahan. |
 | GET | `/api/jobs/{id}` | Detail lowongan + skill + bukti + sumber |
 | POST | `/api/jobs` | Simpan lowongan manual & ekstrak skill. 202. |
 
