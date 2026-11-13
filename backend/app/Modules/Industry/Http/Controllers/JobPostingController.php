@@ -20,7 +20,7 @@ class JobPostingController extends Controller
     public function index(Request $request): AnonymousResourceCollection
     {
         $query = JobPosting::visibleTo($request->user())
-            ->with('career')
+            ->with(['career', 'jobSkills.skillEntry'])
             ->orderByDesc('id');
 
         if ($request->filled('career_id')) {

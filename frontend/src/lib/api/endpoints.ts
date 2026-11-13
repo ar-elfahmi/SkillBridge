@@ -74,6 +74,8 @@ export const industryApi = {
       careerId === undefined ? '/jobs' : `/jobs?career_id=${careerId}`,
     ),
   job: (id: number) => api.get<{ data: JobPosting }>(`/jobs/${id}`),
+  createJob: (payload: { career_id: number; title: string; company: string; description: string; source_url?: string }) =>
+    api.post<{ data: JobPosting }>('/jobs', payload),
 }
 
 export const analysisApi = {

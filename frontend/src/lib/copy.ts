@@ -158,5 +158,30 @@ export const copy = {
     },
   },
 
+  analysesNew: {
+    pageTitle: 'Pemetaan industri',
+    step1Title: 'Pilih profesi',
+    step2Title: 'Pilih lowongan',
+    searchJobsPlaceholder: 'Cari lowongan',
+    filterAll: 'Semua',
+    filterSelected: 'Dipilih',
+    sampleNote: 'Lowongan pada contoh ini adalah data contoh.',
+    drawerTitle: 'Detail lowongan',
+    drawerEmpty: 'Pilih salah satu lowongan untuk melihat detail.',
+    step3Title: 'Pratinjau pemetaan awal',
+    step3Subtitle: 'Skill berikut dianalisis terhadap kompetensi RPS Anda.',
+    skillDemandSuffix: 'lowongan',
+    addJobLabel: 'Tambah lowongan manual',
+    addJobTitle: 'Tambah Lowongan Baru',
+    jobTitleLabel: 'Judul Pekerjaan',
+    companyLabel: 'Nama Perusahaan',
+    jobDescLabel: 'Deskripsi / Persyaratan',
+    sourceUrlLabel: 'Tautan Sumber (Opsional)',
+    actionRequirement:
+      'Pilih lowongan dari satu profesi yang sama untuk memulai analisis.',
+    startAnalysisBtn: 'Mulai Analisis',
+    startingAnalysis: 'Memulai analisis…',
+  },
+
   sampleDataLabel: 'Data contoh',
 } as const

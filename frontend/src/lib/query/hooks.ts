@@ -200,3 +200,27 @@ export function useJobsList(careerId?: number) {
   })
 }
 
+export function useCreateJob() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (payload: Parameters<typeof industryApi.createJob>[0]) =>
+      industryApi.createJob(payload),
+    onSuccess: (_, vars) => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.jobs(vars.career_id) })
+      queryClient.invalidateQueries({ queryKey: queryKeys.jobs() })
+    },
+  })
+}
+
+export function useCreateAnalysis() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (payload: Parameters<typeof analysisApi.create>[0]) =>
+      analysisApi.create(payload),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.analyses })
+    },
+  })
+}
+
+
