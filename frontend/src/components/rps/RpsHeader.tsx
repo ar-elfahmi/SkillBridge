@@ -6,9 +6,10 @@ import { copy } from '@/lib/copy'
 interface RpsHeaderProps {
   document: RpsDocument
   currentStep: 1 | 2 | 3
+  onStepChange?: (step: 1 | 2 | 3) => void
 }
 
-export function RpsHeader({ document, currentStep }: RpsHeaderProps) {
+export function RpsHeader({ document, currentStep, onStepChange }: RpsHeaderProps) {
   const isExtracting = document.extraction_status === 'processing'
   const isExtracted = document.extraction_status === 'completed'
 
@@ -74,10 +75,14 @@ export function RpsHeader({ document, currentStep }: RpsHeaderProps) {
         </Link>
       </div>
 
-      {/* Stage Stepper */}
+      {/* Stage Stepper (dapat diklik langsung untuk bypass inspeksi desain) */}
       <div className="flex items-center justify-between rounded-xl bg-white p-4 shadow-sm md:px-8">
         {/* Step 1: Konfirmasi metadata */}
-        <div className="flex items-center gap-3">
+        <button
+          type="button"
+          onClick={() => onStepChange?.(1)}
+          className="flex items-center gap-3 text-left transition-opacity hover:opacity-80"
+        >
           <div
             className={`flex size-8 shrink-0 items-center justify-center rounded-full text-xs font-bold ${
               currentStep > 1
@@ -94,12 +99,16 @@ export function RpsHeader({ document, currentStep }: RpsHeaderProps) {
           >
             {copy.rpsDetail.stepper.step1}
           </span>
-        </div>
+        </button>
 
         <div className="h-0.5 flex-1 bg-border-warm mx-4 hidden sm:block" />
 
         {/* Step 2: Tinjau kompetensi */}
-        <div className="flex items-center gap-3">
+        <button
+          type="button"
+          onClick={() => onStepChange?.(2)}
+          className="flex items-center gap-3 text-left transition-opacity hover:opacity-80"
+        >
           <div
             className={`flex size-8 shrink-0 items-center justify-center rounded-full text-xs font-bold ${
               currentStep > 2
@@ -118,12 +127,15 @@ export function RpsHeader({ document, currentStep }: RpsHeaderProps) {
           >
             {copy.rpsDetail.stepper.step2}
           </span>
-        </div>
+        </button>
 
         <div className="h-0.5 flex-1 bg-border-warm mx-4 hidden sm:block" />
 
         {/* Step 3: Petakan industri */}
-        <div className="flex items-center gap-3">
+        <Link
+          to={`/analyses/new?rps=${document.id}`}
+          className="flex items-center gap-3 text-left transition-opacity hover:opacity-80"
+        >
           <div
             className={`flex size-8 shrink-0 items-center justify-center rounded-full text-xs font-bold ${
               currentStep === 3
@@ -140,7 +152,7 @@ export function RpsHeader({ document, currentStep }: RpsHeaderProps) {
           >
             {copy.rpsDetail.stepper.step3}
           </span>
-        </div>
+        </Link>
       </div>
     </div>
   )

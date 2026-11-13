@@ -36,6 +36,7 @@ export function RpsDetailPage() {
   const confirmReview = useConfirmReview()
 
   const [notification, setNotification] = useState<{ type: 'success' | 'error'; message: string } | null>(null)
+  const [activeStep, setActiveStep] = useState<1 | 2 | 3 | null>(null)
 
   function handleLogout() {
     logout.mutate(undefined, {
@@ -72,17 +73,21 @@ export function RpsDetailPage() {
     )
   }
 
-  // Menentukan tahap aktif:
-  // Tahap 1 (Konfirmasi Metadata) vs Tahap 2 (Tinjau Kompetensi) vs Tahap 3 (Sudah dikonfirmasi)
+  // Menentukan tahap aktif (bisa di-bypass via stepper / switcher untuk inspeksi desain)
   const isConfirmed = document.review_status === 'confirmed'
-  const currentStep = isConfirmed ? 3 : isExtracted ? 2 : 1
+  const defaultStep = isConfirmed ? 3 : isExtracted ? 2 : 1
+  const currentStep = activeStep ?? defaultStep
 
   return (
     <div className="flex min-h-svh flex-col bg-background">
       <DashboardTopbar user={user} onLogout={handleLogout} />
 
       <main className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-6 px-4 py-6 md:px-8 md:py-8">
-        <RpsHeader document={document} currentStep={currentStep} />
+        <RpsHeader
+          document={document}
+          currentStep={currentStep}
+          onStepChange={setActiveStep}
+        />
 
         {notification && (
           <div
@@ -97,7 +102,7 @@ export function RpsDetailPage() {
         )}
 
         {/* TAHAP 0: Form Koreksi Metadata */}
-        {!isExtracted ? (
+        {currentStep === 1 ? (
           <MetadataPanel
             document={document}
             onSaveMetadata={(payload) => updateMetadata.mutateAsync({ id: rpsId, payload })}
