@@ -83,13 +83,13 @@ export function DashboardPage() {
     )
   })
 
-  // Agregasi statistik
+  // Agregasi statistik nyata dari API (0 jika belum ada data)
   const totalMissingSkills = analysesList.reduce(
     (acc, a) => acc + (a.summary?.missing ?? 0),
     0
-  ) || 7 // Default ilustrasi bila kosong
-  const matchedJobsCount = jobsList.length || 12
-  const careersCount = careersList.length || 2
+  )
+  const matchedJobsCount = jobsList.length
+  const careersCount = careersList.length
 
   return (
     <div className="flex min-h-svh flex-col bg-background">
@@ -120,7 +120,12 @@ export function DashboardPage() {
           />
         </div>
 
-        <DashboardSidebar user={user} onLogout={handleLogout} />
+        <DashboardSidebar
+          user={user}
+          rpsCount={rpsList.length}
+          analysesCount={analysesList.length}
+          onLogout={handleLogout}
+        />
       </main>
 
       <footer className="flex h-14 shrink-0 items-center justify-center border-t border-border-warm px-4 md:justify-start md:px-8">

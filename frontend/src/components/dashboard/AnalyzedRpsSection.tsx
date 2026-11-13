@@ -62,9 +62,6 @@ export function AnalyzedRpsSection({
             const isCompleted = doc.review_status === 'confirmed'
             const isNeedReview = doc.review_status === 'unreviewed'
 
-            const coveragePct = analysis?.summary?.coverage_percentage ?? (isCompleted ? 68.0 : 41.7)
-            const missingCount = analysis?.summary?.missing ?? (isCompleted ? 2 : 3)
-
             return (
               <Link
                 key={doc.id}
@@ -109,21 +106,27 @@ export function AnalyzedRpsSection({
                   )}
                 </div>
 
-                {/* Coverage Bar */}
-                <div className="flex flex-col gap-1.5">
-                  <span className="text-[11px] text-text-secondary">
-                    {copy.coverageLabel} {coveragePct.toFixed(1).replace('.', ',')}%
-                  </span>
-                  <div className="h-1.5 w-full overflow-hidden rounded-full bg-border-warm/50">
-                    <div
-                      className="h-full rounded-full bg-brand transition-all duration-500"
-                      style={{ width: `${Math.min(100, Math.max(0, coveragePct))}%` }}
-                    />
+                {/* Coverage Bar (hanya ditampilkan jika ada riwayat analisis nyata) */}
+                {analysis?.summary ? (
+                  <div className="flex flex-col gap-1.5">
+                    <span className="text-[11px] text-text-secondary">
+                      {copy.coverageLabel} {analysis.summary.coverage_percentage.toFixed(1).replace('.', ',')}%
+                    </span>
+                    <div className="h-1.5 w-full overflow-hidden rounded-full bg-border-warm/50">
+                      <div
+                        className="h-full rounded-full bg-brand transition-all duration-500"
+                        style={{ width: `${Math.min(100, Math.max(0, analysis.summary.coverage_percentage))}%` }}
+                      />
+                    </div>
+                    <span className="text-[11px] text-text-secondary">
+                      {analysis.summary.missing} skill belum tercakup
+                    </span>
                   </div>
-                  <span className="text-[11px] text-text-secondary">
-                    {missingCount} skill belum tercakup
-                  </span>
-                </div>
+                ) : (
+                  <div className="text-[11px] text-text-secondary">
+                    {doc.page_count ? `${doc.page_count} halaman` : 'Dokumen RPS'}
+                  </div>
+                )}
               </Link>
             )
           })}

@@ -4,10 +4,17 @@ import { copy } from '@/lib/copy'
 
 interface DashboardSidebarProps {
   user?: User
+  rpsCount: number
+  analysesCount: number
   onLogout: () => void
 }
 
-export function DashboardSidebar({ user, onLogout }: DashboardSidebarProps) {
+export function DashboardSidebar({
+  user,
+  rpsCount,
+  analysesCount,
+  onLogout,
+}: DashboardSidebarProps) {
   const initials = user?.name
     ? user.name
         .split(' ')
@@ -31,6 +38,9 @@ export function DashboardSidebar({ user, onLogout }: DashboardSidebarProps) {
         <div className="flex flex-col">
           <span className="text-sm font-bold text-text-primary">{user?.name || 'Mahasiswa'}</span>
           <span className="text-xs text-text-secondary">{user?.email || ''}</span>
+          <span className="mt-1 inline-block rounded-full bg-surface-subtle px-2.5 py-0.5 text-[10px] font-semibold text-text-secondary">
+            Mahasiswa
+          </span>
         </div>
         <button
           type="button"
@@ -42,56 +52,17 @@ export function DashboardSidebar({ user, onLogout }: DashboardSidebarProps) {
         </button>
       </div>
 
-      {/* Owned Skills Card */}
+      {/* Ringkasan Akun & Status */}
       <div className="flex flex-col gap-3 rounded-2xl border border-border-warm bg-white p-4 shadow-sm">
-        <div className="flex flex-col">
-          <span className="text-xs font-bold text-text-primary">
-            {copy.dashboard.sidebar.ownedSkillsTitle}
-          </span>
-          <span className="text-[11px] text-text-secondary">
-            {copy.dashboard.sidebar.ownedSkillsNote}
-          </span>
-        </div>
-
+        <span className="text-xs font-bold text-text-primary">Status Portofolio</span>
         <div className="flex flex-col gap-2">
-          {[
-            { name: 'React', level: 'Advanced' },
-            { name: 'TypeScript', level: 'Intermediate' },
-            { name: 'Figma', level: 'Intermediate' },
-            { name: 'Node.js', level: 'Beginner' },
-          ].map((s) => (
-            <div
-              key={s.name}
-              className="flex items-center justify-between rounded-lg bg-surface-subtle px-3 py-2 text-xs"
-            >
-              <span className="font-medium text-text-primary">{s.name}</span>
-              <span className="text-[11px] text-text-secondary">{s.level}</span>
-            </div>
-          ))}
-        </div>
-
-        <button
-          type="button"
-          className="text-left text-xs font-bold text-brand hover:underline"
-        >
-          {copy.dashboard.sidebar.viewAllSkills}
-        </button>
-      </div>
-
-      {/* Recent Activity Card */}
-      <div className="flex flex-col gap-3 rounded-2xl border border-border-warm bg-white p-4 shadow-sm">
-        <span className="text-xs font-bold text-text-primary">
-          {copy.dashboard.sidebar.recentActivityTitle}
-        </span>
-
-        <div className="flex flex-col gap-2">
-          <div className="flex flex-col rounded-lg bg-surface-subtle px-3 py-2 text-xs">
-            <span className="font-medium text-text-primary">RPS dianalisis</span>
-            <span className="text-[11px] text-text-secondary">2 jam lalu</span>
+          <div className="flex items-center justify-between rounded-lg bg-surface-subtle px-3 py-2 text-xs">
+            <span className="text-text-secondary">Dokumen RPS</span>
+            <span className="font-bold text-text-primary">{rpsCount}</span>
           </div>
-          <div className="flex flex-col rounded-lg bg-surface-subtle px-3 py-2 text-xs">
-            <span className="font-medium text-text-primary">Skill baru ditambahkan</span>
-            <span className="text-[11px] text-text-secondary">Kemarin</span>
+          <div className="flex items-center justify-between rounded-lg bg-surface-subtle px-3 py-2 text-xs">
+            <span className="text-text-secondary">Analisis Selesai</span>
+            <span className="font-bold text-text-primary">{analysesCount}</span>
           </div>
         </div>
       </div>
