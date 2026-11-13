@@ -22,14 +22,14 @@ Semua task dianggap selesai saat:
 | # | Task | Route | Prioritas |
 |---|---|---|---|
 | 1 | T1.2 Login/Register + guard | `/login`, `/register` | ✅ selesai |
-| 2 | T2.6 Upload RPS (Hero Dropzone) | `/dashboard` | demo inti |
-| 3 | T3.5 Detail RPS & kompetensi | `/rps/:id` | demo inti |
-| 4 | T3.6 Review kompetensi (bersama) | `/rps/:id` | demo inti |
-| 5 | T5.4 Profesi & lowongan | `/analyses/new` (+ `/analyses/:id` untuk preview) | demo inti |
-| 6 | T6.5 Analisis + Ringkasan/Skill Gap | `/analyses/new`, `/analyses/:id` | demo inti |
-| 7 | T7.4 Rekomendasi + Disclaimer | `/analyses/:id` | demo inti |
-| 8 | T7.5 Skill pribadi (bersama) | `/analyses/:id` | demo inti |
-| 9 | T8.1 Dashboard/riwayat | `/dashboard` | demo inti |
+| 2 | T2.6 Upload RPS (Hero Dropzone) | `/dashboard` | ✅ selesai |
+| 3 | T8.1 Dashboard Riwayat | `/dashboard` | ✅ selesai (FE) |
+| 4 | T3.5 Detail RPS & kompetensi | `/rps/:id` | demo inti |
+| 5 | T3.6 Review kompetensi (bersama) | `/rps/:id` | demo inti |
+| 6 | T5.4 Profesi & lowongan | `/analyses/new` (+ `/analyses/:id` untuk preview) | demo inti |
+| 7 | T6.5 Analisis + Ringkasan/Skill Gap | `/analyses/new`, `/analyses/:id` | demo inti |
+| 8 | T7.4 Rekomendasi + Disclaimer | `/analyses/:id` | demo inti |
+| 9 | T7.5 Skill pribadi (bersama) | `/analyses/:id` | demo inti |
 | 10 | T8.3 Responsif & polish | seluruh halaman | akhir |
 | 11 | T8.5 Checklist MVP (bersama) | — | akhir |
 

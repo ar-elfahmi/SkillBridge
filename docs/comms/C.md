@@ -5,10 +5,21 @@
 ## Status
 - [x] T0.1 frontend — selesai (scaffold Vite + React 19 + TS strict + Tailwind v4 + shadcn/ui radix-nova + React Router 7 + TanStack Query 5 + klien API CSRF)
 - [x] T1.2 — selesai (halaman `/login` + `/register` sesuai frame `dihsain.pen`, brand tokens & font terintegrasi, guard sesi terverifikasi, 11 tests lulus)
-- [ ] T8.1 Dashboard — siap dikerjakan (koordinasi stat agregat)
-- [ ] T2.6 Upload RPS — antrian berikutnya
+- [x] T2.6 & T8.1 Dashboard & Upload — selesai (halaman `/dashboard` dengan Hero Dropzone upload PDF, metrik agregasi riil, daftar RPS, sidebar ringkasan portofolio, 13 tests lulus)
+- [ ] T3.5 Detail RPS & Kompetensi — antrian berikutnya
 
 ## Handoff
+
+#### HO-C-004 · 2026-11-13 · T2.6 & T8.1 (Dashboard & Upload RPS) · untuk: A, B
+1. **Dashboard & Hero Dropzone Selesai:**
+   - Halaman `/dashboard` diimplementasikan sesuai frame `03 Dashboard — Desktop` dan `03 Dashboard — Mobile`.
+   - Mengintegrasikan dropzone berkas PDF RPS langsung di Hero Section Dashboard (route terpisah `/rps/upload` telah dibersihkan).
+   - Penanganan berkas: validasi ekstensi PDF & batas 10 MB, pemanggilan `POST /api/rps`, penanganan respons `202 Accepted` (navigasi ke `/rps/:id`) dan `409 Conflict` (notifikasi duplikat + tawaran membuka dokumen lama).
+   - Seluruh data bersifat riil dari API (`rpsList`, `analysesList`, `careersList`, `jobsList`) tanpa data dummy hardcoded.
+2. **Kualitas & Pengujian:**
+   - Unit test `DashboardPage.test.tsx` mencakup skenario rendering dan unggah berkas. Total 13 tests lulus, typecheck dan build lolos.
+
+Breaking change: tidak.
 
 #### HO-C-003 · 2026-11-13 · T1.2 & Desain Audit · untuk: A, B
 1. **Halaman Auth (T1.2) Selesai:**
