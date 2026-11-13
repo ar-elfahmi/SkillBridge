@@ -10,6 +10,7 @@ export const queryKeys = {
   job: (id: number) => ['jobs', 'detail', id] as const,
   rps: ['rps'] as const,
   rpsDetail: (id: number) => ['rps', id] as const,
+  competencies: (id: number) => ['rps', id, 'competencies'] as const,
   analyses: ['analyses'] as const,
   analysis: (id: number) => ['analyses', id] as const,
 }

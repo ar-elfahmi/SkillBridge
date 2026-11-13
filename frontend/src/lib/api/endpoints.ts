@@ -2,9 +2,13 @@ import { api } from '@/lib/api/client'
 import type {
   Analysis,
   Career,
+  CourseSkill,
   CreateAnalysisPayload,
+  CreateCompetencyPayload,
   JobPosting,
   RpsDocument,
+  UpdateCompetencyPayload,
+  UpdateRpsMetadataPayload,
   User,
 } from '@/types/api'
 
@@ -30,12 +34,37 @@ export const authApi = {
 export const rpsApi = {
   list: () => api.get<{ data: RpsDocument[] }>('/rps'),
   show: (id: number) => api.get<{ data: RpsDocument }>(`/rps/${id}`),
+  updateMetadata: (id: number, payload: UpdateRpsMetadataPayload) =>
+    api.patch<{ data: RpsDocument }>(`/rps/${id}`, payload),
   upload: (file: File) => {
     const form = new FormData()
     form.append('file', file)
     return api.post<{ data: RpsDocument }>('/rps', form)
   },
   remove: (id: number) => api.delete<void>(`/rps/${id}`),
+
+  // Ekstraksi & Tinjauan Kompetensi (T3.5, T3.6)
+  startExtraction: (id: number) =>
+    api.post<{ data: RpsDocument }>(`/rps/${id}/extract`),
+  competencies: (id: number) =>
+    api.get<{ data: CourseSkill[] }>(`/rps/${id}/competencies`),
+  createCompetency: (id: number, payload: CreateCompetencyPayload) =>
+    api.post<{ data: CourseSkill }>(`/rps/${id}/competencies`, payload),
+  updateCompetency: (
+    docId: number,
+    competencyId: number,
+    payload: UpdateCompetencyPayload
+  ) =>
+    api.patch<{ data: CourseSkill }>(
+      `/rps/${docId}/competencies/${competencyId}`,
+      payload
+    ),
+  deleteCompetency: (docId: number, competencyId: number) =>
+    api.delete<void>(`/rps/${docId}/competencies/${competencyId}`),
+  confirmReview: (id: number, confirmAllPending = false) =>
+    api.post<{ data: RpsDocument }>(`/rps/${id}/confirm-review`, {
+      confirm_all_pending: confirmAllPending,
+    }),
 }
 
 export const industryApi = {
