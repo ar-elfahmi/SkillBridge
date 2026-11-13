@@ -51,7 +51,7 @@ export function RpsHeader({ document, currentStep, onStepChange }: RpsHeaderProp
           </Link>
 
           <div className="flex flex-col">
-            <h1 className="text-base font-bold text-text-primary md:text-xl">
+            <h1 className="font-display text-base font-normal text-text-primary md:text-xl">
               {document.original_name}
             </h1>
             <span className="text-xs text-text-secondary">
