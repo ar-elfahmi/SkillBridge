@@ -82,6 +82,34 @@ describe('DashboardPage', () => {
     expect(screen.getByText('Analisis selesai')).toBeInTheDocument()
   })
 
+  it('mengarahkan kartu RPS ke hasil analisis bila sudah dianalisis', async () => {
+    vi.mocked(analysisApi.list).mockResolvedValue({
+      data: [
+        {
+          analysis_id: 101,
+          status: 'completed',
+          career: 'Frontend Developer',
+          course: 'Pemrograman Web',
+          summary: {
+            total_skills: 8,
+            covered: 1,
+            partial: 0,
+            missing: 7,
+            coverage_percentage: 12.5,
+          },
+          model_versions: null,
+          error_message: null,
+          created_at: '',
+        },
+      ],
+    })
+
+    renderDashboard()
+
+    const card = await screen.findByRole('link', { name: /Pemrograman Web 2025\.pdf/ })
+    expect(card).toHaveAttribute('href', '/analyses/101')
+  })
+
   it('mengunggah berkas PDF dan mengarahkan ke halaman detail RPS', async () => {
     vi.mocked(rpsApi.upload).mockResolvedValue({
       data: {
