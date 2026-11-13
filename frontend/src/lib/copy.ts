@@ -196,6 +196,7 @@ export const copy = {
       failed: 'Analisis gagal',
     },
     refresh: 'Perbarui',
+    backToDashboard: 'Kembali ke Beranda',
     chartTitle: 'Cakupan skill dalam RPS',
     ofTotalSkills: 'dari',
     skillCountSuffix: 'skill',

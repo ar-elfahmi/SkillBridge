@@ -1,6 +1,6 @@
 import { useState } from 'react'
-import { useParams, useNavigate } from 'react-router-dom'
-import { Check, Clock3, AlertCircle, RefreshCw } from 'lucide-react'
+import { Link, useParams, useNavigate } from 'react-router-dom'
+import { AlertCircle, ArrowLeft, Check, Clock3, RefreshCw } from 'lucide-react'
 import { DashboardTopbar } from '@/components/dashboard/DashboardTopbar'
 import { CoverageSummary } from '@/components/analysis/CoverageSummary'
 import { SkillGapTable } from '@/components/analysis/SkillGapTable'
@@ -115,20 +115,29 @@ export function AnalysesResultPage() {
 
         {/* Analysis Header */}
         <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-          <div className="flex flex-col gap-1">
-            <h1 className="text-base font-bold text-text-primary md:text-xl">
-              {analysis.course}
-            </h1>
-            <span className="text-xs text-text-secondary">
-              {analysis.career}
-              {analysis.created_at
-                ? ` · ${new Date(analysis.created_at).toLocaleDateString('id-ID', {
-                    day: 'numeric',
-                    month: 'short',
-                    year: 'numeric',
-                  })}`
-                : ''}
-            </span>
+          <div className="flex items-center gap-3">
+            <Link
+              to="/dashboard"
+              aria-label={copy.analysesResult.backToDashboard}
+              className="flex size-10 shrink-0 items-center justify-center rounded-full border border-border-warm bg-white text-text-primary transition-colors hover:bg-surface-subtle"
+            >
+              <ArrowLeft className="size-4" aria-hidden="true" />
+            </Link>
+            <div className="flex flex-col gap-1">
+              <h1 className="text-base font-bold text-text-primary md:text-xl">
+                {analysis.course}
+              </h1>
+              <span className="text-xs text-text-secondary">
+                {analysis.career}
+                {analysis.created_at
+                  ? ` · ${new Date(analysis.created_at).toLocaleDateString('id-ID', {
+                      day: 'numeric',
+                      month: 'short',
+                      year: 'numeric',
+                    })}`
+                  : ''}
+              </span>
+            </div>
           </div>
 
           <div className="flex items-center gap-2">
@@ -138,6 +147,13 @@ export function AnalysesResultPage() {
               <StatusIcon className="size-3.5" />
               {statusLabel}
             </span>
+
+            <Link
+              to="/dashboard"
+              className="hidden text-xs font-semibold text-brand hover:underline md:inline"
+            >
+              {copy.analysesResult.backToDashboard}
+            </Link>
 
             <button
               type="button"
