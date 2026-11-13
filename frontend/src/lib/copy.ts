@@ -94,6 +94,8 @@ export const copy = {
       viewAllSkills: 'Lihat semua skill →',
       recentActivityTitle: 'Aktivitas terbaru',
     },
+    profileMenuLabel: 'Profil',
+    logoutLabel: 'Keluar',
     nav: {
       home: 'Beranda',
       upload: 'Unggah RPS',
