@@ -1,0 +1,7 @@
+*
+!frontend/
+!deploy/docker/nginx/
+frontend/.env
+frontend/.env.*
+frontend/node_modules
+frontend/dist

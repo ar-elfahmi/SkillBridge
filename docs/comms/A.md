@@ -23,6 +23,17 @@
 
 ## Handoff
 
+#### HO-A-015 · 2026-11-14 · T8.4 (bagian Docker) · untuk: B, C
+Deploy berbasis image siap pakai (branch `feat/T8.4-docker-deploy`, menunggu review). Panduan: `docs/DEPLOY.md`.
+- `deploy/docker/{api,web}.Dockerfile`, `deploy/docker/{php,nginx}/`, `deploy/prod/` (compose, `.env.example`, `deploy.sh`), `.github/workflows/docker-image.yml` (push `main` → GHCR `skillbridge-api` dan `skillbridge-web`, tag SHA + `latest`).
+- Diuji lokal: kedua image terbangun; stack lima container sehat; `/up`, fallback SPA, `/sanctum/csrf-cookie`, register + `/api/auth/me` + `/api/careers` lewat satu origin berhasil; RAM idle total sekitar 120 MB.
+- **Untuk C:** build produksi memakai `VITE_API_URL=/api` (same-origin). Tidak ada perubahan kode frontend. Jangan taruh rahasia di `VITE_*`.
+- **Untuk B:** worker produksi `queue:work redis --tries=3`; `LOG_CHANNEL=stderr`. Tidak ada perubahan kode backend.
+- Belum: backup terjadwal, test backend di CI, verifikasi workflow di GitHub (SHA action belum pernah dijalankan). T8.4 belum dicentang.
+- Catatan: `php artisan db:seed` tanpa `--class` membuat akun `test@example.com`/`password`; di produksi jalankan seeder per kelas (lihat `docs/DEPLOY.md`).
+
+Breaking change: tidak.
+
 #### HO-A-014 · 2026-11-10 · T5.5 · untuk: B
 Dataset lowongan TI asli sudah ada untuk menguji T5.3 (`ExtractJobSkillsJob`).
 - **Di DB lokal A:** 737 lowongan diimpor dari `backend/storage/app/private/scraped/verified-2026-11-10.json` (Arbeitnow 469, Jobicy 193, Himalayas 70, Remotive 5) + 8 data contoh = 745, semua `extraction_status = pending`, `created_by = null`, `job_skills` kosong. Folder `storage/app/private/` tidak di-commit; minta file ke A, lalu `php artisan db:seed --class=CareerSeeder` dan `php artisan skillbridge:import-jobs <file>`.
