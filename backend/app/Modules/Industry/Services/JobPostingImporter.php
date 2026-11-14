@@ -86,18 +86,21 @@ class JobPostingImporter
 
         DB::transaction(function () use ($rows, $careerIds, &$created, &$updated): void {
             foreach ($rows as $row) {
+                $description = $row['description'];
+                $title = $this->stripLocaleSuffix($row['title']);
+
                 $posting = JobPosting::query()->updateOrCreate(
                     [
                         'created_by' => null,
                         'career_id' => $careerIds[$row['career']],
                         'company' => $row['company'],
-                        'title' => $row['title'],
+                        'title' => $title,
                         'source_url' => $row['source_url'] ?? null,
                         'dataset_version' => $row['dataset_version'] ?? null,
                     ],
                     [
-                        'description' => $row['description'],
-                        'qualifications' => $row['qualifications'] ?? null,
+                        'description' => $description,
+                        'qualifications' => $row['qualifications'] ?? $this->deriveQualifications($description),
                         'source_name' => $row['source_name'] ?? null,
                         'collected_at' => $row['collected_at'] ?? null,
                     ],
@@ -108,6 +111,79 @@ class JobPostingImporter
         });
 
         return ['created' => $created, 'updated' => $updated];
+    }
+
+    /**
+     * Removes locale/gender suffixes commonly appended to scraped titles,
+     * e.g. "Software Engineer (m/f/d)" -> "Software Engineer".
+     */
+    private function stripLocaleSuffix(string $title): string
+    {
+        return (string) preg_replace(
+            '/\s*\((?:m\/f\/d|m\/w\/d|f\/m\/d|w\/m\/d|x\/f\/m|d\/f\/m|all genders|any gender)\)\s*$/i',
+            '',
+            trim($title),
+        );
+    }
+
+    /**
+     * Derives qualifications from the description when the source has no
+     * dedicated column: explicit section first, then the first bullet list,
+     * then qualification-signal sentences.
+     */
+    private function deriveQualifications(string $description): ?string
+    {
+        // 0) Indonesian synthetic-dataset header listing common skills.
+        if (preg_match(
+            '/Skill yang umum dibutuhkan(?: untuk profesi ini)?\s*:\s*(?:\r\n|\r|\n)((?:[ \t]*(?:[\x{2022}\-\*]|\d+[.)])[ \t]*[^\r\n]+(?:\r\n|\r|\n|$))+)/u',
+            $description,
+            $m,
+        )) {
+            $list = trim($m[1]);
+
+            if ($list !== '') {
+                return mb_substr($list, 0, self::MAX_TEXT_LENGTH);
+            }
+        }
+        // 1) Explicit requirements/qualifications section.
+        if (preg_match(
+            '/(?:requirements|qualifications|what you.{0,3}ll need|your profile|was wir suchen|we are looking for)[\s:]{1,3}(?:\r\n|\r|\n){1,2}(.{40,2000}?)(?:(?:\r\n|\r|\n)\s*(?:benefits|what we offer|nice to have|we offer|why join)|$)/is',
+            $description,
+            $m,
+        )) {
+            $section = trim($m[1]);
+
+            if ($section !== '') {
+                return mb_substr($section, 0, self::MAX_TEXT_LENGTH);
+            }
+        }
+
+        // 2) First bullet/numbered list (common in ATS postings).
+        if (preg_match(
+            '/((?:[ \t]*(?:\d+[.)]|[\x{2022}\-\*])[ \t]+\S.+(?:\r\n|\r|\n|$)){3,})/u',
+            $description,
+            $m,
+        )) {
+            $list = trim($m[1]);
+
+            if (mb_strlen($list) >= 40) {
+                return mb_substr($list, 0, self::MAX_TEXT_LENGTH);
+            }
+        }
+
+        // 3) Sentences carrying qualification signals.
+        preg_match_all(
+            '/^[^\r\n]{20,220}?\b(?:\d+\+?\s*(?:years?|jahre)|experience (?:with|in|of)|proficien\w*|familiar with|bachelor|master.s degree|fresh graduate|pengalaman)[^\r\n]{0,180}[.!?]/im',
+            $description,
+            $m,
+        );
+        $lines = array_slice(array_values(array_unique(array_map('trim', $m[0] ?? []))), 0, 5);
+
+        if ($lines === []) {
+            return null;
+        }
+
+        return mb_substr(implode("\n", $lines), 0, self::MAX_TEXT_LENGTH);
     }
 
     /**
