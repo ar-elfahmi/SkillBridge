@@ -1,3 +1,4 @@
+import { Loader2 } from 'lucide-react'
 import type { Recommendation } from '@/types/api'
 import { copy } from '@/lib/copy'
 
@@ -5,6 +6,7 @@ interface LearningRecommendationListProps {
   recommendations: Recommendation[]
   onAlreadyLearned: (skill: string) => void
   declaredSkills: Set<string>
+  isLoading?: boolean
 }
 
 const PRIORITY_STYLE = {
@@ -17,6 +19,7 @@ export function LearningRecommendationList({
   recommendations,
   onAlreadyLearned,
   declaredSkills,
+  isLoading = false,
 }: LearningRecommendationListProps) {
   return (
     <div className="flex flex-col gap-4">
@@ -29,7 +32,16 @@ export function LearningRecommendationList({
         </p>
       </div>
 
-      {recommendations.length === 0 ? (
+      {isLoading ? (
+        <div
+          role="status"
+          aria-live="polite"
+          className="flex items-center justify-center gap-2.5 rounded-2xl border border-border-warm bg-white p-8 text-xs text-text-secondary shadow-sm"
+        >
+          <Loader2 className="size-4 shrink-0 animate-spin text-brand" aria-hidden="true" />
+          <span>{copy.analysesResult.recoLoading}</span>
+        </div>
+      ) : recommendations.length === 0 ? (
         <div className="rounded-2xl border border-dashed border-border-warm bg-white p-8 text-center text-xs text-text-secondary">
           {copy.analysesResult.emptyReco}
         </div>

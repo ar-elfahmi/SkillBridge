@@ -220,6 +220,7 @@ export const copy = {
     close: 'Tutup',
     recoTitle: 'Rekomendasi belajar',
     recoSubtitle: 'Topik yang perlu dipelajari berdasarkan skill yang diminta lowongan.',
+    recoLoading: 'Menyiapkan rekomendasi belajar…',
     recoStaleBanner: 'Rekomendasi belum diperbarui setelah perubahan skill pribadi.',
     recoRefreshBtn: 'Perbarui rekomendasi',
     priorityLabel: { high: 'Tinggi', medium: 'Sedang', low: 'Rendah' },
