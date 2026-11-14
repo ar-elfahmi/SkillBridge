@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Bell, LogOut, Search, UserRound } from 'lucide-react'
+import { LogOut, Search, UserRound } from 'lucide-react'
 import { BrandLogo } from '@/components/common/BrandLogo'
 import type { User } from '@/types/api'
 import { copy } from '@/lib/copy'
@@ -18,11 +18,11 @@ export function DashboardTopbar({ user, onLogout, onSearch }: DashboardTopbarPro
 
   const initials = user?.name
     ? user.name
-        .split(' ')
-        .map((n) => n[0])
-        .slice(0, 2)
-        .join('')
-        .toUpperCase()
+      .split(' ')
+      .map((n) => n[0])
+      .slice(0, 2)
+      .join('')
+      .toUpperCase()
     : 'U'
 
   useEffect(() => {
@@ -66,14 +66,6 @@ export function DashboardTopbar({ user, onLogout, onSearch }: DashboardTopbarPro
 
       {/* Topbar Actions */}
       <div className="flex items-center gap-2.5">
-        <button
-          type="button"
-          aria-label="Notifikasi"
-          className="flex size-10 items-center justify-center rounded-full bg-brand-soft text-brand transition-colors hover:bg-brand-soft/80"
-        >
-          <Bell className="size-4" aria-hidden="true" />
-        </button>
-
         {/* Menu Profil */}
         <div ref={menuRef} className="relative">
           <button
@@ -82,9 +74,19 @@ export function DashboardTopbar({ user, onLogout, onSearch }: DashboardTopbarPro
             aria-haspopup="menu"
             aria-expanded={menuOpen}
             aria-label={copy.dashboard.profileMenuLabel}
-            className="flex size-10 shrink-0 items-center justify-center rounded-full bg-brand text-xs font-bold text-white shadow-sm ring-brand/30 transition-shadow hover:ring-2"
+            className="flex shrink-0 items-center gap-2.5 rounded-full bg-white p-1 transition-colors hover:bg-surface-subtle md:pr-3.5"
           >
-            {initials}
+            <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-brand text-xs font-bold text-white shadow-sm ring-brand/30 transition-shadow hover:ring-2">
+              {initials}
+            </span>
+            <span className="hidden min-w-0 flex-col items-start leading-tight md:flex">
+              <span className="max-w-[150px] truncate text-xs font-bold text-text-primary">
+                {user?.name}
+              </span>
+              <span className="max-w-[150px] truncate text-[11px] font-medium text-text-secondary">
+                {user?.email}
+              </span>
+            </span>
           </button>
 
           {menuOpen && (
@@ -92,14 +94,6 @@ export function DashboardTopbar({ user, onLogout, onSearch }: DashboardTopbarPro
               role="menu"
               className="absolute right-0 top-12 z-50 flex w-56 flex-col gap-0.5 rounded-xl border border-border-warm bg-white p-1.5 shadow-lg"
             >
-              {/* Identitas */}
-              <div className="flex flex-col gap-0.5 border-b border-border-warm px-3 pb-2.5 pt-2">
-                <span className="truncate text-xs font-semibold text-text-primary">
-                  {user?.name}
-                </span>
-                <span className="truncate text-[11px] text-text-secondary">{user?.email}</span>
-              </div>
-
               <Link
                 to="/profile"
                 role="menuitem"

@@ -25,7 +25,7 @@ export function DashboardSidebar({
     : 'U'
 
   return (
-    <aside className="hidden w-[280px] shrink-0 flex-col gap-4 lg:flex">
+    <aside className="hidden w-[280px] shrink-0 flex-col gap-4 lg:sticky lg:top-8 lg:flex lg:max-h-[calc(100svh-4rem)] lg:overflow-y-auto">
       <h3 className="font-semibold text-text-primary">
         {copy.dashboard.sidebar.heading}
       </h3>

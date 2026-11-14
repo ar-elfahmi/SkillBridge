@@ -44,9 +44,7 @@ export function DashboardStats({
           >
             <div className="flex flex-col gap-1">
               <span className="text-xs font-semibold text-text-primary md:text-sm">{s.label}</span>
-              <span className="font-display text-xl font-normal text-brand md:hidden">
-                {s.value}
-              </span>
+              <span className="font-display text-xl font-normal text-brand">{s.value}</span>
               <span className="text-[11px] text-text-secondary">{s.note}</span>
             </div>
 
