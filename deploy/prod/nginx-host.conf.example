@@ -1,0 +1,16 @@
+# Contoh server block Nginx di host (bukan di container). Ganti domain, lalu terbitkan sertifikat
+# dengan Certbot (certbot --nginx -d skillbridge.example.com).
+server {
+    listen 80;
+    server_name skillbridge.example.com;
+
+    client_max_body_size 12m;
+
+    location / {
+        proxy_pass http://127.0.0.1:8080;
+        proxy_set_header Host $host;
+        proxy_set_header X-Forwarded-For $remote_addr;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_read_timeout 120s;
+    }
+}

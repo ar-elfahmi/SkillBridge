@@ -1,0 +1,17 @@
+# syntax=docker/dockerfile:1
+# Image web: build statis frontend + Nginx (proxy /api, /sanctum, /up ke PHP-FPM service "app").
+# Build context: root repositori. VITE_* tertanam di bundle dan terlihat browser: jangan isi rahasia.
+
+FROM node:22-alpine AS build
+WORKDIR /app
+COPY frontend/package.json frontend/package-lock.json ./
+RUN npm ci
+COPY frontend/ ./
+ARG VITE_API_URL=/api
+ENV VITE_API_URL=$VITE_API_URL
+RUN npm run build
+
+FROM nginxinc/nginx-unprivileged:1.28-alpine
+COPY deploy/docker/nginx/default.conf /etc/nginx/conf.d/default.conf
+COPY --from=build /app/dist /usr/share/nginx/html
+EXPOSE 8080

@@ -1,0 +1,15 @@
+*
+!backend/
+!deploy/docker/php/
+backend/.env
+backend/.env.*
+backend/vendor
+backend/node_modules
+backend/storage/logs/*
+backend/storage/framework/*/*
+backend/storage/app/*
+backend/bootstrap/cache/*.php
+backend/tests
+backend/public/hot
+backend/public/storage
+backend/public/build
