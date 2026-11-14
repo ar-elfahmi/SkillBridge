@@ -3,7 +3,7 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { DashboardPage } from '@/routes/pages/DashboardPage'
-import { analysisApi, authApi, industryApi, rpsApi } from '@/lib/api/endpoints'
+import { analysisApi, authApi, industryApi, meApi, rpsApi } from '@/lib/api/endpoints'
 import type { RpsDocument, User } from '@/types/api'
 
 vi.mock('@/lib/api/endpoints', () => ({
@@ -11,6 +11,7 @@ vi.mock('@/lib/api/endpoints', () => ({
   rpsApi: { list: vi.fn(), upload: vi.fn() },
   analysisApi: { list: vi.fn() },
   industryApi: { careers: vi.fn(), jobs: vi.fn() },
+  meApi: { skills: vi.fn(), addSkill: vi.fn(), removeSkill: vi.fn() },
 }))
 
 const mockUser: User = {
@@ -69,6 +70,7 @@ describe('DashboardPage', () => {
     vi.mocked(analysisApi.list).mockResolvedValue({ data: [] })
     vi.mocked(industryApi.careers).mockResolvedValue({ data: [] })
     vi.mocked(industryApi.jobs).mockResolvedValue({ data: [] })
+    vi.mocked(meApi.skills).mockResolvedValue({ data: [] })
   })
 
   it('merender elemen utama dashboard (hero unggah, stats, daftar RPS)', async () => {

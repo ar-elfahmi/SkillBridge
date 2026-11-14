@@ -11,6 +11,7 @@ import {
   useJobsList,
   useLogout,
   useMe,
+  useMySkills,
   useRpsList,
   useUploadRps,
 } from '@/lib/query/hooks'
@@ -25,6 +26,7 @@ export function DashboardPage() {
   const { data: analysesList = [] } = useAnalysesList()
   const { data: careersList = [] } = useCareersList()
   const { data: jobsList = [] } = useJobsList()
+  const { data: mySkills = [] } = useMySkills()
   const uploadRps = useUploadRps()
 
   const [uploadError, setUploadError] = useState<string | null>(null)
@@ -124,6 +126,7 @@ export function DashboardPage() {
           user={user}
           rpsCount={rpsList.length}
           analysesCount={analysesList.length}
+          skills={mySkills}
         />
       </main>
 
