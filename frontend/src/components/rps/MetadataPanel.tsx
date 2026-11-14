@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import type { FormEvent } from 'react'
-import { Info } from 'lucide-react'
+import { Info, Loader2 } from 'lucide-react'
 import type { RpsDocument, UpdateRpsMetadataPayload } from '@/types/api'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -13,6 +13,7 @@ interface MetadataPanelProps {
   onStartExtraction: () => void
   isSaving: boolean
   isExtracting: boolean
+  isPreparing: boolean
 }
 
 export function MetadataPanel({
@@ -21,6 +22,7 @@ export function MetadataPanel({
   onStartExtraction,
   isSaving,
   isExtracting,
+  isPreparing,
 }: MetadataPanelProps) {
   const meta = document.course || document.detected_metadata
 
@@ -85,7 +87,20 @@ export function MetadataPanel({
           </p>
         </div>
 
-        <form onSubmit={handleSave} className="flex flex-col gap-5">
+        <form onSubmit={handleSave} aria-busy={isPreparing} className="flex flex-col gap-5">
+          {isPreparing && (
+            <div
+              role="status"
+              aria-live="polite"
+              className="flex items-center gap-2.5 rounded-xl bg-brand-soft/40 px-4 py-3"
+            >
+              <Loader2 className="size-4 shrink-0 animate-spin text-brand" aria-hidden="true" />
+              <p className="text-xs font-semibold text-text-primary">
+                {copy.rpsDetail.metadata.preparing}
+              </p>
+            </div>
+          )}
+
           {/* Row 1: Nama mata kuliah */}
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="courseName">{copy.rpsDetail.metadata.courseNameLabel}</Label>
@@ -94,6 +109,7 @@ export function MetadataPanel({
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="Contoh: Pemrograman Web"
+              disabled={isPreparing}
               required
             />
           </div>
@@ -107,6 +123,7 @@ export function MetadataPanel({
                 value={code}
                 onChange={(e) => setCode(e.target.value)}
                 placeholder="Contoh: IF2013"
+                disabled={isPreparing}
                 required
               />
             </div>
@@ -120,6 +137,7 @@ export function MetadataPanel({
                 value={credits}
                 onChange={(e) => setCredits(e.target.value)}
                 placeholder="Contoh: 3"
+                disabled={isPreparing}
               />
             </div>
           </div>
@@ -136,6 +154,7 @@ export function MetadataPanel({
                 value={semester}
                 onChange={(e) => setSemester(e.target.value)}
                 placeholder="Contoh: 4"
+                disabled={isPreparing}
               />
             </div>
             <div className="flex flex-col gap-1.5">
@@ -145,6 +164,7 @@ export function MetadataPanel({
                 value={studyProgram}
                 onChange={(e) => setStudyProgram(e.target.value)}
                 placeholder="Contoh: Teknik Informatika"
+                disabled={isPreparing}
               />
             </div>
           </div>
@@ -166,7 +186,7 @@ export function MetadataPanel({
             <Button
               type="submit"
               variant="outline"
-              disabled={isSaving || isExtracting}
+              disabled={isSaving || isExtracting || isPreparing}
               className="w-full sm:w-auto"
             >
               {isSaving ? 'Menyimpan…' : copy.rpsDetail.metadata.saveChanges}
@@ -175,7 +195,7 @@ export function MetadataPanel({
             <Button
               type="button"
               onClick={handleStart}
-              disabled={isExtracting || isSaving}
+              disabled={isExtracting || isSaving || isPreparing}
               className="w-full bg-brand text-white hover:bg-brand-hover sm:w-auto"
             >
               {isExtracting ? 'Memproses Ekstraksi…' : copy.rpsDetail.metadata.startExtraction}

@@ -77,6 +77,14 @@ export function RpsDetailPage() {
   const defaultStep = isConfirmed ? 3 : isExtracted ? 2 : 1
   const currentStep = defaultStep
 
+  // Parsing PDF dan ekstraksi metadata AI adalah satu penantian yang sama bagi pengguna.
+  const isPreparingMetadata =
+    document.parse_status === 'pending' ||
+    document.parse_status === 'parsing' ||
+    (document.parse_status === 'parsed' &&
+      document.detected_metadata === null &&
+      document.error_message === null)
+
   return (
     <div className="flex min-h-svh flex-col bg-background">
       <DashboardTopbar user={user} onLogout={handleLogout} />
@@ -117,6 +125,7 @@ export function RpsDetailPage() {
             }}
             isSaving={updateMetadata.isPending}
             isExtracting={startExtraction.isPending || document.extraction_status === 'processing'}
+            isPreparing={isPreparingMetadata}
           />
         ) : (
           /* TAHAP 1: Tabel Tinjauan Kompetensi */

@@ -140,4 +140,17 @@ describe('AnalysesResultPage', () => {
     expect(await screen.findByText('Terapkan tipe generik pada API client')).toBeInTheDocument()
     expect(screen.getByText('Tipe generik')).toBeInTheDocument()
   })
+
+  it('menampilkan spinner loading saat rekomendasi belajar sedang dimuat', async () => {
+    // Return pending promise to simulate in-flight query
+    vi.mocked(analysisApi.recommendations).mockReturnValue(new Promise(() => {}))
+
+    renderPage()
+
+    await screen.findByText('Pemrograman Web')
+    fireEvent.click(screen.getByRole('button', { name: 'Rekomendasi Belajar' }))
+
+    expect(screen.getByText('Menyiapkan rekomendasi belajar…')).toBeInTheDocument()
+    expect(screen.queryByText('Terapkan tipe generik pada API client')).not.toBeInTheDocument()
+  })
 })
