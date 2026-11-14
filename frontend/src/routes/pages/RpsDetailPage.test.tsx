@@ -134,6 +134,33 @@ describe('RpsDetailPage', () => {
     })
   })
 
+  it('menampilkan status sibuk dan mengunci form selama ekstraksi RPS berjalan', async () => {
+    vi.mocked(rpsApi.show).mockResolvedValue({
+      data: {
+        ...mockDocTahap0,
+        parse_status: 'pending',
+        detected_metadata: null,
+      },
+    })
+
+    renderRpsDetail()
+
+    expect(await screen.findByText('Ekstraksi RPS sedang diproses')).toBeInTheDocument()
+    expect(screen.getByLabelText('Nama mata kuliah')).toBeDisabled()
+    expect(screen.getByLabelText('Kode mata kuliah (wajib)')).toBeDisabled()
+    expect(screen.getByText('Konfirmasi & mulai ekstraksi').closest('button')).toBeDisabled()
+  })
+
+  it('membuka kembali form saat metadata sudah tiba', async () => {
+    vi.mocked(rpsApi.show).mockResolvedValue({ data: mockDocTahap0 })
+
+    renderRpsDetail()
+
+    expect(await screen.findByText('Metadata mata kuliah')).toBeInTheDocument()
+    expect(screen.queryByText('Ekstraksi RPS sedang diproses')).not.toBeInTheDocument()
+    expect(screen.getByLabelText('Nama mata kuliah')).toBeEnabled()
+  })
+
   it('merender Tahap 1 (Review Tabel Kompetensi) saat ekstraksi completed', async () => {
     const docTahap1: RpsDocument = {
       ...mockDocTahap0,

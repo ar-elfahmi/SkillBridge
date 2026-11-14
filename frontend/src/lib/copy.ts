@@ -131,6 +131,7 @@ export const copy = {
       startExtraction: 'Konfirmasi & mulai ekstraksi',
       derivationNote:
         'Mata kuliah dengan kode yang sama dipakai ulang, bukan diduplikasi.',
+      preparing: 'Ekstraksi RPS sedang diproses',
     },
     review: {
       totalCompetencies: 'Total kompetensi',

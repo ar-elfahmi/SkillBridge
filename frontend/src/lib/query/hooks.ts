@@ -89,6 +89,16 @@ export function useRpsDetail(id: number) {
       ) {
         return 2500
       }
+      // Parsing selesai tapi metadata AI belum tiba: lanjut polling dengan batas waktu
+      // agar tidak berputar selamanya ketika AI memang tidak menemukan metadata.
+      if (
+        data.parse_status === 'parsed' &&
+        data.detected_metadata === null &&
+        data.error_message === null
+      ) {
+        const ageMs = Date.now() - new Date(data.created_at).getTime()
+        return ageMs < 60_000 ? 2500 : false
+      }
       return false
     },
   })
