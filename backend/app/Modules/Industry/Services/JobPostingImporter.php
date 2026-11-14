@@ -133,6 +133,18 @@ class JobPostingImporter
      */
     private function deriveQualifications(string $description): ?string
     {
+        // 0) Indonesian synthetic-dataset header listing common skills.
+        if (preg_match(
+            '/Skill yang umum dibutuhkan(?: untuk profesi ini)?\s*:\s*(?:\r\n|\r|\n)((?:[ \t]*(?:[\x{2022}\-\*]|\d+[.)])[ \t]*[^\r\n]+(?:\r\n|\r|\n|$))+)/u',
+            $description,
+            $m,
+        )) {
+            $list = trim($m[1]);
+
+            if ($list !== '') {
+                return mb_substr($list, 0, self::MAX_TEXT_LENGTH);
+            }
+        }
         // 1) Explicit requirements/qualifications section.
         if (preg_match(
             '/(?:requirements|qualifications|what you.{0,3}ll need|your profile|was wir suchen|we are looking for)[\s:]{1,3}(?:\r\n|\r|\n){1,2}(.{40,2000}?)(?:(?:\r\n|\r|\n)\s*(?:benefits|what we offer|nice to have|we offer|why join)|$)/is',

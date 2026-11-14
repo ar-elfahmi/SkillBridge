@@ -29,6 +29,17 @@ class DeriveQualificationsTest extends TestCase
         return $this->derive->invoke($this->importer, $description);
     }
 
+    public function test_extracts_skill_list_under_indonesian_header(): void
+    {
+        $desc = "[DESKRIPSI SINTETIS] Bukan teks asli.\n\nRingkasan asli dari sumber:\nFull-cycle trainee program.\n- Allowance\n\nSkill yang umum dibutuhkan untuk profesi ini:\n- Python\n- Go\n- C++\n- Java\n- AWS";
+
+        $result = $this->derive($desc);
+
+        $this->assertStringContainsString('Python', $result);
+        $this->assertStringContainsString('AWS', $result);
+        $this->assertStringNotContainsString('Allowance', $result);
+    }
+
     public function test_extracts_explicit_requirements_section(): void
     {
         $desc = "About us\nWe build rockets.\n\nRequirements:\n- 5 years of experience with Go\n- Bachelor degree in CS\n\nBenefits:\n- Great pay";
