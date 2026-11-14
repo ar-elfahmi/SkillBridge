@@ -216,6 +216,24 @@ export interface Recommendation {
   details: RecommendationDetails
 }
 
+export type SkillLevel = 'beginner' | 'intermediate' | 'advanced'
+
+export interface UserSkill {
+  id: number
+  skill_id: number
+  skill: string
+  canonical_skill: string
+  reported_as: string | null
+  level: SkillLevel
+  created_at: string
+}
+
+export interface CreateUserSkillPayload {
+  skill: string
+  level?: SkillLevel
+  analysis_id?: number
+}
+
 export interface SelfDeclaredSkill {
   skill: string
   classification: Classification

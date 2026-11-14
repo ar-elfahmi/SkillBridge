@@ -94,6 +94,8 @@ export const copy = {
       viewAllSkills: 'Lihat semua skill →',
       recentActivityTitle: 'Aktivitas terbaru',
     },
+    profileMenuLabel: 'Profil',
+    logoutLabel: 'Keluar',
     nav: {
       home: 'Beranda',
       upload: 'Unggah RPS',
@@ -229,8 +231,33 @@ export const copy = {
     selfDeclaredNote:
       'Berdasarkan laporan Anda; tidak diverifikasi dan tidak memengaruhi Cakupan skill dalam RPS.',
     selfDeclaredProfileLink: 'Kelola di Profil',
+    selfDeclaredEmpty: 'Belum ada skill yang dilaporkan.',
+    selfDeclaredAdded: 'Skill ditambahkan ke daftar yang dipelajari mandiri.',
+    selfDeclaredRemoved: 'Skill dihapus dari daftar.',
+    selfDeclaredDuplicate: 'Skill ini sudah ada di daftar Anda.',
+    selfDeclaredFailed: 'Gagal menyimpan skill. Coba lagi.',
+    recoRefreshPending: 'Memperbarui rekomendasi…',
+    recoRefreshDone: 'Permintaan pembaruan rekomendasi dikirim.',
+    levelLabel: 'Tingkat',
+    levelOptions: { beginner: 'Beginner', intermediate: 'Intermediate', advanced: 'Advanced' },
     emptyReco: 'Belum ada rekomendasi. Semua skill tercakup dalam RPS yang dianalisis.',
     emptyGap: 'Tidak ada skill yang sesuai filter.',
+  },
+
+  profile: {
+    title: 'Profil',
+    logout: 'Keluar',
+    personalSkillsTitle: 'Skill pribadi',
+    personalSkillsDesc:
+      'Skill yang Anda pelajari di luar RPS, beserta tingkat pemahaman Anda. Berdasarkan laporan Anda; tidak diverifikasi dan tidak memengaruhi Cakupan skill dalam RPS.',
+    noteCanonical:
+      'Skill dicocokkan lewat nama kanonik yang sama. Skill ini tidak mengubah status cakupan dalam RPS.',
+    addPlaceholder: 'Ketik nama skill, mis. Docker',
+    colSkill: 'Skill',
+    colReportedAs: 'Dilaporkan sebagai',
+    colLevel: 'Tingkat',
+    colAction: 'Aksi',
+    empty: 'Belum ada skill pribadi yang dilaporkan.',
   },
 
   sampleDataLabel: 'Data contoh',

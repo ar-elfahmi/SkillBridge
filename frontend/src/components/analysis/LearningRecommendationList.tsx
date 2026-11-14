@@ -1,9 +1,10 @@
-import type { Recommendation, SelfDeclaredSkill } from '@/types/api'
+import type { Recommendation } from '@/types/api'
 import { copy } from '@/lib/copy'
 
 interface LearningRecommendationListProps {
   recommendations: Recommendation[]
-  selfDeclaredSkills: SelfDeclaredSkill[]
+  onAlreadyLearned: (skill: string) => void
+  declaredSkills: Set<string>
 }
 
 const PRIORITY_STYLE = {
@@ -14,7 +15,8 @@ const PRIORITY_STYLE = {
 
 export function LearningRecommendationList({
   recommendations,
-  selfDeclaredSkills,
+  onAlreadyLearned,
+  declaredSkills,
 }: LearningRecommendationListProps) {
   return (
     <div className="flex flex-col gap-4">
@@ -36,7 +38,11 @@ export function LearningRecommendationList({
           {recommendations.map((r) => (
             <div
               key={r.skill}
-              className="flex flex-col gap-3 rounded-2xl border border-border-warm bg-white p-5 shadow-sm"
+              className={`flex flex-col gap-3 rounded-2xl border-2 bg-white p-5 shadow-sm transition-colors ${
+                declaredSkills.has(r.skill)
+                  ? 'border-success/80 '
+                  : 'border-border-warm'
+              }`}
             >
               <div className="flex items-start justify-between gap-3">
                 <span className="text-sm font-bold text-brand">{r.skill}</span>
@@ -76,39 +82,23 @@ export function LearningRecommendationList({
                   {r.details.learning_keywords.join(', ')}
                 </p>
               )}
+
+              <button
+                type="button"
+                onClick={() => onAlreadyLearned(r.skill)}
+                disabled={declaredSkills.has(r.skill)}
+                className={`w-fit rounded-lg border px-3 py-1.5 text-[11px] font-semibold transition-colors ${
+                  declaredSkills.has(r.skill)
+                    ? 'cursor-default border-success/40 bg-success/10 text-success'
+                    : 'border-border-warm text-text-primary hover:border-brand hover:text-brand'
+                }`}
+              >
+                {copy.analysesResult.alreadyLearned}
+              </button>
             </div>
           ))}
         </div>
       )}
-
-      {/* Self Declared Panel */}
-      <div className="flex flex-col gap-3 rounded-2xl border border-border-warm bg-surface-subtle p-5">
-        <span className="text-xs font-bold text-text-primary">
-          {copy.analysesResult.selfDeclaredTitle}
-        </span>
-
-        {selfDeclaredSkills.length > 0 ? (
-          <div className="flex flex-col gap-2">
-            {selfDeclaredSkills.map((s) => (
-              <div
-                key={s.skill}
-                className="flex items-center justify-between rounded-lg bg-white px-3 py-2 text-xs"
-              >
-                <span className="font-semibold text-text-primary">{s.skill}</span>
-                <span className="text-[10px] text-text-secondary">{copy.status[s.classification]}</span>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <p className="text-[11px] text-text-secondary">
-            Belum ada skill yang dilaporkan.
-          </p>
-        )}
-
-        <p className="border-t border-border-warm pt-2 text-[11px] text-text-secondary">
-          {copy.analysesResult.selfDeclaredNote}
-        </p>
-      </div>
     </div>
   )
 }

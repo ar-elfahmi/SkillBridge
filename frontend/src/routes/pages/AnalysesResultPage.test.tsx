@@ -3,12 +3,18 @@ import { fireEvent, render, screen } from '@testing-library/react'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { AnalysesResultPage } from '@/routes/pages/AnalysesResultPage'
-import { analysisApi, authApi } from '@/lib/api/endpoints'
+import { analysisApi, authApi, meApi } from '@/lib/api/endpoints'
 import type { Analysis, RecommendationsResponse, SkillMatch, User } from '@/types/api'
 
 vi.mock('@/lib/api/endpoints', () => ({
   authApi: { me: vi.fn(), logout: vi.fn() },
-  analysisApi: { show: vi.fn(), matches: vi.fn(), recommendations: vi.fn() },
+  analysisApi: {
+    show: vi.fn(),
+    matches: vi.fn(),
+    recommendations: vi.fn(),
+    refreshRecommendations: vi.fn(),
+  },
+  meApi: { skills: vi.fn(), addSkill: vi.fn(), removeSkill: vi.fn() },
 }))
 
 const mockUser: User = {
@@ -102,6 +108,7 @@ describe('AnalysesResultPage', () => {
     vi.mocked(analysisApi.show).mockResolvedValue({ data: mockAnalysis })
     vi.mocked(analysisApi.matches).mockResolvedValue({ data: mockMatches })
     vi.mocked(analysisApi.recommendations).mockResolvedValue(mockReco)
+    vi.mocked(meApi.skills).mockResolvedValue({ data: [] })
   })
 
   it('merender tab Ringkasan dengan cakupan skill', async () => {

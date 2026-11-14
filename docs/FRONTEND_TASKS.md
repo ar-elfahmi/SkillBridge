@@ -29,7 +29,7 @@ Semua task dianggap selesai saat:
 | 6 | T5.4 Profesi & lowongan | `/analyses/new` (+ `/analyses/:id` untuk preview) | ✅ selesai |
 | 7 | T6.5 Analisis + Ringkasan/Skill Gap | `/analyses/new`, `/analyses/:id` | ✅ selesai |
 | 8 | T7.4 Rekomendasi + Disclaimer | `/analyses/:id` | ✅ selesai |
-| 9 | T7.5 Skill pribadi (bersama) | `/analyses/:id` | demo inti |
+| 9 | T7.5 Skill pribadi (bersama) | `/analyses/:id`, `/profile` | ✅ selesai |
 | 10 | T8.3 Responsif & polish | seluruh halaman | akhir |
 | 11 | T8.5 Checklist MVP (bersama) | — | akhir |
 
@@ -112,6 +112,7 @@ Semua task dianggap selesai saat:
   - **Tanpa URL sumber belajar** (aturan CLAUDE.md #11)
 
 ## T7.5 — Skill pribadi (bersama)
+- **Status:** selesai — `SelfDeclaredSkillsPanel` (tambah/hapus + level) di tab Rekomendasi, tombol "Sudah saya pelajari di luar RPS" (`onAlreadyLearned`), banner "Rekomendasi belum diperbarui" + tombol refresh (`POST .../recommendations/refresh`), dan halaman baru `/profile` (`ProfilePage`) dengan tabel skill pribadi. Route `/profile` kini terdaftar di router.
 
 - **Route:** `/analyses/:id`
 - **Endpoint:** `GET/POST/DELETE /api/me/skills`, `POST /api/analyses/{id}/recommendations/refresh`

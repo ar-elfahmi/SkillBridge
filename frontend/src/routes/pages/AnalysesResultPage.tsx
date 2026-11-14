@@ -1,16 +1,23 @@
 import { useState } from 'react'
+import { useQueryClient } from '@tanstack/react-query'
 import { Link, useParams, useNavigate } from 'react-router-dom'
-import { AlertCircle, ArrowLeft, Check, Clock3, RefreshCw } from 'lucide-react'
+import { AlertCircle, ArrowLeft, Check, Clock3, Info } from 'lucide-react'
 import { DashboardTopbar } from '@/components/dashboard/DashboardTopbar'
 import { CoverageSummary } from '@/components/analysis/CoverageSummary'
 import { SkillGapTable } from '@/components/analysis/SkillGapTable'
 import { LearningRecommendationList } from '@/components/analysis/LearningRecommendationList'
+import { SelfDeclaredSkillsPanel } from '@/components/analysis/SelfDeclaredSkillsPanel'
+import { queryKeys } from '@/lib/query/keys'
 import {
+  useAddMySkill,
   useAnalysis,
   useAnalysisMatches,
   useAnalysisRecommendations,
   useLogout,
   useMe,
+  useMySkills,
+  useRefreshRecommendations,
+  useRemoveMySkill,
 } from '@/lib/query/hooks'
 import { copy } from '@/lib/copy'
 
@@ -21,6 +28,7 @@ export function AnalysesResultPage() {
   const navigate = useNavigate()
   const analysisId = id ? parseInt(id, 10) : 0
 
+  const queryClient = useQueryClient()
   const { data: user } = useMe()
   const logout = useLogout()
   const { data: analysis, isLoading, isError } = useAnalysis(analysisId)
@@ -32,7 +40,28 @@ export function AnalysesResultPage() {
   )
   const { data: reco } = useAnalysisRecommendations(analysisId, isCompleted)
 
+  const { data: mySkills = [] } = useMySkills()
+  const addSkill = useAddMySkill()
+  const removeSkill = useRemoveMySkill()
+  const refreshReco = useRefreshRecommendations()
+
   const [tab, setTab] = useState<Tab>('summary')
+  // Skill pribadi berubah setelah rekomendasi dimuat → tampilkan banner perbarui.
+  const [recoStale, setRecoStale] = useState(false)
+
+  // Skill pribadi yang cocok dengan skill industri pada analisis ini
+  const declaredSkillNames = new Set(
+    matches.filter((m) => m.self_declared).map((m) => m.skill),
+  )
+
+  function declareSkill(skill: string) {
+    addSkill.mutate(
+      { skill, analysis_id: analysisId },
+      // self_declared dihitung backend saat /matches dibaca → cukup refetch,
+      // stroke kartu & tabel skill gap ikut hijau tanpa refresh halaman.
+      { onSuccess: () => queryClient.invalidateQueries({ queryKey: [...queryKeys.analysis(analysisId), 'matches'] }) },
+    )
+  }
 
   function handleLogout() {
     logout.mutate(undefined, { onSuccess: () => navigate('/login') })
@@ -147,15 +176,6 @@ export function AnalysesResultPage() {
               <StatusIcon className="size-3.5" />
               {statusLabel}
             </span>
-
-            <button
-              type="button"
-              onClick={() => navigate(0)}
-              className="flex items-center gap-1.5 rounded-lg border border-border-warm px-3 py-1.5 text-xs font-semibold text-text-primary hover:bg-surface-subtle"
-            >
-              <RefreshCw className="size-3.5" />
-              {copy.analysesResult.refresh}
-            </button>
           </div>
         </div>
 
@@ -175,10 +195,49 @@ export function AnalysesResultPage() {
         ) : tab === 'skillGap' ? (
           <SkillGapTable matches={matches} isLoading={isMatchesLoading} />
         ) : (
-          <LearningRecommendationList
-            recommendations={reco?.data ?? []}
-            selfDeclaredSkills={reco?.meta.self_declared_skills ?? []}
-          />
+          <div className="flex flex-col gap-4">
+            {recoStale && (
+              <div className="flex flex-col gap-2 rounded-xl border border-border-warm bg-[#FBF0D9]/60 p-3 text-xs text-warning sm:flex-row sm:items-center sm:justify-between">
+                <span className="flex items-center gap-2">
+                  <Info className="size-4 shrink-0" aria-hidden="true" />
+                  {copy.analysesResult.recoStaleBanner}
+                </span>
+                <button
+                  type="button"
+                  onClick={() =>
+                    refreshReco.mutate(analysisId, { onSuccess: () => setRecoStale(false) })
+                  }
+                  disabled={refreshReco.isPending}
+                  className="w-fit rounded-lg bg-brand px-3 py-1.5 text-[11px] font-bold text-white hover:bg-brand-hover disabled:opacity-50"
+                >
+                  {refreshReco.isPending
+                    ? copy.analysesResult.recoRefreshPending
+                    : copy.analysesResult.recoRefreshBtn}
+                </button>
+              </div>
+            )}
+
+            <LearningRecommendationList
+              recommendations={reco?.data ?? []}
+              onAlreadyLearned={declareSkill}
+              declaredSkills={declaredSkillNames}
+            />
+
+            <SelfDeclaredSkillsPanel
+              skills={mySkills}
+              reportedFromAnalysis={reco?.meta.self_declared_skills ?? []}
+              onAdd={declareSkill}
+              onRemove={(id) =>
+                removeSkill.mutate(id, {
+                  onSuccess: () =>
+                    queryClient.invalidateQueries({
+                      queryKey: [...queryKeys.analysis(analysisId), 'matches'],
+                    }),
+                })
+              }
+              isAdding={addSkill.isPending}
+            />
+          </div>
         )}
       </main>
 

@@ -6,9 +6,11 @@ import type {
   CreateAnalysisPayload,
   CreateCompetencyPayload,
   JobPosting,
+  CreateUserSkillPayload,
   RecommendationsResponse,
   RpsDocument,
   SkillMatch,
+  UserSkill,
   UpdateCompetencyPayload,
   UpdateRpsMetadataPayload,
   User,
@@ -80,6 +82,13 @@ export const industryApi = {
     api.post<{ data: JobPosting }>('/jobs', payload),
 }
 
+export const meApi = {
+  skills: () => api.get<{ data: UserSkill[] }>('/me/skills'),
+  addSkill: (payload: CreateUserSkillPayload) =>
+    api.post<{ data: UserSkill }>('/me/skills', payload),
+  removeSkill: (id: number) => api.delete<void>(`/me/skills/${id}`),
+}
+
 export const analysisApi = {
   list: () => api.get<{ data: Analysis[] }>('/analyses'),
   show: (id: number) => api.get<{ data: Analysis }>(`/analyses/${id}`),
@@ -89,6 +98,10 @@ export const analysisApi = {
     api.get<{ data: SkillMatch[] }>(`/analyses/${id}/matches`),
   recommendations: (id: number) =>
     api.get<RecommendationsResponse>(`/analyses/${id}/recommendations`),
+  refreshRecommendations: (id: number) =>
+    api.post<{ message: string; analysis_id: number }>(
+      `/analyses/${id}/recommendations/refresh`,
+    ),
   remove: (id: number) => api.delete<void>(`/analyses/${id}`),
 }
 

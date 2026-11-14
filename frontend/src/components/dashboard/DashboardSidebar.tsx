@@ -1,19 +1,19 @@
-import { LogOut } from 'lucide-react'
-import type { User } from '@/types/api'
+import { Link } from 'react-router-dom'
+import type { User, UserSkill } from '@/types/api'
 import { copy } from '@/lib/copy'
 
 interface DashboardSidebarProps {
   user?: User
   rpsCount: number
   analysesCount: number
-  onLogout: () => void
+  skills: UserSkill[]
 }
 
 export function DashboardSidebar({
   user,
   rpsCount,
   analysesCount,
-  onLogout,
+  skills,
 }: DashboardSidebarProps) {
   const initials = user?.name
     ? user.name
@@ -42,14 +42,43 @@ export function DashboardSidebar({
             Mahasiswa
           </span>
         </div>
-        <button
-          type="button"
-          onClick={onLogout}
-          className="mt-1 flex items-center gap-1.5 rounded-lg px-3 py-1 text-xs font-semibold text-danger hover:bg-brand-soft/40 transition-colors"
+      </div>
+
+      {/* Owned Skills Card — sesuai frame "Owned Skills Card" dihsain.pen */}
+      <div className="flex flex-col gap-3 rounded-2xl border border-border-warm bg-white p-4 shadow-sm">
+        <div className="flex flex-col">
+          <span className="text-xs font-bold text-text-primary">
+            {copy.dashboard.sidebar.ownedSkillsTitle}
+          </span>
+          <span className="text-[11px] text-text-secondary">
+            {copy.dashboard.sidebar.ownedSkillsNote}
+          </span>
+        </div>
+
+        {skills.length === 0 ? (
+          <p className="text-[11px] text-text-secondary">Belum ada skill dilaporkan.</p>
+        ) : (
+          <ul className="flex flex-col gap-2">
+            {skills.slice(0, 4).map((s) => (
+              <li
+                key={s.id}
+                className="flex items-center justify-between gap-2 rounded-lg bg-surface-subtle px-3 py-2 text-xs"
+              >
+                <span className="truncate font-semibold text-text-primary">{s.skill}</span>
+                <span className="shrink-0 text-[11px] text-text-secondary">
+                  {copy.analysesResult.levelOptions[s.level]}
+                </span>
+              </li>
+            ))}
+          </ul>
+        )}
+
+        <Link
+          to="/profile"
+          className="w-fit text-xs font-bold text-brand hover:underline"
         >
-          <LogOut className="size-3.5" aria-hidden="true" />
-          <span>Keluar</span>
-        </button>
+          {copy.dashboard.sidebar.viewAllSkills}
+        </Link>
       </div>
 
       {/* Ringkasan Akun & Status */}
