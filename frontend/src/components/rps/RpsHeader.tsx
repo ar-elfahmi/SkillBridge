@@ -6,10 +6,9 @@ import { copy } from '@/lib/copy'
 interface RpsHeaderProps {
   document: RpsDocument
   currentStep: 1 | 2 | 3
-  onStepChange?: (step: 1 | 2 | 3) => void
 }
 
-export function RpsHeader({ document, currentStep, onStepChange }: RpsHeaderProps) {
+export function RpsHeader({ document, currentStep }: RpsHeaderProps) {
   const isExtracting = document.extraction_status === 'processing'
   const isExtracted = document.extraction_status === 'completed'
 
@@ -74,7 +73,7 @@ export function RpsHeader({ document, currentStep, onStepChange }: RpsHeaderProp
         </span>
       </div>
 
-      {/* Stage Stepper — dapat diklik untuk bypass inspeksi desain */}
+      {/* Stage Stepper */}
       <ol className="grid grid-cols-[auto_1fr_auto_1fr_auto] items-center gap-3 rounded-xl bg-white p-4 shadow-sm md:gap-5 md:px-6">
         {steps.map((step, i) => {
           const done = currentStep > step.index
@@ -85,12 +84,9 @@ export function RpsHeader({ document, currentStep, onStepChange }: RpsHeaderProp
             <li key={step.index} className="contents">
               {i > 0 && <span aria-hidden="true" className="h-0.5 w-full rounded-full bg-border-warm" />}
 
-              <button
-                type="button"
-                onClick={() => onStepChange?.(step.index)}
+              <div
                 aria-current={active ? 'step' : undefined}
-                aria-label={step.label}
-                className="flex items-center gap-2.5 rounded-lg text-left outline-none transition-opacity hover:opacity-80 focus-visible:ring-2 focus-visible:ring-brand/40 md:gap-3"
+                className="flex items-center gap-2.5 md:gap-3"
               >
                 <span
                   className={`flex size-8 shrink-0 items-center justify-center rounded-full text-[13px] font-semibold tabular-nums leading-none ${marker}`}
@@ -104,7 +100,7 @@ export function RpsHeader({ document, currentStep, onStepChange }: RpsHeaderProp
                 >
                   {step.label}
                 </span>
-              </button>
+              </div>
             </li>
           )
         })}
