@@ -72,6 +72,7 @@ class RunAnalysisJob implements ShouldQueue
 
         $analysis->update([
             'status' => AnalysisStatus::Processing,
+            'error_code' => null,
             'error_message' => null,
         ]);
 
@@ -231,6 +232,7 @@ class RunAnalysisJob implements ShouldQueue
                 'status' => AnalysisStatus::Completed,
                 'summary' => $summary,
                 'model_versions' => $modelVersions,
+                'error_code' => null,
                 'error_message' => null,
             ]);
 
@@ -242,6 +244,7 @@ class RunAnalysisJob implements ShouldQueue
         } catch (GeminiQuotaExhaustedException $e) {
             $analysis->update([
                 'status' => AnalysisStatus::Failed,
+                'error_code' => GeminiQuotaExhaustedException::CODE,
                 'error_message' => $this->quotaMessage($e),
             ]);
         } catch (Throwable $e) {

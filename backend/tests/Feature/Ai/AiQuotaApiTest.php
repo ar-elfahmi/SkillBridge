@@ -53,6 +53,17 @@ class AiQuotaApiTest extends TestCase
         parent::tearDown();
     }
 
+    public function test_endpoints_that_start_ai_work_are_rate_limited_per_user(): void
+    {
+        config(['skillbridge.rate_limits.ai_per_minute' => 1]);
+
+        $this->actingAs($this->user)->postJson('/api/jobs', [])->assertStatus(422);
+
+        $this->actingAs($this->user)->postJson('/api/jobs', [])
+            ->assertStatus(429)
+            ->assertJsonPath('message', 'Terlalu banyak permintaan proses AI. Coba lagi dalam satu menit.');
+    }
+
     public function test_quota_endpoint_requires_authentication(): void
     {
         $this->getJson('/api/ai/quota')->assertUnauthorized();

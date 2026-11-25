@@ -7,7 +7,7 @@ use App\Modules\Matching\Http\Controllers\AnalysisController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware('auth:sanctum')->group(function (): void {
-    Route::post('analyses', [AnalysisController::class, 'store']);
+    Route::post('analyses', [AnalysisController::class, 'store'])->middleware('throttle:ai');
     Route::get('analyses', [AnalysisController::class, 'index']);
     Route::get('analyses/{analysis}', [AnalysisController::class, 'show']);
     Route::get('analyses/{analysis}/matches', [AnalysisController::class, 'matches']);

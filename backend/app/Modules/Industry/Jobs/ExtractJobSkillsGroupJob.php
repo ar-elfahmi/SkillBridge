@@ -93,7 +93,7 @@ class ExtractJobSkillsGroupJob implements ShouldQueue
                 continue;
             }
 
-            $posting->update(['extraction_status' => ExtractionStatus::Processing]);
+            $posting->update(['extraction_status' => ExtractionStatus::Processing, 'error_code' => null, 'error_message' => null]);
 
             $text = $extraction->combinedText($posting);
             if ($text === '') {
@@ -137,7 +137,7 @@ class ExtractJobSkillsGroupJob implements ShouldQueue
             }
 
             if ($response instanceof GeminiQuotaExhaustedException) {
-                $posting->update(['extraction_status' => ExtractionStatus::Failed]);
+                $this->markQuotaFailed($posting, $response);
 
                 continue;
             }
@@ -160,6 +160,15 @@ class ExtractJobSkillsGroupJob implements ShouldQueue
         }
 
         $this->embedAndComplete($embeddingService, $stored);
+    }
+
+    private function markQuotaFailed(JobPosting $posting, GeminiQuotaExhaustedException $exception): void
+    {
+        $posting->update([
+            'extraction_status' => ExtractionStatus::Failed,
+            'error_code' => GeminiQuotaExhaustedException::CODE,
+            'error_message' => $exception->getMessage(),
+        ]);
     }
 
     public function failed(?Throwable $exception): void
@@ -198,9 +207,9 @@ class ExtractJobSkillsGroupJob implements ShouldQueue
             foreach (array_keys($stored) as $id) {
                 ExtractJobSkillsJob::dispatch($id)->delay(now()->addSeconds($e->retryAfterSeconds));
             }
-        } catch (GeminiQuotaExhaustedException) {
+        } catch (GeminiQuotaExhaustedException $e) {
             foreach ($stored as $posting) {
-                $posting->update(['extraction_status' => ExtractionStatus::Failed]);
+                $this->markQuotaFailed($posting, $e);
             }
         } catch (Throwable) {
             foreach (array_keys($stored) as $id) {

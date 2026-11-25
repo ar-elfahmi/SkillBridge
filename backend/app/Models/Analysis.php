@@ -21,7 +21,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property array{total_skills: int, covered: int, partial: int, missing: int, coverage_percentage: float}|null $summary
  * @property array<string, mixed>|null $model_versions
  */
-#[Fillable(['user_id', 'rps_document_id', 'career_id', 'status', 'error_message', 'summary', 'model_versions'])]
+#[Fillable(['user_id', 'rps_document_id', 'career_id', 'status', 'error_code', 'error_message', 'summary', 'model_versions'])]
 class Analysis extends Model
 {
     /** @use HasFactory<AnalysisFactory> */

@@ -8,9 +8,12 @@ use App\Models\RpsDocument;
 use App\Models\RpsPage;
 use App\Models\User;
 use App\Modules\Rps\Enums\ParseStatus;
+use App\Modules\Rps\Jobs\ExtractRpsMetadataJob;
 use App\Modules\Rps\Jobs\ParseRpsJob;
 use App\Modules\Rps\Services\PdfInspector;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Storage;
 use Tests\Support\PdfFixture;
 use Tests\TestCase;
@@ -28,6 +31,8 @@ class ParseRpsJobTest extends TestCase
         parent::setUp();
 
         Storage::fake('private');
+        Queue::fake([ExtractRpsMetadataJob::class]);
+        Http::preventStrayRequests();
     }
 
     /**

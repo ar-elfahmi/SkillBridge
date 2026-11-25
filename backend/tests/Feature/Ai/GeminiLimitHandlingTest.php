@@ -115,6 +115,7 @@ class GeminiLimitHandlingTest extends TestCase
 
         $analysis->refresh();
         $this->assertSame(AnalysisStatus::Failed, $analysis->status);
+        $this->assertSame('quota_exhausted', $analysis->error_code);
         $this->assertStringContainsString('Kuota AI harian habis', (string) $analysis->error_message);
         $this->assertSame(0, $analysis->skillMatches()->count());
         $this->assertNull($analysis->summary);
@@ -181,6 +182,7 @@ class GeminiLimitHandlingTest extends TestCase
         $document->refresh();
         $this->assertStringContainsString('Kuota AI harian habis', (string) $document->error_message);
         $this->assertStringContainsString('melengkapi metadata secara manual', (string) $document->error_message);
+        $this->assertSame('quota_exhausted', $document->error_code);
         $job->assertNotReleased();
     }
 

@@ -242,7 +242,7 @@ Contoh item rekomendasi:
 | PDF hasil scan tanpa text layer | 200 pada upload, `parse_status = needs_ocr` dengan `error_message` |
 | Dokumen duplikat | 409 |
 | Prasyarat analisis belum terpenuhi | 422 |
-| Melebihi rate limit | 429 |
+| Melebihi rate limit (auth, upload, dan permintaan pemicu AI: `skillbridge.rate_limits.*`, default 10/menit per pengguna untuk AI) | 429 |
 | Layanan AI gagal setelah retry | status `failed` + `error_message` aman (tanpa detail internal) |
 | Kuota AI harian habis saat memulai ekstraksi RPS, lowongan, atau analisis | **429** `{ "message": "Kuota AI harian habis. Coba lagi setelah ...", "code": "quota_exhausted", "resets_at": "2026-11-27T08:00:00+00:00" }` |
 | Kuota AI harian habis saat job sudah berjalan | status `failed`, `error_message` berisi pesan kuota, `error_code = "quota_exhausted"`. Tidak ada percobaan ulang sampai kuota di-reset. |

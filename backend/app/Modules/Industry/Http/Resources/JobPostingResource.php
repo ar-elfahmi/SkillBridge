@@ -37,6 +37,8 @@ class JobPostingResource extends JsonResource
             'collected_at' => $this->collected_at?->toDateString(),
             'dataset_version' => $this->dataset_version,
             'extraction_status' => $this->extraction_status->value,
+            'error_code' => $this->error_code,
+            'error_message' => $this->error_message,
             'skills' => JobSkillResource::collection($this->whenLoaded('jobSkills')),
             'created_at' => $this->created_at?->toIso8601String(),
         ];

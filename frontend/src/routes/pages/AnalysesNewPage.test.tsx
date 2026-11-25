@@ -3,10 +3,11 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { AnalysesNewPage } from '@/routes/pages/AnalysesNewPage'
-import { analysisApi, authApi, industryApi, rpsApi } from '@/lib/api/endpoints'
+import { aiApi, analysisApi, authApi, industryApi, rpsApi } from '@/lib/api/endpoints'
 import type { Career, JobPosting, RpsDocument, User } from '@/types/api'
 
 vi.mock('@/lib/api/endpoints', () => ({
+  aiApi: { quota: vi.fn() },
   authApi: { me: vi.fn(), logout: vi.fn() },
   rpsApi: { show: vi.fn() },
   industryApi: {
@@ -93,6 +94,9 @@ function renderAnalysesNew(rpsId = 2) {
 
 describe('AnalysesNewPage', () => {
   beforeEach(() => {
+    vi.mocked(aiApi.quota).mockResolvedValue({
+      data: { available: true, daily_remaining: 100, resets_at: '2026-11-27T08:00:00+00:00' },
+    })
     vi.mocked(authApi.me).mockResolvedValue({ data: mockUser })
     vi.mocked(rpsApi.show).mockResolvedValue({ data: mockDoc })
     vi.mocked(industryApi.careers).mockResolvedValue({ data: mockCareers })

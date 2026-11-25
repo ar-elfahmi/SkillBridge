@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { DashboardTopbar } from '@/components/dashboard/DashboardTopbar'
+import { AiQuotaBanner } from '@/components/common/AiQuotaBanner'
 import { UploadRpsHero } from '@/components/dashboard/UploadRpsHero'
 import { DashboardStats } from '@/components/dashboard/DashboardStats'
 import { AnalyzedRpsSection } from '@/components/dashboard/AnalyzedRpsSection'
@@ -103,6 +104,7 @@ export function DashboardPage() {
 
       <main className="mx-auto flex w-full max-w-7xl flex-1 items-start gap-8 px-4 py-6 md:px-8 md:py-8">
         <div className="flex flex-1 flex-col gap-6">
+          <AiQuotaBanner />
           <UploadRpsHero
             onFileSelect={handleFileUpload}
             isPending={uploadRps.isPending}

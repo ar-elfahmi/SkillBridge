@@ -86,6 +86,7 @@ return [
     'rate_limits' => [
         'auth_per_minute' => (int) env('SKILLBRIDGE_AUTH_PER_MINUTE', 5),
         'upload_per_minute' => (int) env('SKILLBRIDGE_UPLOAD_PER_MINUTE', 10),
+        'ai_per_minute' => (int) env('SKILLBRIDGE_AI_PER_MINUTE', 10),
     ],
 
     // --- Recommendation (Modules/Recommendation) ---

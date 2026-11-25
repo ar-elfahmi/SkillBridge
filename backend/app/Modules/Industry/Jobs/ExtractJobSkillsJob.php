@@ -70,7 +70,7 @@ class ExtractJobSkillsJob implements ShouldQueue
             return;
         }
 
-        $posting->update(['extraction_status' => ExtractionStatus::Processing]);
+        $posting->update(['extraction_status' => ExtractionStatus::Processing, 'error_code' => null, 'error_message' => null]);
 
         $combinedText = $extraction->combinedText($posting);
         if ($combinedText === '') {
@@ -125,9 +125,13 @@ class ExtractJobSkillsJob implements ShouldQueue
         } catch (GeminiRateLimitedException $e) {
             // Nothing failed: wait for the per-minute budget and try again (status stays "processing").
             $this->releaseForRateLimit($e);
-        } catch (GeminiQuotaExhaustedException) {
+        } catch (GeminiQuotaExhaustedException $e) {
             // The daily budget is gone: retrying before the reset is pointless.
-            $posting->update(['extraction_status' => ExtractionStatus::Failed]);
+            $posting->update([
+                'extraction_status' => ExtractionStatus::Failed,
+                'error_code' => GeminiQuotaExhaustedException::CODE,
+                'error_message' => $e->getMessage(),
+            ]);
         } catch (Throwable $e) {
             $posting->update(['extraction_status' => ExtractionStatus::Failed]);
 

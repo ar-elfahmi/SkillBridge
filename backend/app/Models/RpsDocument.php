@@ -26,7 +26,7 @@ use Illuminate\Support\Carbon;
  */
 #[Fillable([
     'user_id', 'course_id', 'detected_metadata', 'metadata_confirmed_at', 'original_name', 'file_path', 'file_hash', 'file_size',
-    'page_count', 'parse_status', 'extraction_status', 'review_status', 'reviewed_at', 'error_message',
+    'page_count', 'parse_status', 'extraction_status', 'review_status', 'reviewed_at', 'error_code', 'error_message',
 ])]
 // Storage path is internal; never expose it in API responses.
 #[Hidden(['file_path'])]

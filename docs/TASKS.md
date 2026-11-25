@@ -79,7 +79,7 @@ Dok: `AI_PIPELINE.md §7`
 
 ## Fase 8 — Penyelesaian
 Dok: `TESTING.md`, `SECURITY.md`, `FRONTEND.md`
-- [ ] **T8.1** Rate limiting, batas kuota AI, pesan error ramah, halaman riwayat/dashboard (frontend dashboard selesai di T2.6/T8.1).
+- [x] **T8.1** Rate limiting, batas kuota AI, pesan error ramah, halaman riwayat/dashboard (frontend dashboard selesai di T2.6/T8.1).
 - [x] **T8.2** Golden dataset + `skillbridge:evaluate` (precision/recall/F1) dan dokumen `docs/CALIBRATION.md`.
 - [ ] **T8.3** Responsif (375/768/1280), loading/empty/error state, audit kata-kata UI.
 - [ ] **T8.4** Deploy ke VPS: Nginx (serve build statis frontend + reverse proxy ke PHP-FPM), PostgreSQL, Redis, queue worker via systemd/Supervisor, HTTPS (Certbot), storage PDF di disk privat di luar web root, backup DB + storage terjadwal, domain same-site untuk cookie.

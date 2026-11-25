@@ -90,6 +90,7 @@ class CompetencyController extends Controller
                 'course_id' => $course->id,
                 'metadata_confirmed_at' => $document->metadata_confirmed_at ?? now(),
                 'extraction_status' => ExtractionStatus::Processing,
+                'error_code' => null,
                 'error_message' => null,
             ]);
         });

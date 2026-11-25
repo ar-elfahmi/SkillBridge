@@ -82,6 +82,7 @@ class ExtractCompetenciesJob implements ShouldQueue
 
         $document->update([
             'extraction_status' => ExtractionStatus::Processing,
+            'error_code' => null,
             'error_message' => null,
         ]);
 
@@ -163,6 +164,7 @@ class ExtractCompetenciesJob implements ShouldQueue
 
             $document->update([
                 'extraction_status' => ExtractionStatus::Completed,
+                'error_code' => null,
                 'error_message' => null,
             ]);
         } catch (GeminiRateLimitedException $e) {
@@ -171,6 +173,7 @@ class ExtractCompetenciesJob implements ShouldQueue
         } catch (GeminiQuotaExhaustedException $e) {
             $document->update([
                 'extraction_status' => ExtractionStatus::Failed,
+                'error_code' => GeminiQuotaExhaustedException::CODE,
                 'error_message' => $this->quotaMessage($e),
             ]);
         } catch (Throwable $e) {

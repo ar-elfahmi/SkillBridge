@@ -46,5 +46,16 @@ class AppServiceProvider extends ServiceProvider
                     'message' => 'Terlalu banyak unggahan. Coba lagi dalam satu menit.',
                 ], 429));
         });
+
+        // Requests that start AI work (extraction, analysis, recommendations) per minute, keyed by user.
+        RateLimiter::for('ai', function (Request $request): Limit {
+            $perMinute = (int) config('skillbridge.rate_limits.ai_per_minute', 10);
+
+            return Limit::perMinute($perMinute)
+                ->by((string) ($request->user()?->getAuthIdentifier() ?? $request->ip()))
+                ->response(fn () => response()->json([
+                    'message' => 'Terlalu banyak permintaan proses AI. Coba lagi dalam satu menit.',
+                ], 429));
+        });
     }
 }

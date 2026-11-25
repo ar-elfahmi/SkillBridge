@@ -45,6 +45,7 @@ class RpsDocumentResource extends JsonResource
                 'study_program' => $this->detected_metadata['study_program'] ?? null,
             ],
             'page_count' => $this->page_count,
+            'error_code' => $this->error_code,
             'error_message' => $this->error_message,
             'created_at' => $this->created_at?->toIso8601String(),
         ];

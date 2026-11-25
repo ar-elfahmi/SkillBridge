@@ -6,6 +6,7 @@
 export const queryKeys = {
   me: ['me'] as const,
   careers: ['careers'] as const,
+  aiQuota: ['ai', 'quota'] as const,
   jobs: (careerId?: number) => ['jobs', careerId ?? 'all'] as const,
   job: (id: number) => ['jobs', 'detail', id] as const,
   rps: ['rps'] as const,

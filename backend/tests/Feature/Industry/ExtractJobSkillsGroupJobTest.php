@@ -123,6 +123,8 @@ class ExtractJobSkillsGroupJobTest extends TestCase
 
         $this->assertSame(ExtractionStatus::Failed, $first->refresh()->extraction_status);
         $this->assertSame(ExtractionStatus::Failed, $second->refresh()->extraction_status);
+        $this->assertSame('quota_exhausted', $first->error_code);
+        $this->assertStringContainsString('Kuota AI harian habis', (string) $second->error_message);
         Queue::assertNothingPushed();
     }
 
@@ -174,6 +176,7 @@ class ExtractJobSkillsGroupJobTest extends TestCase
 
         $job->assertNotReleased();
         $this->assertSame(ExtractionStatus::Failed, $posting->refresh()->extraction_status);
+        $this->assertSame('quota_exhausted', $posting->error_code);
     }
 
     public function test_dispatcher_groups_postings_in_pairs_and_leaves_a_single_one_alone(): void

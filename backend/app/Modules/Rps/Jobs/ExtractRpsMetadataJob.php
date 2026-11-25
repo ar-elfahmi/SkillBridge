@@ -134,13 +134,14 @@ class ExtractRpsMetadataJob implements ShouldQueue
 
             $document->update([
                 'detected_metadata' => $validated,
+                'error_code' => null,
                 'error_message' => null,
             ]);
         } catch (GeminiRateLimitedException $e) {
             // Nothing failed: wait for the per-minute budget and try again.
             $this->releaseForRateLimit($e);
         } catch (GeminiQuotaExhaustedException $e) {
-            $this->markFailed($document, $this->quotaMessage($e).' Anda dapat melengkapi metadata secara manual.');
+            $this->markFailed($document, $this->quotaMessage($e).' Anda dapat melengkapi metadata secara manual.', GeminiQuotaExhaustedException::CODE);
         } catch (Throwable $e) {
             $this->markFailed($document, 'Gagal mengekstrak metadata secara otomatis. Silakan lengkapi metadata secara manual.');
 
@@ -234,8 +235,8 @@ class ExtractRpsMetadataJob implements ShouldQueue
         ];
     }
 
-    private function markFailed(RpsDocument $document, string $message): void
+    private function markFailed(RpsDocument $document, string $message, ?string $code = null): void
     {
-        $document->update(['error_message' => $message]);
+        $document->update(['error_code' => $code, 'error_message' => $message]);
     }
 }
