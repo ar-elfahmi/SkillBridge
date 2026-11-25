@@ -79,6 +79,10 @@ sequenceDiagram
 7. **Soft skill umum dan benefit diabaikan**, kecuali berbentuk kompetensi teknis.
 8. **Pencatatan AI** di `ai_runs` (`purpose = job_extraction`).
 9. **Job idempotent**, `tries = 3`, backoff eksponensial, `failed()` → `extraction_status = failed` + pesan aman.
+10. **Satu permintaan Gemini per lowongan.** Teks beberapa lowongan tidak pernah dicampur dalam satu prompt. Untuk pemrosesan massal, `ExtractJobSkillsGroupJob` mengirim `skillbridge.gemini.jobs.concurrent_postings` (2) lowongan bersamaan, lalu menanamkan embedding semua skill-nya dalam satu batch.
+11. **Anggaran harian.** `skillbridge:extract-pending-jobs` dan `skillbridge:import-jobs --extract` hanya menjadwalkan sebanyak sisa RPD flash dikurangi `reserved_daily_requests`; sisanya ditunda dan perintah mencetak waktu reset. `POST /api/jobs` menjawab 429 bila RPD habis.
+12. **Kegagalan kuota.** RPM penuh: lowongan diserahkan ke `ExtractJobSkillsJob` yang dilepas dengan jeda (bukan gagal). RPD habis: `extraction_status = failed`, tanpa percobaan ulang sampai reset. Lowongan yang responsnya tidak valid atau kena 429 dalam grup diserahkan ke `ExtractJobSkillsJob` yang memegang retry dan status akhir.
+13. **Titik lanjut embedding.** Skill yang sudah tersimpan tanpa embedding diselesaikan oleh job berikutnya tanpa memanggil Gemini lagi.
 
 ## Catatan implementasi
 

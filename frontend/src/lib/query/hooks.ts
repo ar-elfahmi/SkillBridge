@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { analysisApi, authApi, industryApi, meApi, rpsApi } from '@/lib/api/endpoints'
+import { aiApi, analysisApi, authApi, industryApi, meApi, rpsApi } from '@/lib/api/endpoints'
 import { queryKeys } from '@/lib/query/keys'
 import type { User } from '@/types/api'
 
@@ -190,6 +190,17 @@ export function useAnalysesList() {
   return useQuery({
     queryKey: queryKeys.analyses,
     queryFn: analysisApi.list,
+    select: (res) => res.data,
+  })
+}
+
+/** Sisa kuota AI harian. Kegagalan membaca kuota tidak boleh memblokir halaman. */
+export function useAiQuota() {
+  return useQuery({
+    queryKey: queryKeys.aiQuota,
+    queryFn: aiApi.quota,
+    retry: false,
+    staleTime: 60_000,
     select: (res) => res.data,
   })
 }

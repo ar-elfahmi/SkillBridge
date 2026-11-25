@@ -12,7 +12,7 @@ Route::middleware('auth:sanctum')->group(function (): void {
     Route::patch('rps/{document}', [RpsDocumentController::class, 'update']);
     Route::delete('rps/{document}', [RpsDocumentController::class, 'destroy']);
 
-    Route::post('rps/{document}/extract', [CompetencyController::class, 'extract']);
+    Route::post('rps/{document}/extract', [CompetencyController::class, 'extract'])->middleware('throttle:ai');
     Route::get('rps/{document}/competencies', [CompetencyController::class, 'index']);
     Route::post('rps/{document}/competencies', [CompetencyController::class, 'store']);
     Route::patch('rps/{document}/competencies/{competency}', [CompetencyController::class, 'update']);

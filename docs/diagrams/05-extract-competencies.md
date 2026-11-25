@@ -53,14 +53,26 @@ sequenceDiagram
         FE->>API: polling GET /api/rps/{id} tiap 2-3 detik ⏳ belum (T2.5)
     end
 
-    Note over QW,DB: Tahap 3 — ekstraksi LLM per chunk halaman
+    Note over QW,DB: Tahap 3 — ekstraksi LLM per chunk halaman, semua chunk dikirim bersamaan
     QW->>DB: load rps_pages (urut) + metadata course
-    loop setiap chunk kelompok halaman
-        QW->>QW: sisipkan penanda [[PAGE n]] per halaman
-        QW->>GF: prompt rps-extract-v1 + isi dibungkus delimiter document
-        GF-->>QW: JSON {course, competencies[]}
-        QW->>QW: validasi skema (field wajib, enum, tipe)
-        Note over QW: gagal skema → retry maks 2 → extraction_status=failed
+    QW->>QW: bagi per 15 halaman, sisipkan penanda [[PAGE n]] per halaman
+    QW->>QW: reservasi kuota flash (RPM/RPD) untuk seluruh chunk sekaligus
+    alt RPM penuh
+        QW->>QW: tunggu sesuai jeda (maks 3 kali), kirim ulang chunk yang tertahan; masih penuh → job dilepas kembali dengan jeda (status tetap processing, bukan gagal)
+    else RPD habis
+        QW->>DB: extraction_status=failed + error_message kuota (tanpa percobaan ulang)
+    else kuota tersedia
+        par chunk 1
+            QW->>GF: prompt rps-extract-v1 + isi dibungkus delimiter document
+        and chunk 2
+            QW->>GF: prompt rps-extract-v1 + isi dibungkus delimiter document
+        and chunk n (maks 3 bersamaan)
+            QW->>GF: prompt rps-extract-v1 + isi dibungkus delimiter document
+        end
+        GF-->>QW: JSON {course, competencies[]} per chunk
+        QW->>QW: validasi skema per chunk (field wajib, enum, tipe)
+        Note over QW: hanya chunk yang gagal dikirim ulang (maks 2 kali) → masih gagal → extraction_status=failed
+        QW->>QW: gabungkan hasil sesuai urutan chunk
     end
 
     Note over QW,DB: Tahap 4 — verifikasi bukti (T3.3)
@@ -116,6 +128,10 @@ sequenceDiagram
 15. **Job wajib idempotent**, `tries = 3`, backoff eksponensial, `failed()` → set `extraction_status = failed` + pesan aman.
 16. **Privasi**: isi PDF tidak boleh masuk log. Kirim ke Gemini hanya teks yang diperlukan.
 17. **Reminder**: halaman `[[PAGE n]]` hanya penanda internal prompt; nomor halaman di `course_skills.page` harus integer asli dari penanda tersebut.
+18. **Chunk dikirim paralel.** Semua chunk (15 halaman per chunk) dikirim bersamaan lewat satu `Http::pool` dengan konkurensi `skillbridge.gemini.max_concurrent` (3). Hasil digabung sesuai **urutan chunk**, sehingga dedup (aturan 9) tetap deterministik. Hanya chunk yang gagal (transport atau skema) yang dikirim ulang, maks `skillbridge.gemini.chunk_retries` (2); chunk yang sudah berhasil tidak dikirim ulang.
+19. **Kuota.** Setiap permintaan ke Gemini mereservasi satu permintaan di penghitung bersama (`GeminiQuota`). RPM penuh: job menunggu jeda singkat di tempat (maks skillbridge.gemini.jobs.max_rate_limit_waits) lalu mengirim ulang chunk yang tertahan; bila masih penuh, job dilepas kembali dengan jeda dan **tidak** dihitung sebagai kegagalan. RPD habis: `extraction_status = failed` dengan pesan kuota, tanpa percobaan ulang sampai reset (tengah malam waktu Pasifik). 429 dari penyedia tidak diulang di klien.
+20. **Titik lanjut embedding.** Bila kompetensi AI sudah tersimpan tetapi embedding terputus (mis. kuota embedding), job berikutnya hanya melanjutkan embedding tanpa memanggil Gemini lagi.
+21. **Job**: `$timeout` eksplisit (config), `retryUntil()` + `maxExceptions` menggantikan `tries` sebagai batas efektif selama menunggu RPM, dan kunci `WithoutOverlapping` kedaluwarsa. `tries = 3` tetap tertulis sebagai batas atas lama.
 
 ## Catatan implementasi
 

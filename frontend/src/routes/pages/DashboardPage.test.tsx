@@ -3,10 +3,11 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { DashboardPage } from '@/routes/pages/DashboardPage'
-import { analysisApi, authApi, industryApi, meApi, rpsApi } from '@/lib/api/endpoints'
+import { aiApi, analysisApi, authApi, industryApi, meApi, rpsApi } from '@/lib/api/endpoints'
 import type { RpsDocument, User } from '@/types/api'
 
 vi.mock('@/lib/api/endpoints', () => ({
+  aiApi: { quota: vi.fn() },
   authApi: { me: vi.fn(), logout: vi.fn() },
   rpsApi: { list: vi.fn(), upload: vi.fn() },
   analysisApi: { list: vi.fn() },
@@ -65,6 +66,9 @@ function renderDashboard() {
 
 describe('DashboardPage', () => {
   beforeEach(() => {
+    vi.mocked(aiApi.quota).mockResolvedValue({
+      data: { available: true, daily_remaining: 100, resets_at: '2026-11-27T08:00:00+00:00' },
+    })
     vi.mocked(authApi.me).mockResolvedValue({ data: mockUser })
     vi.mocked(rpsApi.list).mockResolvedValue({ data: mockRps })
     vi.mocked(analysisApi.list).mockResolvedValue({ data: [] })

@@ -21,6 +21,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 #[Fillable([
     'career_id', 'created_by', 'title', 'company', 'description', 'qualifications',
     'source_name', 'source_url', 'collected_at', 'dataset_version', 'extraction_status',
+    'error_code', 'error_message',
 ])]
 class JobPosting extends Model
 {

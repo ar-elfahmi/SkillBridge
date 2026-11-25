@@ -1,5 +1,6 @@
 import { api } from '@/lib/api/client'
 import type {
+  AiQuota,
   Analysis,
   Career,
   CourseSkill,
@@ -80,6 +81,10 @@ export const industryApi = {
   job: (id: number) => api.get<{ data: JobPosting }>(`/jobs/${id}`),
   createJob: (payload: { career_id: number; title: string; company: string; description: string; source_url?: string }) =>
     api.post<{ data: JobPosting }>('/jobs', payload),
+}
+
+export const aiApi = {
+  quota: () => api.get<{ data: AiQuota }>('/ai/quota'),
 }
 
 export const meApi = {

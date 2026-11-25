@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::middleware('auth:sanctum')->group(function (): void {
     Route::get('analyses/{analysis}/recommendations', [RecommendationController::class, 'index']);
-    Route::post('analyses/{analysis}/recommendations/refresh', [RecommendationController::class, 'refresh']);
+    Route::post('analyses/{analysis}/recommendations/refresh', [RecommendationController::class, 'refresh'])->middleware('throttle:ai');
 
     Route::get('me/skills', [UserSkillController::class, 'index']);
     Route::post('me/skills', [UserSkillController::class, 'store']);

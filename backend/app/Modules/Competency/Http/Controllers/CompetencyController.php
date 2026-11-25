@@ -13,6 +13,7 @@ use App\Models\Course;
 use App\Models\CourseSkill;
 use App\Models\RpsDocument;
 use App\Modules\Ai\EmbeddingService;
+use App\Modules\Ai\Services\AiQuotaGuard;
 use App\Modules\Competency\Http\Resources\CourseSkillResource;
 use App\Modules\Competency\Jobs\ExtractCompetenciesJob;
 use App\Modules\Competency\Services\SkillNormalizer;
@@ -33,7 +34,7 @@ use Throwable;
 
 class CompetencyController extends Controller
 {
-    public function extract(Request $request, RpsDocument $document): JsonResponse
+    public function extract(Request $request, RpsDocument $document, AiQuotaGuard $quotaGuard): JsonResponse
     {
         Gate::authorize('update', $document);
 
@@ -64,6 +65,10 @@ class CompetencyController extends Controller
             ], 422);
         }
 
+        if (($denied = $quotaGuard->denial()) !== null) {
+            return $denied;
+        }
+
         DB::transaction(function () use ($document, $code, $metadata): void {
             $courseName = ! empty($metadata['name']) && is_string($metadata['name'])
                 ? trim($metadata['name'])
@@ -85,6 +90,7 @@ class CompetencyController extends Controller
                 'course_id' => $course->id,
                 'metadata_confirmed_at' => $document->metadata_confirmed_at ?? now(),
                 'extraction_status' => ExtractionStatus::Processing,
+                'error_code' => null,
                 'error_message' => null,
             ]);
         });

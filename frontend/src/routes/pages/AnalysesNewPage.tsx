@@ -9,6 +9,7 @@ import {
   Search,
   Briefcase,
 } from 'lucide-react'
+import { AiQuotaBanner } from '@/components/common/AiQuotaBanner'
 import { DashboardTopbar } from '@/components/dashboard/DashboardTopbar'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -196,6 +197,8 @@ export function AnalysesNewPage() {
             </div>
           </div>
         </div>
+
+        <AiQuotaBanner />
 
         {errorMsg && (
           <div className="rounded-xl bg-danger/15 p-3 text-xs font-semibold text-danger">

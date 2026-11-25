@@ -12,6 +12,9 @@ use App\Models\CourseSkill;
 use App\Models\JobSkill;
 use App\Models\Skill;
 use App\Models\SkillMatch;
+use App\Modules\Ai\Concerns\HasGeminiJobSettings;
+use App\Modules\Ai\Exceptions\GeminiQuotaExhaustedException;
+use App\Modules\Ai\Exceptions\GeminiRateLimitedException;
 use App\Modules\Matching\Services\CandidateFinder;
 use App\Modules\Matching\Services\MatchJudge;
 use App\Modules\Recommendation\Jobs\GenerateRecommendationsJob;
@@ -28,13 +31,17 @@ use Throwable;
 
 class RunAnalysisJob implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Dispatchable, HasGeminiJobSettings, InteractsWithQueue, Queueable, SerializesModels;
 
+    // Legacy upper bound: retryUntil() (see HasGeminiJobSettings) takes precedence while it is defined.
     public int $tries = 3;
 
     public function __construct(
         public int $analysisId,
-    ) {}
+    ) {
+        // The judge loop makes one Gemini call per skill, so this job gets the long timeout.
+        $this->configureGeminiJob(long: true);
+    }
 
     /**
      * @return list<int>
@@ -49,7 +56,7 @@ class RunAnalysisJob implements ShouldQueue
      */
     public function middleware(): array
     {
-        return [(new WithoutOverlapping((string) $this->analysisId))->dontRelease()];
+        return [(new WithoutOverlapping((string) $this->analysisId))->dontRelease()->expireAfter($this->overlapLockSeconds())];
     }
 
     public function handle(
@@ -65,6 +72,7 @@ class RunAnalysisJob implements ShouldQueue
 
         $analysis->update([
             'status' => AnalysisStatus::Processing,
+            'error_code' => null,
             'error_message' => null,
         ]);
 
@@ -224,10 +232,21 @@ class RunAnalysisJob implements ShouldQueue
                 'status' => AnalysisStatus::Completed,
                 'summary' => $summary,
                 'model_versions' => $modelVersions,
+                'error_code' => null,
                 'error_message' => null,
             ]);
 
             GenerateRecommendationsJob::dispatch($analysis->id);
+        } catch (GeminiRateLimitedException $e) {
+            // The per-minute budget did not free up in time. Nothing was saved (transaction rolled back):
+            // put the whole job back on the queue instead of storing fake "missing" results.
+            $this->releaseForRateLimit($e);
+        } catch (GeminiQuotaExhaustedException $e) {
+            $analysis->update([
+                'status' => AnalysisStatus::Failed,
+                'error_code' => GeminiQuotaExhaustedException::CODE,
+                'error_message' => $this->quotaMessage($e),
+            ]);
         } catch (Throwable $e) {
             $analysis->update([
                 'status' => AnalysisStatus::Failed,

@@ -80,6 +80,7 @@ export interface RpsDocument {
   course: Course | null
   detected_metadata: RpsMetadataDraft | null
   page_count: number
+  error_code?: string | null
   error_message: string | null
   created_at: string
 }
@@ -136,6 +137,8 @@ export interface JobPosting {
   collected_at: string | null
   dataset_version: string | null
   extraction_status: ExtractionStatus
+  error_code?: string | null
+  error_message?: string | null
   skills?: JobSkill[]
   created_at?: string
 }
@@ -170,6 +173,7 @@ export interface Analysis {
   course: string
   summary: AnalysisSummary | null
   model_versions: AnalysisModelVersions | null
+  error_code?: string | null
   error_message: string | null
   created_at: string
 }
@@ -294,7 +298,16 @@ export interface DuplicateRpsResponse {
  * 8. COMMON API ERROR
  * ========================================================================= */
 
+/** Status kuota AI harian (GET /api/ai/quota). */
+export interface AiQuota {
+  available: boolean
+  daily_remaining: number
+  resets_at: string
+}
+
 export interface ApiError {
   message: string
+  code?: string
+  resets_at?: string
   errors?: Record<string, string[]>
 }

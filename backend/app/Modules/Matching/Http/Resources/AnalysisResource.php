@@ -29,6 +29,7 @@ class AnalysisResource extends JsonResource
             'course' => $courseName,
             'summary' => $this->summary,
             'model_versions' => $this->model_versions,
+            'error_code' => $this->error_code,
             'error_message' => $this->error_message,
             'created_at' => $this->created_at?->toISOString(),
         ];

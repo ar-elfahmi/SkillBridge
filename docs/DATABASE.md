@@ -61,6 +61,7 @@ erDiagram
 | extraction_status | string | `pending\|processing\|completed\|failed` |
 | review_status | string | `unreviewed\|confirmed`, default `unreviewed`; analisis mensyaratkan `confirmed` |
 | reviewed_at | timestamp null | waktu konfirmasi hasil ekstraksi |
+| error_code | string null | `quota_exhausted` atau null (T8.1) |
 | error_message | text null | pesan aman untuk pengguna |
 
 Indeks: `user_id`, unique(`user_id`, `file_hash`).
@@ -126,6 +127,8 @@ Indeks: `rps_document_id`, `skill_id`, (`text_hash`, `embedding_model`, `embeddi
 | collected_at | date null | tanggal pengambilan data |
 | dataset_version | string null | |
 | extraction_status | string | `pending\|processing\|completed\|failed` |
+| error_code | string null | `quota_exhausted` atau null (T8.1) |
+| error_message | text null | pesan aman untuk pengguna (T8.1) |
 
 ### `job_skills`
 | Kolom | Tipe | Catatan |
@@ -144,6 +147,7 @@ Indeks: `rps_document_id`, `skill_id`, (`text_hash`, `embedding_model`, `embeddi
 | rps_document_id | FK | cascade (hapus RPS → analisisnya ikut terhapus) |
 | career_id | FK | restrict |
 | status | string | `queued\|processing\|completed\|failed`, default `queued` |
+| error_code | string null | `quota_exhausted` atau null (T8.1) |
 | error_message | text null | |
 | summary | jsonb null | `{total_skills, covered, partial, missing, coverage_percentage}` |
 | model_versions | jsonb null | model ekstraksi/penilaian/embedding, versi prompt, threshold, `dataset_version` |

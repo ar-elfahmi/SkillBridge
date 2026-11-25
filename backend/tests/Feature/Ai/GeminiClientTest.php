@@ -30,6 +30,7 @@ class GeminiClientTest extends TestCase
             'skillbridge.gemini.api_key' => 'fake-test-key',
             'skillbridge.gemini.flash_model' => 'test-flash',
             'skillbridge.gemini.timeout_seconds' => 17,
+            'skillbridge.gemini.thinking_level' => '',
         ]);
         Http::preventStrayRequests();
         Sleep::fake();
@@ -110,17 +111,17 @@ class GeminiClientTest extends TestCase
 
     public static function transientStatuses(): array
     {
-        return [[408], [429], [500], [503], [504]];
+        return [[408], [500], [503], [504]];
     }
 
     public function test_stops_after_three_failed_http_attempts_with_safe_error(): void
     {
-        Http::fake([self::URL => Http::response(['error' => ['message' => 'fake-test-key Synthetic input']], 429)]);
+        Http::fake([self::URL => Http::response(['error' => ['message' => 'fake-test-key Synthetic input']], 503)]);
 
         $this->assertSafeFailure();
 
         Http::assertSentCount(3);
-        $this->assertSame(['http_429', 'http_429', 'http_429'], AiRun::orderBy('id')->pluck('error')->all());
+        $this->assertSame(['http_503', 'http_503', 'http_503'], AiRun::orderBy('id')->pluck('error')->all());
         Sleep::assertSequence([Sleep::for(1)->second(), Sleep::for(2)->seconds()]);
     }
 
