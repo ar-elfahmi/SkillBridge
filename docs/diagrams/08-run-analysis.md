@@ -49,7 +49,7 @@ sequenceDiagram
     Note over QW: buang review_status=rejected, origin=user tetap masuk (unverified), user_skills TIDAK jadi kandidat
 
     Note over QW,GF: Tahap 4 — per skill industri (loop)
-    Note over QW,GF: kandidat top-K dihitung untuk semua skill dulu; skill yang butuh LLM dikirim paralel (max_concurrent) di luar transaksi DB lewat MatchJudge::judgeMany
+    Note over QW,GF: kandidat top-K dihitung untuk semua skill dulu; skill yang butuh LLM dikelompokkan (judge_batch_size per prompt match-judge-v2) dan dikirim paralel (max_concurrent) di luar transaksi DB lewat MatchJudge::judgeMany
     loop untuk setiap skill industri unik
         QW->>QW: cosine similarity ke semua kandidat → top-K (config skillbridge.matching.top_k)
         alt skor tertinggi < sim_floor (skillbridge.matching.sim_floor)

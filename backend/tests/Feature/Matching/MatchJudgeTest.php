@@ -358,6 +358,8 @@ class MatchJudgeTest extends TestCase
 
     public function test_judge_many_sends_one_request_per_skill_and_keeps_the_keys(): void
     {
+        Config::set('skillbridge.gemini.judge_batch_size', 1);
+
         Http::fake([self::GEMINI_URL => Http::response($this->judgeAnswer('partial', 31, 'Praktikum Alpha'))]);
 
         $results = $this->judge->judgeMany([
@@ -376,6 +378,8 @@ class MatchJudgeTest extends TestCase
 
     public function test_judge_many_retries_only_failed_skills_then_falls_back_to_missing(): void
     {
+        Config::set('skillbridge.gemini.judge_batch_size', 1);
+
         Config::set('skillbridge.gemini.chunk_retries', 1);
 
         Http::fake(function ($request) {
@@ -409,6 +413,8 @@ class MatchJudgeTest extends TestCase
 
     public function test_judge_many_keeps_waiting_while_the_minute_budget_lets_more_skills_through(): void
     {
+        Config::set('skillbridge.gemini.judge_batch_size', 1);
+
         Sleep::fake();
         Config::set('skillbridge.gemini.jobs.max_rate_limit_waits', 1);
 
@@ -451,5 +457,72 @@ class MatchJudgeTest extends TestCase
         $this->expectException(GeminiRateLimitedException::class);
 
         $this->judge->judgeMany([1 => $this->judgeItem('Alpha', 31, 0.90)]);
+    }
+
+    /**
+     * @param  list<array<string, mixed>>  $entries
+     * @return array<string, mixed>
+     */
+    private function judgeBatchAnswer(array $entries): array
+    {
+        return ['candidates' => [['finishReason' => 'STOP', 'content' => ['parts' => [['text' => json_encode($entries)]]]]]];
+    }
+
+    public function test_judge_many_judges_several_skills_in_one_prompt_with_per_skill_guardrails(): void
+    {
+        Config::set('skillbridge.gemini.judge_batch_size', 3);
+        Http::fake([self::GEMINI_URL => Http::response($this->judgeBatchAnswer([
+            ['id' => 1, 'classification' => 'covered', 'matched_course_skill_id' => 31, 'reason' => 'Cocok.', 'evidence' => 'Praktikum Alpha'],
+            // Beta picks Alpha's candidate (31): not one of Beta's own candidates, so the guardrail rejects it.
+            ['id' => 2, 'classification' => 'covered', 'matched_course_skill_id' => 31, 'reason' => 'Salah kandidat.', 'evidence' => 'Praktikum Alpha'],
+            ['id' => 3, 'classification' => 'missing', 'reason' => 'Tidak ada.'],
+        ]))]);
+
+        $results = $this->judge->judgeMany([
+            1 => $this->judgeItem('Alpha', 31, 0.90),
+            2 => $this->judgeItem('Beta', 32, 0.90),
+            3 => $this->judgeItem('Gamma', 33, 0.90),
+        ]);
+
+        Http::assertSentCount(1);
+        Http::assertSent(function ($request): bool {
+            $prompt = (string) ($request->data()['contents'][0]['parts'][0]['text'] ?? '');
+
+            return str_contains($prompt, '<items>') && str_contains($prompt, 'Alpha') && str_contains($prompt, 'Gamma');
+        });
+        $this->assertSame(MatchClassification::Covered, $results[1]->classification);
+        $this->assertSame(31, $results[1]->matchedCourseSkillId);
+        $this->assertSame(MatchClassification::Missing, $results[2]->classification);
+        $this->assertNull($results[2]->matchedCourseSkillId);
+        $this->assertSame(MatchClassification::Missing, $results[3]->classification);
+        $this->assertSame('match-judge-v2', $this->judge->promptVersion());
+    }
+
+    public function test_judge_many_asks_again_only_for_skills_without_a_valid_answer(): void
+    {
+        Config::set('skillbridge.gemini.judge_batch_size', 3);
+        Config::set('skillbridge.gemini.chunk_retries', 2);
+
+        Http::fakeSequence(self::GEMINI_URL)
+            ->push($this->judgeBatchAnswer([
+                ['id' => 1, 'classification' => 'partial', 'matched_course_skill_id' => 31, 'reason' => 'Sebagian.', 'evidence' => 'Praktikum Alpha'],
+                ['id' => 1, 'classification' => 'covered', 'matched_course_skill_id' => 31, 'reason' => 'Ganda.', 'evidence' => 'Praktikum Alpha'],
+                ['id' => 999, 'classification' => 'covered', 'matched_course_skill_id' => 31, 'reason' => 'Id asing.', 'evidence' => 'x'],
+            ]))
+            // A lone skill left over goes out as a normal single-skill prompt (match-judge-v1).
+            ->push($this->judgeAnswer('partial', 32, 'Praktikum Beta'));
+
+        $results = $this->judge->judgeMany([
+            1 => $this->judgeItem('Alpha', 31, 0.90),
+            2 => $this->judgeItem('Beta', 32, 0.90),
+        ]);
+
+        Http::assertSentCount(2);
+        $retryPrompt = (string) (Http::recorded()[1][0]->data()['contents'][0]['parts'][0]['text'] ?? '');
+        $this->assertStringContainsString('Praktikum Beta', $retryPrompt);
+        $this->assertStringNotContainsString('Praktikum Alpha', $retryPrompt);
+        // The duplicated "covered" answer is ignored: the first valid one wins.
+        $this->assertSame(MatchClassification::Partial, $results[1]->classification);
+        $this->assertSame(MatchClassification::Partial, $results[2]->classification);
     }
 }

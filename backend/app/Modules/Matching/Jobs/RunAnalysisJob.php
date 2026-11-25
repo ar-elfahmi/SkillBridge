@@ -225,7 +225,7 @@ class RunAnalysisJob implements ShouldQueue
                 'judge_model' => config('skillbridge.gemini.flash_model'),
                 'embedding_model' => config('skillbridge.gemini.embedding_model'),
                 'embedding_dimensions' => config('skillbridge.gemini.embedding_dimensions'),
-                'prompt_version' => 'match-judge-v1',
+                'prompt_version' => $matchJudge->promptVersion(),
                 'sim_floor' => (float) config('skillbridge.matching.sim_floor', 0.50),
                 'sim_high' => (float) config('skillbridge.matching.sim_high', 0.80),
                 'top_k' => (int) config('skillbridge.matching.top_k', 3),

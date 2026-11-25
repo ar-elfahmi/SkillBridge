@@ -35,6 +35,8 @@ return [
         'chunk_retries' => (int) env('GEMINI_CHUNK_RETRIES', 2),
         // Skills written into one recommendation prompt. One call per batch instead of one per skill.
         'recommendation_batch_size' => (int) env('GEMINI_RECOMMENDATION_BATCH_SIZE', 5),
+        // Industry skills judged in one prompt (match-judge-v2). 1 = one prompt per skill (match-judge-v1).
+        'judge_batch_size' => (int) env('GEMINI_JUDGE_BATCH_SIZE', 3),
         // Internal request counters. Flash RPM is 14 of 15 (~93%), RPD is ~80% of 500; embedding is ~80%
         // of 100 RPM / 1000 RPD. One batchEmbedContents call counts as one request.
         'limits' => [

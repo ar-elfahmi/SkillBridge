@@ -22,6 +22,8 @@ class MatchJudge
 {
     public const PROMPT_VERSION = 'match-judge-v1';
 
+    public const BATCH_PROMPT_VERSION = 'match-judge-v2';
+
     public function __construct(
         private readonly GeminiClient $gemini,
         private readonly ClassificationGuardrails $guardrails,
@@ -63,13 +65,18 @@ class MatchJudge
     }
 
     /**
-     * Judge many skills at once. Skills that need Gemini are sent in parallel (bounded by
-     * `skillbridge.gemini.max_concurrent`), so one slow response no longer delays all the others.
+     * Judge many skills with as few Gemini requests as possible.
+     *
+     * Skills that need Gemini are grouped (`skillbridge.gemini.judge_batch_size` per prompt, prompt
+     * `match-judge-v2`) and the groups are sent in parallel (`skillbridge.gemini.max_concurrent`).
+     * Every skill keeps its own candidates and its own guardrails: an answer only counts when its `id`
+     * belongs to the group and is not repeated, and `matched_course_skill_id` must be one of that
+     * skill's candidates (ClassificationGuardrails). Skills without a valid answer are asked again
+     * (`skillbridge.gemini.chunk_retries`), then fall back to `missing` like the single-call path.
      * Nothing is persisted here; the caller saves the results afterwards.
      *
-     * Each id is retried on transport/provider failures (`skillbridge.gemini.chunk_retries`), then falls back
-     * to `missing` exactly like the single-call path. A minute-budget wait pauses the whole batch and is
-     * bounded by `skillbridge.gemini.jobs.max_rate_limit_waits`.
+     * A minute-budget wait pauses the whole round. Waits are counted only while nothing progresses
+     * (`skillbridge.gemini.jobs.max_rate_limit_waits`).
      *
      * @param  array<int, array{skill: Skill, representative: JobSkill, candidates: list<array{course_skill: CourseSkill, course_skill_id: int, score: float}>}>  $items  keyed by skill id
      * @return array<int, MatchJudgeResult> same keys as $items
@@ -97,18 +104,23 @@ class MatchJudge
         $maxWaits = max(0, (int) config('skillbridge.gemini.jobs.max_rate_limit_waits', 3));
         $maxRetries = max(0, (int) config('skillbridge.gemini.chunk_retries', 2));
         $concurrency = max(1, (int) config('skillbridge.gemini.max_concurrent', 3));
+        $batchSize = $this->batchSize();
         $waits = 0;
         /** @var array<int, int> $failures */
         $failures = [];
 
         while ($pending !== []) {
+            /** @var list<list<int>> $groups */
+            $groups = array_chunk(array_keys($pending), $batchSize);
             $requests = [];
-            foreach ($pending as $key => $prepared) {
-                $requests['skill-'.$key] = [
-                    'prompt' => $prepared['prompt'],
-                    'prompt_version' => self::PROMPT_VERSION,
+            foreach ($groups as $index => $keys) {
+                $batched = count($keys) > 1;
+
+                $requests['group-'.$index] = [
+                    'prompt' => $batched ? $this->batchPrompt($keys, $pending, $items) : $pending[$keys[0]]['prompt'],
+                    'prompt_version' => $batched ? self::BATCH_PROMPT_VERSION : self::PROMPT_VERSION,
                     'subject' => $analysis,
-                    'response_schema' => $this->responseSchema(),
+                    'response_schema' => $batched ? $this->batchResponseSchema() : $this->responseSchema(),
                 ];
             }
 
@@ -118,8 +130,8 @@ class MatchJudge
             $rateLimited = null;
             $resolvedBefore = count($results);
 
-            foreach ($pending as $key => $prepared) {
-                $response = $responses['skill-'.$key] ?? new GeminiException;
+            foreach ($groups as $index => $keys) {
+                $response = $responses['group-'.$index] ?? new GeminiException;
 
                 if ($response instanceof GeminiQuotaExhaustedException) {
                     throw $response;
@@ -129,27 +141,47 @@ class MatchJudge
                     $rateLimited = $rateLimited === null || $response->retryAfterSeconds > $rateLimited->retryAfterSeconds
                         ? $response
                         : $rateLimited;
-                    $retry[$key] = $prepared;
 
-                    continue;
-                }
-
-                if ($response instanceof GeminiException) {
-                    $failures[$key] = ($failures[$key] ?? 0) + 1;
-
-                    if ($failures[$key] > $maxRetries) {
-                        $results[$key] = $this->failed($prepared, $response);
-                    } else {
-                        $retry[$key] = $prepared;
+                    foreach ($keys as $key) {
+                        $retry[$key] = $pending[$key];
                     }
 
                     continue;
                 }
 
-                try {
-                    $results[$key] = $this->resolve($response, $items[$key]['skill'], $prepared);
-                } catch (Throwable $e) {
-                    $results[$key] = $this->failed($prepared, $e);
+                // Decoded answer per skill key; a skill missing here has no valid answer yet.
+                $answers = [];
+                if (! $response instanceof GeminiException) {
+                    $answers = count($keys) > 1
+                        ? $this->parseBatch($response, $keys)
+                        : [$keys[0] => $response];
+                }
+
+                foreach ($keys as $key) {
+                    $prepared = $pending[$key];
+
+                    if (isset($answers[$key])) {
+                        try {
+                            $results[$key] = count($keys) > 1
+                                ? $this->resolveDecoded($answers[$key], $items[$key]['skill'], $prepared)
+                                : $this->resolve($answers[$key], $items[$key]['skill'], $prepared);
+                        } catch (Throwable $e) {
+                            $results[$key] = $this->failed($prepared, $e);
+                        }
+
+                        continue;
+                    }
+
+                    $failures[$key] = ($failures[$key] ?? 0) + 1;
+
+                    if ($failures[$key] > $maxRetries) {
+                        $results[$key] = $this->failed(
+                            $prepared,
+                            $response instanceof GeminiException ? $response : new GeminiException('Respons AI tidak memuat penilaian untuk skill ini.'),
+                        );
+                    } else {
+                        $retry[$key] = $prepared;
+                    }
                 }
             }
 
@@ -177,6 +209,105 @@ class MatchJudge
         }
 
         return $ordered;
+    }
+
+    /**
+     * Prompt version recorded in `analyses.model_versions`: batched prompt when grouping is on.
+     */
+    public function promptVersion(): string
+    {
+        return $this->batchSize() > 1 ? self::BATCH_PROMPT_VERSION : self::PROMPT_VERSION;
+    }
+
+    private function batchSize(): int
+    {
+        return max(1, (int) config('skillbridge.gemini.judge_batch_size', 3));
+    }
+
+    /**
+     * @param  list<int>  $keys
+     * @param  array<int, array{rule: ?MatchJudgeResult, prompt: string, bestScore: float, simFloor: float, candidateMap: array<int, CourseSkill>, candidatesForStorage: list<array{course_skill_id: int, score: float}>}>  $pending
+     * @param  array<int, array{skill: Skill, representative: JobSkill, candidates: list<array{course_skill: CourseSkill, course_skill_id: int, score: float}>}>  $items
+     */
+    private function batchPrompt(array $keys, array $pending, array $items): string
+    {
+        $entries = [];
+        foreach ($keys as $key) {
+            $entries[] = [
+                'id' => $key,
+                'skill' => $items[$key]['skill']->canonical_name,
+                'requirement' => $items[$key]['representative']->requirement_text,
+                'candidates' => array_map(fn (array $candidate): array => [
+                    'id' => $candidate['course_skill_id'],
+                    'competency' => $candidate['course_skill']->competency,
+                    'evidence' => $candidate['course_skill']->evidence ?? '',
+                ], $items[$key]['candidates']),
+            ];
+        }
+
+        $promptPath = resource_path('prompts/'.self::BATCH_PROMPT_VERSION.'.txt');
+        $template = file_exists($promptPath)
+            ? (string) file_get_contents($promptPath)
+            : "Nilai setiap item:\n<items>{{json_items}}</items>";
+
+        return str_replace(
+            '{{json_items}}',
+            (string) json_encode($entries, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE),
+            $template
+        );
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function batchResponseSchema(): array
+    {
+        $item = $this->responseSchema();
+        $item['properties'] = ['id' => ['type' => 'INTEGER']] + $item['properties'];
+        $item['required'] = ['id', ...$item['required']];
+
+        return ['type' => 'ARRAY', 'items' => $item];
+    }
+
+    /**
+     * Keep only entries whose id belongs to this group, once each.
+     *
+     * @param  array<string, mixed>  $response
+     * @param  list<int>  $keys
+     * @return array<int, array<string, mixed>>
+     */
+    private function parseBatch(array $response, array $keys): array
+    {
+        $rawText = $this->extractCandidateText($response);
+        if ($rawText === null) {
+            return [];
+        }
+
+        try {
+            $decoded = json_decode($rawText, true, 512, JSON_THROW_ON_ERROR);
+        } catch (Throwable) {
+            return [];
+        }
+
+        if (! is_array($decoded)) {
+            return [];
+        }
+
+        $valid = [];
+        foreach ($decoded as $entry) {
+            if (! is_array($entry) || ! isset($entry['id']) || ! is_numeric($entry['id'])) {
+                continue;
+            }
+
+            $id = (int) $entry['id'];
+            if (! in_array($id, $keys, true) || isset($valid[$id])) {
+                continue;
+            }
+
+            $valid[$id] = $entry;
+        }
+
+        return $valid;
     }
 
     /**
@@ -303,6 +434,17 @@ class MatchJudge
             throw new GeminiException('Format JSON hasil penilaian tidak valid.');
         }
 
+        return $this->resolveDecoded($decoded, $skill, $prepared);
+    }
+
+    /**
+     * Apply the guardrails to one decoded judge answer.
+     *
+     * @param  array<string, mixed>  $decoded
+     * @param  array{rule: ?MatchJudgeResult, prompt: string, bestScore: float, simFloor: float, candidateMap: array<int, CourseSkill>, candidatesForStorage: list<array{course_skill_id: int, score: float}>}  $prepared
+     */
+    private function resolveDecoded(array $decoded, Skill $skill, array $prepared): MatchJudgeResult
+    {
         $classification = MatchClassification::tryFrom((string) ($decoded['classification'] ?? ''))
             ?? MatchClassification::Missing;
         $matchedId = isset($decoded['matched_course_skill_id']) && is_numeric($decoded['matched_course_skill_id'])

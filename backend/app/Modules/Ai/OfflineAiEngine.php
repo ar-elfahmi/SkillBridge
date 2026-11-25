@@ -335,6 +335,28 @@ final class OfflineAiEngine
      */
     private function judgeMatch(string $prompt): array
     {
+        // Batched prompt (match-judge-v2): one answer per item, same "id".
+        $itemsText = $this->extractLastTagBlock($prompt, 'items');
+        if ($itemsText !== null) {
+            $items = json_decode($itemsText, true);
+            $answers = [];
+
+            foreach ((is_array($items) ? $items : []) as $item) {
+                if (! is_array($item)) {
+                    continue;
+                }
+
+                $skill = (string) ($item['skill'] ?? '');
+                $answers[] = ['id' => (int) ($item['id'] ?? 0)] + $this->judgeOne(
+                    $skill,
+                    $skill.': '.(string) ($item['requirement'] ?? ''),
+                    is_array($item['candidates'] ?? null) ? $item['candidates'] : [],
+                );
+            }
+
+            return $answers;
+        }
+
         $skillName = '';
         $candidates = [];
 
@@ -352,6 +374,15 @@ final class OfflineAiEngine
             }
         }
 
+        return $this->judgeOne($skillName, $reqText, $candidates);
+    }
+
+    /**
+     * @param  array<int|string, mixed>  $candidates
+     * @return array{classification: string, matched_course_skill_id: ?int, reason: string, evidence: ?string}
+     */
+    private function judgeOne(string $skillName, string $reqText, array $candidates): array
+    {
         if ($candidates === []) {
             return [
                 'classification' => 'missing',
