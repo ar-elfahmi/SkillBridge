@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { aiApi, analysisApi, authApi, industryApi, meApi, rpsApi } from '@/lib/api/endpoints'
 import { queryKeys } from '@/lib/query/keys'
-import type { User } from '@/types/api'
+import type { RecommendationsResponse, User } from '@/types/api'
 
 /** Sesi pengguna aktif. 401 = belum login, bukan error fatal. */
 export function useMe() {
@@ -270,15 +270,37 @@ export function useAnalysisMatches(id: number, enabled = true) {
   })
 }
 
-export function useAnalysisRecommendations(id: number, enabled = true) {
-  return useQuery({
-    queryKey: [...queryKeys.analysis(id), 'recommendations'] as const,
+/** Rekomendasi disusun job terpisah setelah analisis selesai: cek ulang tiap 3 detik, maksimal ±3 menit. */
+const RECO_POLL_INTERVAL_MS = 3000
+const RECO_POLL_MAX_UPDATES = 60
+
+/**
+ * `expectedCount` = jumlah skill partial/missing pada ringkasan analisis. Selama daftar kosong dan
+ * jumlah itu masih lebih besar dari skill yang dilaporkan pengguna, job rekomendasi dianggap belum selesai.
+ */
+export function useAnalysisRecommendations(id: number, enabled = true, expectedCount = 0) {
+  const queryClient = useQueryClient()
+  const queryKey = [...queryKeys.analysis(id), 'recommendations'] as const
+  const isPending = (data: RecommendationsResponse | undefined): boolean =>
+    data !== undefined &&
+    data.data.length === 0 &&
+    expectedCount > (data.meta?.self_declared_skills?.length ?? 0)
+
+  const query = useQuery({
+    queryKey,
     queryFn: () => analysisApi.recommendations(id),
     select: (res) => res,
     enabled: enabled && Number.isInteger(id) && id > 0,
+    refetchInterval: (q) =>
+      isPending(q.state.data) && q.state.dataUpdateCount < RECO_POLL_MAX_UPDATES
+        ? RECO_POLL_INTERVAL_MS
+        : false,
   })
-}
+  const updates = queryClient.getQueryState(queryKey)?.dataUpdateCount ?? 0
+  const isWaiting = isPending(query.data) && updates < RECO_POLL_MAX_UPDATES
 
+  return { ...query, isWaiting }
+}
 export function useMySkills() {
   return useQuery({
     queryKey: queryKeys.meSkills,

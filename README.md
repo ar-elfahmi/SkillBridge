@@ -293,7 +293,7 @@ Salin `backend/.env.example` → `backend/.env` dan `frontend/.env.example` → 
 | `GEMINI_FLASH_MODEL` | — | Nama model Gemini Flash (mis. dari dokumentasi resmi Gemini) |
 | `GEMINI_EMBEDDING_MODEL` | `gemini-embedding-001` | Model embedding |
 | `GEMINI_EMBEDDING_DIMENSIONS` | `768` | Dimensi embedding; harus sama di kedua sisi perbandingan |
-| `GEMINI_TIMEOUT_SECONDS` | `60` | Timeout per panggilan |
+| `GEMINI_TIMEOUT_SECONDS` | `20` | Timeout per panggilan |
 
 ### Backend — matching, upload, dan batas
 

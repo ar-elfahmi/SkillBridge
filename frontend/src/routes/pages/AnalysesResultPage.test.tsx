@@ -153,4 +153,20 @@ describe('AnalysesResultPage', () => {
     expect(screen.getByText('Menyiapkan rekomendasi belajar…')).toBeInTheDocument()
     expect(screen.queryByText('Terapkan tipe generik pada API client')).not.toBeInTheDocument()
   })
+
+  it('terus mengecek rekomendasi sampai job rekomendasi selesai', async () => {
+    vi.mocked(analysisApi.recommendations)
+      .mockResolvedValueOnce({ data: [], meta: { self_declared_skills: [] } })
+      .mockResolvedValue(mockReco)
+    renderPage()
+
+    await screen.findByText('Pemrograman Web')
+    fireEvent.click(screen.getByRole('button', { name: 'Rekomendasi Belajar' }))
+
+    expect(await screen.findByText('Menyiapkan rekomendasi belajar…')).toBeInTheDocument()
+    expect(
+      await screen.findByText('Terapkan tipe generik pada API client', {}, { timeout: 7000 }),
+    ).toBeInTheDocument()
+    expect(analysisApi.recommendations).toHaveBeenCalledTimes(2)
+  }, 12000)
 })

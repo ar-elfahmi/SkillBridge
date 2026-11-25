@@ -25,7 +25,7 @@ return [
         'flash_model' => env('GEMINI_FLASH_MODEL'),
         'embedding_model' => env('GEMINI_EMBEDDING_MODEL', 'gemini-embedding-001'),
         'embedding_dimensions' => (int) env('GEMINI_EMBEDDING_DIMENSIONS', 768),
-        'timeout_seconds' => (int) env('GEMINI_TIMEOUT_SECONDS', 60),
+        'timeout_seconds' => (int) env('GEMINI_TIMEOUT_SECONDS', 20),
         // Thinking level sent as generationConfig.thinkingConfig.thinkingLevel (minimal|low|medium|high).
         // Gemini 3+ models only: older models reject the field. Empty string = do not send.
         'thinking_level' => env('GEMINI_THINKING_LEVEL', 'minimal'),
@@ -33,15 +33,17 @@ return [
         'max_concurrent' => (int) env('GEMINI_MAX_CONCURRENT', 3),
         // Extra attempts for a single failed chunk (schema or transport), never the whole document.
         'chunk_retries' => (int) env('GEMINI_CHUNK_RETRIES', 2),
-        // Internal request counters. Values are ~80% of the provider limits (flash-lite 15 RPM / 500 RPD,
-        // embedding 100 RPM / 1000 RPD). One batchEmbedContents call counts as one request.
+        // Skills written into one recommendation prompt. One call per batch instead of one per skill.
+        'recommendation_batch_size' => (int) env('GEMINI_RECOMMENDATION_BATCH_SIZE', 5),
+        // Internal request counters. Flash RPM is 14 of 15 (~93%), RPD is ~80% of 500; embedding is ~80%
+        // of 100 RPM / 1000 RPD. One batchEmbedContents call counts as one request.
         'limits' => [
             'enabled' => (bool) env('SKILLBRIDGE_QUOTA_ENABLED', true),
             // Provider RPD resets at midnight Pacific time, not UTC.
             'reset_timezone' => env('SKILLBRIDGE_QUOTA_RESET_TIMEZONE', 'America/Los_Angeles'),
             'redis_prefix' => env('SKILLBRIDGE_QUOTA_REDIS_PREFIX', 'skillbridge:ai-quota'),
             'flash' => [
-                'rpm' => (int) env('GEMINI_FLASH_RPM', 12),
+                'rpm' => (int) env('GEMINI_FLASH_RPM', 14),
                 'rpd' => (int) env('GEMINI_FLASH_RPD', 400),
             ],
             'embedding' => [
