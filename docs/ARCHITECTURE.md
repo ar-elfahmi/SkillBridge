@@ -105,7 +105,7 @@ GEMINI_API_KEY=
 GEMINI_FLASH_MODEL=            # isi nama model Flash yang tersedia saat implementasi
 GEMINI_EMBEDDING_MODEL=gemini-embedding-001
 GEMINI_EMBEDDING_DIMENSIONS=768
-GEMINI_TIMEOUT_SECONDS=60
+GEMINI_TIMEOUT_SECONDS=20
 
 # Matching (placeholder, wajib dikalibrasi; lihat AI_PIPELINE.md)
 SKILLBRIDGE_TOP_K=3

@@ -151,7 +151,24 @@ class RunAnalysisJob implements ShouldQueue
                 })
                 ->values();
 
-            // 3. Match each industry skill & save to skill_matches (idempotent)
+            // 3a. Judge every industry skill first. Gemini calls run in parallel and outside the database
+            // transaction, so no connection is held open while waiting for the provider.
+            $judgeItems = [];
+            foreach ($aggregatedSkills as $skillId => $agg) {
+                $targetEmbedding = is_array($agg['representative']->embedding) ? $agg['representative']->embedding : [];
+
+                $judgeItems[$skillId] = [
+                    'skill' => $agg['skill'],
+                    'representative' => $agg['representative'],
+                    'candidates' => ! empty($targetEmbedding)
+                        ? $candidateFinder->findTopK($targetEmbedding, $candidates)
+                        : [],
+                ];
+            }
+
+            $judged = $matchJudge->judgeMany($judgeItems, $analysis);
+
+            // 3b. Save to skill_matches (idempotent)
             $coveredCount = 0;
             $partialCount = 0;
             $missingCount = 0;
@@ -159,29 +176,15 @@ class RunAnalysisJob implements ShouldQueue
             DB::transaction(function () use (
                 $analysis,
                 $aggregatedSkills,
-                $candidates,
-                $candidateFinder,
-                $matchJudge,
+                $judged,
                 &$coveredCount,
                 &$partialCount,
                 &$missingCount,
             ): void {
                 $analysis->skillMatches()->delete();
 
-                foreach ($aggregatedSkills as $agg) {
-                    $rep = $agg['representative'];
-                    $targetEmbedding = is_array($rep->embedding) ? $rep->embedding : [];
-
-                    $topKCandidates = ! empty($targetEmbedding)
-                        ? $candidateFinder->findTopK($targetEmbedding, $candidates)
-                        : [];
-
-                    $matchResult = $matchJudge->judge(
-                        skill: $agg['skill'],
-                        representativeJobSkill: $rep,
-                        candidateList: $topKCandidates,
-                        analysis: $analysis,
-                    );
+                foreach ($aggregatedSkills as $skillId => $agg) {
+                    $matchResult = $judged[$skillId];
 
                     SkillMatch::create([
                         'analysis_id' => $analysis->id,
@@ -222,7 +225,7 @@ class RunAnalysisJob implements ShouldQueue
                 'judge_model' => config('skillbridge.gemini.flash_model'),
                 'embedding_model' => config('skillbridge.gemini.embedding_model'),
                 'embedding_dimensions' => config('skillbridge.gemini.embedding_dimensions'),
-                'prompt_version' => 'match-judge-v1',
+                'prompt_version' => $matchJudge->promptVersion(),
                 'sim_floor' => (float) config('skillbridge.matching.sim_floor', 0.50),
                 'sim_high' => (float) config('skillbridge.matching.sim_high', 0.80),
                 'top_k' => (int) config('skillbridge.matching.top_k', 3),

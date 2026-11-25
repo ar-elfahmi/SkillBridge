@@ -38,7 +38,12 @@ export function AnalysesResultPage() {
     analysisId,
     isCompleted
   )
-  const { data: reco, isLoading: isRecoLoading } = useAnalysisRecommendations(analysisId, isCompleted)
+  const expectedReco = (analysis?.summary?.partial ?? 0) + (analysis?.summary?.missing ?? 0)
+  const {
+    data: reco,
+    isLoading: isRecoLoading,
+    isWaiting: isRecoWaiting,
+  } = useAnalysisRecommendations(analysisId, isCompleted, expectedReco)
 
   const { data: mySkills = [] } = useMySkills()
   const addSkill = useAddMySkill()
@@ -221,7 +226,7 @@ export function AnalysesResultPage() {
               recommendations={reco?.data ?? []}
               onAlreadyLearned={declareSkill}
               declaredSkills={declaredSkillNames}
-              isLoading={isRecoLoading || refreshReco.isPending}
+              isLoading={isRecoLoading || isRecoWaiting || refreshReco.isPending}
             />
 
             <SelfDeclaredSkillsPanel

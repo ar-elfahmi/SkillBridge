@@ -96,7 +96,8 @@ class GenerateRecommendationsJobTest extends TestCase
                         'content' => [
                             'parts' => [
                                 [
-                                    'text' => json_encode([
+                                    'text' => json_encode([[
+                                        'id' => $matchDocker->id,
                                         'title' => 'Panduan Docker untuk Mahasiswa https://docker.com/docs',
                                         'reason' => 'Skill Docker belum ditemukan di RPS. Lihat www.example.com',
                                         'topics' => [
@@ -107,7 +108,7 @@ class GenerateRecommendationsJobTest extends TestCase
                                             'docker tutorial',
                                             'docker run command https://docker.com',
                                         ],
-                                    ]),
+                                    ]]),
                                 ],
                             ],
                         ],
@@ -188,5 +189,138 @@ class GenerateRecommendationsJobTest extends TestCase
         $this->assertSame($match->id, $reco->skill_match_id);
         $this->assertSame('Fundamental Redis', $reco->title);
         $this->assertSame(RecommendationPriority::High, $reco->priority);
+    }
+
+    /**
+     * @return list<SkillMatch>
+     */
+    private function missingMatches(int $count): array
+    {
+        $user = User::factory()->create();
+        $career = Career::factory()->create();
+        $rps = RpsDocument::factory()->create(['user_id' => $user->id]);
+        $job = JobPosting::factory()->create(['career_id' => $career->id]);
+
+        $analysis = Analysis::factory()->create([
+            'user_id' => $user->id,
+            'rps_document_id' => $rps->id,
+            'career_id' => $career->id,
+            'status' => AnalysisStatus::Completed,
+        ]);
+        $analysis->jobPostings()->sync([$job->id]);
+
+        $matches = [];
+        for ($i = 1; $i <= $count; $i++) {
+            $skill = Skill::factory()->create(['canonical_name' => "Skill{$i}"]);
+            $matches[] = SkillMatch::create([
+                'analysis_id' => $analysis->id,
+                'skill_id' => $skill->id,
+                'demand_count' => 1,
+                'classification' => MatchClassification::Missing,
+                'reason' => "Skill{$i} belum dipelajari.",
+                'judged_by' => JudgedBy::Rule,
+            ]);
+        }
+
+        return $matches;
+    }
+
+    /**
+     * @param  list<array<string, mixed>>  $entries
+     * @return array<string, mixed>
+     */
+    private function geminiAnswer(array $entries): array
+    {
+        return ['candidates' => [['finishReason' => 'STOP', 'content' => ['parts' => [['text' => json_encode($entries)]]]]]];
+    }
+
+    private function runJob(Analysis $analysis): void
+    {
+        app(GenerateRecommendationsJob::class, ['analysisId' => $analysis->id])->handle(
+            app(GeminiClient::class),
+            app(PriorityCalculator::class)
+        );
+    }
+
+    public function test_skills_are_sent_in_batches_instead_of_one_call_each(): void
+    {
+        Config::set('skillbridge.gemini.recommendation_batch_size', 3);
+        $matches = $this->missingMatches(7);
+
+        Http::fake(function ($request) {
+            $prompt = (string) ($request->data()['contents'][0]['parts'][0]['text'] ?? '');
+            preg_match_all('/"id": (\d+)/', $prompt, $found);
+
+            return Http::response($this->geminiAnswer(array_map(fn (string $id): array => [
+                'id' => (int) $id,
+                'title' => "Judul {$id}",
+                'reason' => 'Alasan',
+                'topics' => ['Topik'],
+                'learning_keywords' => ['kata kunci'],
+            ], $found[1])));
+        });
+
+        $this->runJob($matches[0]->analysis);
+
+        Http::assertSentCount(3);
+        $this->assertSame(7, Recommendation::where('analysis_id', $matches[0]->analysis_id)->count());
+        $this->assertSame('Judul '.$matches[4]->id, Recommendation::where('skill_match_id', $matches[4]->id)->value('title'));
+    }
+
+    public function test_foreign_duplicate_and_missing_ids_never_reach_the_wrong_skill(): void
+    {
+        Config::set('skillbridge.gemini.recommendation_batch_size', 5);
+        Config::set('skillbridge.gemini.chunk_retries', 0);
+        [$first, $second] = $this->missingMatches(2);
+
+        Http::fake([self::GEMINI_URL => Http::response($this->geminiAnswer([
+            ['id' => $first->id, 'title' => 'Judul pertama', 'reason' => 'R', 'topics' => ['T'], 'learning_keywords' => ['K']],
+            ['id' => $first->id, 'title' => 'Judul ganda', 'reason' => 'R', 'topics' => ['T'], 'learning_keywords' => ['K']],
+            ['id' => 999999, 'title' => 'Id asing', 'reason' => 'R', 'topics' => ['T'], 'learning_keywords' => ['K']],
+        ]))]);
+
+        $this->runJob($first->analysis);
+
+        $this->assertSame('Judul pertama', Recommendation::where('skill_match_id', $first->id)->value('title'));
+        // The second skill got no valid answer: deterministic fallback, not someone else's text.
+        $this->assertSame('Fundamental Skill2', Recommendation::where('skill_match_id', $second->id)->value('title'));
+        $this->assertSame(2, Recommendation::where('analysis_id', $first->analysis_id)->count());
+    }
+
+    public function test_only_skills_without_an_answer_are_asked_again(): void
+    {
+        Config::set('skillbridge.gemini.recommendation_batch_size', 5);
+        Config::set('skillbridge.gemini.chunk_retries', 2);
+        [$first, $second] = $this->missingMatches(2);
+
+        Http::fakeSequence(self::GEMINI_URL)
+            ->push($this->geminiAnswer([
+                ['id' => $first->id, 'title' => 'Judul A', 'reason' => 'R', 'topics' => ['T'], 'learning_keywords' => ['K']],
+            ]))
+            ->push($this->geminiAnswer([
+                ['id' => $second->id, 'title' => 'Judul B', 'reason' => 'R', 'topics' => ['T'], 'learning_keywords' => ['K']],
+            ]));
+
+        $this->runJob($first->analysis);
+
+        Http::assertSentCount(2);
+        $recorded = Http::recorded();
+        $retryPrompt = (string) ($recorded[1][0]->data()['contents'][0]['parts'][0]['text'] ?? '');
+        $this->assertStringContainsString('"id": '.$second->id, $retryPrompt);
+        $this->assertStringNotContainsString('"id": '.$first->id.',', $retryPrompt);
+        $this->assertSame('Judul A', Recommendation::where('skill_match_id', $first->id)->value('title'));
+        $this->assertSame('Judul B', Recommendation::where('skill_match_id', $second->id)->value('title'));
+    }
+
+    public function test_daily_quota_keeps_what_exists_and_uses_fallback_for_the_rest(): void
+    {
+        [$match] = $this->missingMatches(1);
+
+        Http::fake([self::GEMINI_URL => Http::response(['error' => ['details' => [['violations' => [['quotaId' => 'GenerateRequestsPerDayPerProjectPerModel']]]]]], 429)]);
+
+        $this->runJob($match->analysis);
+
+        Http::assertSentCount(1);
+        $this->assertSame('Fundamental Skill1', Recommendation::where('skill_match_id', $match->id)->value('title'));
     }
 }

@@ -7,7 +7,7 @@
 ## Prasyarat
 
 - `skill_matches` sudah ada dan tervalidasi dari analisis (`analyses.status = completed`, diagram 08).
-- `GenerateRecommendationsJob` memakai prompt `reco-v1`; ambang prioritas di `config('skillbridge.recommendation.priority')`.
+- `GenerateRecommendationsJob` memakai prompt `reco-v2` (beberapa skill per prompt); ambang prioritas di `config('skillbridge.recommendation.priority')`.
 - `user_skills` (T7.5) untuk pengecualian skill pribadi — lihat diagram 10.
 
 ## Diagram
@@ -34,14 +34,14 @@ sequenceDiagram
     QW->>DB: exclude skill yang ada di user_skills pengguna
     QW->>DB: hitung prioritas via PriorityCalculator
     Note over QW: missing dan diminta ≥ 50% lowongan → high, missing lain → medium, partial → medium bila ≥ 50% selain itu low, covered → tidak ada rekomendasi
-    loop tiap skill yang perlu rekomendasi
-        QW->>GF: prompt reco-v1 + konteks skill_match dibungkus delimiter data
-        GF-->>QW: JSON {title, reason, topics[], learning_keywords[]}
-        QW->>QW: validasi skema, pastikan tidak ada URL
-        Note over QW: gagal skema → retry maks 2 → lewati skill ini
+    loop tiap batch (gemini.recommendation_batch_size skill, batch dikirim paralel)
+        QW->>GF: prompt reco-v2 + konteks skill_match (dengan id) dibungkus delimiter data
+        GF-->>QW: JSON array [{id, title, reason, topics[], learning_keywords[]}]
+        QW->>QW: validasi skema, id harus milik batch dan tidak ganda, pastikan tidak ada URL
+        Note over QW: id tidak dijawab atau tidak valid -> hanya skill itu diulang (maks 2), sisanya teks cadangan
     end
     QW->>DB: replace recommendations (idempotent)
-    QW->>DB: catat ai_runs (purpose=recommendation, prompt_version=reco-v1)
+    QW->>DB: catat ai_runs (purpose=recommendation, prompt_version=reco-v2)
 
     Note over FE,API: Tahap 3 — refresh setelah skill pribadi berubah
     M->>FE: "Perbarui rekomendasi"

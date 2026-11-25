@@ -49,6 +49,7 @@ sequenceDiagram
     Note over QW: buang review_status=rejected, origin=user tetap masuk (unverified), user_skills TIDAK jadi kandidat
 
     Note over QW,GF: Tahap 4 — per skill industri (loop)
+    Note over QW,GF: kandidat top-K dihitung untuk semua skill dulu; skill yang butuh LLM dikelompokkan (judge_batch_size per prompt match-judge-v2) dan dikirim paralel (max_concurrent) di luar transaksi DB lewat MatchJudge::judgeMany
     loop untuk setiap skill industri unik
         QW->>QW: cosine similarity ke semua kandidat → top-K (config skillbridge.matching.top_k)
         alt skor tertinggi < sim_floor (skillbridge.matching.sim_floor)
@@ -72,8 +73,8 @@ sequenceDiagram
     Note over FE: polling berhenti saat completed/failed
 
     Note over QW,GF: Tahap 7 — rekomendasi belajar (T7.2, detail di diagram 09)
-    QW->>GF: prompt reco-v1 per skill_match partial/missing
-    GF-->>QW: JSON {title, reason, topics[], learning_keywords[]}
+    QW->>GF: prompt reco-v2, beberapa skill_match partial/missing per prompt (batch paralel)
+    GF-->>QW: JSON array [{id, title, reason, topics[], learning_keywords[]}]
     QW->>QW: PriorityCalculator (Laravel, dari config) → priority high/medium/low
     QW->>DB: upsert recommendations (unique analysis_id + skill_match_id)
 ```

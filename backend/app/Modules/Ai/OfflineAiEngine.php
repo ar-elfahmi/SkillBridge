@@ -335,6 +335,28 @@ final class OfflineAiEngine
      */
     private function judgeMatch(string $prompt): array
     {
+        // Batched prompt (match-judge-v2): one answer per item, same "id".
+        $itemsText = $this->extractLastTagBlock($prompt, 'items');
+        if ($itemsText !== null) {
+            $items = json_decode($itemsText, true);
+            $answers = [];
+
+            foreach ((is_array($items) ? $items : []) as $item) {
+                if (! is_array($item)) {
+                    continue;
+                }
+
+                $skill = (string) ($item['skill'] ?? '');
+                $answers[] = ['id' => (int) ($item['id'] ?? 0)] + $this->judgeOne(
+                    $skill,
+                    $skill.': '.(string) ($item['requirement'] ?? ''),
+                    is_array($item['candidates'] ?? null) ? $item['candidates'] : [],
+                );
+            }
+
+            return $answers;
+        }
+
         $skillName = '';
         $candidates = [];
 
@@ -352,6 +374,15 @@ final class OfflineAiEngine
             }
         }
 
+        return $this->judgeOne($skillName, $reqText, $candidates);
+    }
+
+    /**
+     * @param  array<int|string, mixed>  $candidates
+     * @return array{classification: string, matched_course_skill_id: ?int, reason: string, evidence: ?string}
+     */
+    private function judgeOne(string $skillName, string $reqText, array $candidates): array
+    {
         if ($candidates === []) {
             return [
                 'classification' => 'missing',
@@ -423,15 +454,40 @@ final class OfflineAiEngine
     }
 
     /**
-     * @return array{title: string, reason: string, topics: list<string>, learning_keywords: list<string>}
+     * Batched prompts (reco-v2) carry an "items" list and get one answer per item (same "id").
+     * A single skill object still gets a single answer.
+     *
+     * @return array<string, mixed>|list<array<string, mixed>>
      */
     private function generateRecommendation(string $documentText): array
     {
         $decoded = json_decode($documentText, true);
-        $skill = is_array($decoded) && isset($decoded['skill']) ? (string) $decoded['skill'] : 'Kompetensi Teknis';
-        $classification = is_array($decoded) && isset($decoded['classification']) ? (string) $decoded['classification'] : 'missing';
-        $demand = is_array($decoded) && isset($decoded['demand_count']) ? (int) $decoded['demand_count'] : 1;
-        $totalPostings = is_array($decoded) && isset($decoded['total_job_postings']) ? (int) $decoded['total_job_postings'] : 1;
+
+        if (is_array($decoded) && isset($decoded['items']) && is_array($decoded['items'])) {
+            $total = (int) ($decoded['total_job_postings'] ?? 1);
+            $answers = [];
+
+            foreach ($decoded['items'] as $item) {
+                if (is_array($item)) {
+                    $answers[] = ['id' => (int) ($item['id'] ?? 0)] + $this->recommendationFor($item, $total);
+                }
+            }
+
+            return $answers;
+        }
+
+        return $this->recommendationFor(is_array($decoded) ? $decoded : [], (int) (is_array($decoded) ? ($decoded['total_job_postings'] ?? 1) : 1));
+    }
+
+    /**
+     * @param  array<string, mixed>  $data
+     * @return array{title: string, reason: string, topics: list<string>, learning_keywords: list<string>}
+     */
+    private function recommendationFor(array $data, int $totalPostings): array
+    {
+        $skill = isset($data['skill']) ? (string) $data['skill'] : 'Kompetensi Teknis';
+        $classification = isset($data['classification']) ? (string) $data['classification'] : 'missing';
+        $demand = isset($data['demand_count']) ? (int) $data['demand_count'] : 1;
 
         $statusLabel = $classification === 'partial'
             ? 'baru tercakup sebagian dalam RPS'
