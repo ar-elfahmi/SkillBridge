@@ -26,6 +26,44 @@ return [
         'embedding_model' => env('GEMINI_EMBEDDING_MODEL', 'gemini-embedding-001'),
         'embedding_dimensions' => (int) env('GEMINI_EMBEDDING_DIMENSIONS', 768),
         'timeout_seconds' => (int) env('GEMINI_TIMEOUT_SECONDS', 60),
+        // Thinking level sent as generationConfig.thinkingConfig.thinkingLevel (minimal|low|medium|high).
+        // Gemini 3+ models only: older models reject the field. Empty string = do not send.
+        'thinking_level' => env('GEMINI_THINKING_LEVEL', 'minimal'),
+        // Max in-flight requests inside one Http::pool (RPS chunks).
+        'max_concurrent' => (int) env('GEMINI_MAX_CONCURRENT', 3),
+        // Extra attempts for a single failed chunk (schema or transport), never the whole document.
+        'chunk_retries' => (int) env('GEMINI_CHUNK_RETRIES', 2),
+        // Internal request counters. Values are ~80% of the provider limits (flash-lite 15 RPM / 500 RPD,
+        // embedding 100 RPM / 1000 RPD). One batchEmbedContents call counts as one request.
+        'limits' => [
+            'enabled' => (bool) env('SKILLBRIDGE_QUOTA_ENABLED', true),
+            // Provider RPD resets at midnight Pacific time, not UTC.
+            'reset_timezone' => env('SKILLBRIDGE_QUOTA_RESET_TIMEZONE', 'America/Los_Angeles'),
+            'redis_prefix' => env('SKILLBRIDGE_QUOTA_REDIS_PREFIX', 'skillbridge:ai-quota'),
+            'flash' => [
+                'rpm' => (int) env('GEMINI_FLASH_RPM', 12),
+                'rpd' => (int) env('GEMINI_FLASH_RPD', 400),
+            ],
+            'embedding' => [
+                'rpm' => (int) env('GEMINI_EMBEDDING_RPM', 80),
+                'rpd' => (int) env('GEMINI_EMBEDDING_RPD', 800),
+            ],
+        ],
+        // Extraction jobs: explicit timeout (seconds) must stay below REDIS_QUEUE_RETRY_AFTER.
+        'jobs' => [
+            'timeout_seconds' => (int) env('GEMINI_JOB_TIMEOUT_SECONDS', 120),
+            // Jobs that call Gemini many times in a row (analysis judge, recommendations).
+            'long_timeout_seconds' => (int) env('GEMINI_LONG_JOB_TIMEOUT_SECONDS', 300),
+            // In-process waits (seconds are taken from the limiter) before a looping job gives up.
+            'max_rate_limit_waits' => (int) env('GEMINI_MAX_RATE_LIMIT_WAITS', 3),
+            // Time window in which a job waiting for RPM may be released back to the queue.
+            'retry_until_minutes' => (int) env('GEMINI_JOB_RETRY_UNTIL_MINUTES', 15),
+            'max_exceptions' => (int) env('GEMINI_JOB_MAX_EXCEPTIONS', 3),
+            // Job postings extracted at the same time by one grouped job.
+            'concurrent_postings' => (int) env('GEMINI_CONCURRENT_POSTINGS', 2),
+            // Requests kept free for user-triggered flows when bulk commands plan their budget.
+            'reserved_daily_requests' => (int) env('GEMINI_RESERVED_DAILY_REQUESTS', 100),
+        ],
     ],
 
     // --- Matching (Modules/Matching) ---

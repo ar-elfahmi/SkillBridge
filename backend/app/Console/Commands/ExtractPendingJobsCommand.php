@@ -6,7 +6,7 @@ namespace App\Console\Commands;
 
 use App\Models\Career;
 use App\Models\JobPosting;
-use App\Modules\Industry\Jobs\ExtractJobSkillsJob;
+use App\Modules\Industry\Services\JobExtractionDispatcher;
 use App\Modules\Rps\Enums\ExtractionStatus;
 use Illuminate\Console\Command;
 
@@ -19,7 +19,7 @@ class ExtractPendingJobsCommand extends Command
 
     protected $description = 'Menjadwalkan ExtractJobSkillsJob secara bertahap untuk lowongan berstatus pending';
 
-    public function handle(): int
+    public function handle(JobExtractionDispatcher $dispatcher): int
     {
         $limit = max(1, (int) $this->option('limit'));
         $careerSlug = $this->option('career');
@@ -52,11 +52,13 @@ class ExtractPendingJobsCommand extends Command
             return self::SUCCESS;
         }
 
-        foreach ($postings as $posting) {
-            ExtractJobSkillsJob::dispatch((int) $posting->id);
-        }
+        $result = $dispatcher->dispatch($postings->pluck('id')->map(fn ($id): int => (int) $id)->all());
 
-        $this->info("Dijadwalkan ekstraksi skill untuk {$postings->count()} lowongan.");
+        $this->info("Dijadwalkan ekstraksi skill untuk {$result['scheduled']} lowongan.");
+
+        if ($result['postponed'] > 0) {
+            $this->warn("{$result['postponed']} lowongan ditunda karena anggaran kuota AI harian (sisa anggaran: {$result['budget']} permintaan, termasuk cadangan untuk pengguna). Jalankan lagi setelah reset pada ".$result['resets_at']->setTimezone('Asia/Jakarta')->format('Y-m-d H:i').' WIB.');
+        }
 
         return self::SUCCESS;
     }

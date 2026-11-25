@@ -11,7 +11,10 @@ use App\Models\CourseSkill;
 use App\Models\JobSkill;
 use App\Models\Skill;
 use App\Modules\Ai\Exceptions\GeminiException;
+use App\Modules\Ai\Exceptions\GeminiQuotaExhaustedException;
+use App\Modules\Ai\Exceptions\GeminiRateLimitedException;
 use App\Modules\Ai\GeminiClient;
+use App\Modules\Ai\Services\RateLimitRetry;
 use Throwable;
 
 class MatchJudge
@@ -105,13 +108,13 @@ class MatchJudge
         ];
 
         try {
-            $response = $this->gemini->generateContent(
+            $response = RateLimitRetry::run(fn (): array => $this->gemini->generateContent(
                 purpose: 'match_judge',
                 prompt: $prompt,
                 promptVersion: 'match-judge-v1',
                 subject: $analysis,
                 responseSchema: $responseSchema,
-            );
+            ));
 
             $rawText = $this->extractCandidateText($response);
             if ($rawText === null) {
@@ -150,6 +153,9 @@ class MatchJudge
                 bestScore: $bestScore,
                 simFloor: $simFloor,
             );
+        } catch (GeminiQuotaExhaustedException|GeminiRateLimitedException $e) {
+            // A missing quota is a system problem, never a coverage result: let the job decide.
+            throw $e;
         } catch (Throwable $e) {
             // Graceful fallback to missing when LLM call fails
             return new MatchJudgeResult(

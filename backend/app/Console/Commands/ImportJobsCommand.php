@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Console\Commands;
 
 use App\Models\JobPosting;
-use App\Modules\Industry\Jobs\ExtractJobSkillsJob;
+use App\Modules\Industry\Services\JobExtractionDispatcher;
 use App\Modules\Industry\Services\JobPostingImporter;
 use App\Modules\Rps\Enums\ExtractionStatus;
 use Illuminate\Console\Command;
@@ -21,7 +21,7 @@ class ImportJobsCommand extends Command
 
     protected $description = 'Impor lowongan terkurasi (created_by = null) dari CSV/JSON';
 
-    public function handle(JobPostingImporter $importer): int
+    public function handle(JobPostingImporter $importer, JobExtractionDispatcher $dispatcher): int
     {
         try {
             $rows = $importer->readFile((string) $this->argument('file'));
@@ -72,13 +72,18 @@ class ImportJobsCommand extends Command
         if ($this->option('extract')) {
             $pendingIds = JobPosting::query()
                 ->where('extraction_status', ExtractionStatus::Pending)
-                ->pluck('id');
+                ->orderBy('id')
+                ->pluck('id')
+                ->map(fn ($id): int => (int) $id)
+                ->all();
 
-            foreach ($pendingIds as $jobPostingId) {
-                ExtractJobSkillsJob::dispatch((int) $jobPostingId);
+            $result = $dispatcher->dispatch($pendingIds);
+
+            $this->info('Dijadwalkan ekstraksi skill untuk '.$result['scheduled'].' lowongan pending.');
+
+            if ($result['postponed'] > 0) {
+                $this->warn("{$result['postponed']} lowongan ditunda karena anggaran kuota AI harian (sisa anggaran: {$result['budget']} permintaan). Jalankan skillbridge:extract-pending-jobs setelah reset pada ".$result['resets_at']->setTimezone('Asia/Jakarta')->format('Y-m-d H:i').' WIB.');
             }
-
-            $this->info('Dijadwalkan ekstraksi skill untuk '.$pendingIds->count().' lowongan pending.');
         }
 
         return self::SUCCESS;

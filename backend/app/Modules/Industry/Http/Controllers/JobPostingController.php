@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Modules\Industry\Http\Controllers;
 
 use App\Models\JobPosting;
+use App\Modules\Ai\Services\AiQuotaGuard;
 use App\Modules\Industry\Http\Requests\StoreJobPostingRequest;
 use App\Modules\Industry\Http\Resources\JobPostingResource;
 use App\Modules\Industry\Jobs\ExtractJobSkillsJob;
@@ -40,8 +41,12 @@ class JobPostingController extends Controller
         return new JobPostingResource($job->load(['career', 'jobSkills.skillEntry']));
     }
 
-    public function store(StoreJobPostingRequest $request): JsonResponse
+    public function store(StoreJobPostingRequest $request, AiQuotaGuard $quotaGuard): JsonResponse
     {
+        if (($denied = $quotaGuard->denial()) !== null) {
+            return $denied;
+        }
+
         $posting = JobPosting::create([
             'career_id' => $request->integer('career_id'),
             'created_by' => $request->user()->id,

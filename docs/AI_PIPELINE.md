@@ -201,9 +201,23 @@ Kembalikan JSON sesuai skema rekomendasi mahasiswa.
 ```
 
 ## 8. Penanganan error & biaya
-- Timeout per panggilan; retry terbatas dengan backoff; tangani 429 dengan jeda.
+- Timeout per panggilan; retry terbatas dengan backoff untuk 408, 5xx, dan gangguan koneksi. **429 tidak diulang di klien**: lihat *Kuota, konkurensi, dan thinking* di bawah.
 - Gagal total → status `failed` + pesan aman; log detail teknis tanpa isi dokumen.
 - Embedding di-cache; panggilan penilai dilewati untuk skor di bawah `SIM_FLOOR`.
 - Catat penggunaan di `ai_runs` untuk memantau biaya/kuota.
 - Batasi jumlah job AI paralel dan panjang input (potong/chunk dengan batas jelas).
 - Privasi: kirim hanya teks yang diperlukan ke penyedia API; jangan sertakan data akun pengguna. Beri tahu pengguna bahwa pemrosesan melibatkan pihak ketiga.
+
+### Kuota, konkurensi, dan thinking (T8.1)
+- **Penghitung bersama** (`Modules/Ai/Services/GeminiQuota`, Redis, atomik lewat skrip Lua) dengan dua bucket: `flash` (ekstraksi, penilai, rekomendasi) dan `embedding`. RPM = jendela geser 60 detik. RPD = penghitung per hari di zona waktu reset penyedia (`America/Los_Angeles`, tengah malam waktu Pasifik, bukan UTC). Setiap percobaan HTTP ke Gemini mereservasi satu permintaan lebih dulu; satu `batchEmbedContents` dihitung satu permintaan. Periksa dengan `php artisan skillbridge:ai-quota`.
+- **Batas dari config** (`skillbridge.gemini.limits.*`). Nilai awal sekitar 80% batas penyedia: flash-lite 12 RPM / 400 RPD (batas 15 / 500), embedding 80 RPM / 800 RPD (batas 100 / 1000). Nilai ini placeholder yang mengikuti tier akun, belum dikalibrasi.
+- **429 dari penyedia** dibaca (`Retry-After`, `retryDelay`, `quotaId`). Batas per menit menjadi `GeminiRateLimitedException`: job dilepas kembali dengan jeda dan tidak dihitung sebagai kegagalan (`retryUntil()` + `maxExceptions`, bukan `tries`). Kuota harian (penghitung internal habis, atau `quotaId` memuat `PerDay`) menjadi `GeminiQuotaExhaustedException`: job gagal langsung dengan pesan Indonesia berisi waktu reset (WIB), tanpa percobaan ulang. Deteksi `PerDay` dari badan 429 adalah heuristik berdasarkan format error Google dan belum diuji dengan respons nyata. Mode `fallback`/`auto` tetap beralih ke mesin lokal.
+- **Loop panggilan dalam satu unit kerja** (penilai kecocokan, rekomendasi) menunggu di tempat (`RateLimitRetry`, maks `jobs.max_rate_limit_waits`), karena melepas job akan mengulang seluruh transaksi. Kuota harian habis: analisis `failed` dengan pesan kuota, **bukan** hasil `missing` palsu.
+- **Chunk RPS paralel**: `GeminiClient::generateContentConcurrent` memakai satu `Http::pool` (konkurensi `gemini.max_concurrent`, 3). Hanya chunk yang gagal yang dikirim ulang (`gemini.chunk_retries`, 2). Hasil digabung sesuai urutan chunk agar dedup deterministik. Bila kompetensi sudah tersimpan tetapi embedding terputus, job berikutnya hanya melanjutkan embedding.
+- **Ekstraksi lowongan**: satu permintaan per lowongan, tidak pernah dicampur dalam satu prompt. `ExtractJobSkillsGroupJob` mengirim `jobs.concurrent_postings` lowongan (2) bersamaan dan memakai satu batch embedding untuk semuanya. `skillbridge:extract-pending-jobs` dan `skillbridge:import-jobs --extract` hanya menjadwalkan sebanyak sisa anggaran harian dikurangi `jobs.reserved_daily_requests`, lalu mencetak jumlah yang ditunda dan waktu reset.
+- **Thinking**: `generationConfig.thinkingConfig.thinkingLevel` dikirim dari `gemini.thinking_level` (default `minimal`). Hanya untuk model Gemini 3 ke atas; kosongkan untuk model lain (field ini menyebabkan error pada model lama). `gemini-3.1-flash-lite` secara bawaan sudah `minimal`.
+- **Job**: `$timeout` eksplisit dari config (`jobs.timeout_seconds` 120; `jobs.long_timeout_seconds` 300 untuk analisis dan rekomendasi). `REDIS_QUEUE_RETRY_AFTER` harus lebih besar dari timeout terpanjang (usulan 360). Kunci `WithoutOverlapping` diberi `expireAfter` supaya proses yang dibunuh tidak meninggalkan kunci selamanya (bawaan Laravel: tidak pernah kedaluwarsa).
+- **Pra-cek endpoint**: `POST /api/jobs`, `POST /api/rps/{id}/extract`, dan `POST /api/analyses` menjawab 429 bila RPD flash sudah habis (hanya saat `SKILLBRIDGE_AI_MODE=gemini`). `GET /api/ai/quota` menampilkan sisa harian dan waktu reset (`docs/API.md` §7).
+- **Menunggu migrasi A**: kolom `error_code` (dan `error_message` untuk `job_postings`) belum ada, jadi pesan kuota saat ini hanya tersimpan di `error_message` milik `rps_documents` dan `analyses`. Lihat `docs/comms/B.md` (`REQ-B-001`).
+
+Perkiraan dampak (bukan hasil pengukuran): ekstraksi kompetensi RPS 60 halaman berubah dari 4 chunk berurutan menjadi waktu chunk terlama, dan permintaan terburuk per chunk turun dari 9 menjadi 3. Pemakaian RPD terbesar tetap penilai kecocokan (sekitar satu permintaan per skill industri) dan rekomendasi.

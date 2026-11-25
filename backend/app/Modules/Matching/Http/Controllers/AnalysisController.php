@@ -11,6 +11,7 @@ use App\Models\JobPosting;
 use App\Models\JobSkill;
 use App\Models\RpsDocument;
 use App\Models\SkillMatch;
+use App\Modules\Ai\Services\AiQuotaGuard;
 use App\Modules\Matching\Http\Requests\StoreAnalysisRequest;
 use App\Modules\Matching\Http\Resources\AnalysisResource;
 use App\Modules\Matching\Http\Resources\SkillMatchResource;
@@ -30,7 +31,7 @@ class AnalysisController extends Controller
     /**
      * Start a new skill gap analysis (202 Accepted).
      */
-    public function store(StoreAnalysisRequest $request): JsonResponse
+    public function store(StoreAnalysisRequest $request, AiQuotaGuard $quotaGuard): JsonResponse
     {
         $data = $request->validated();
         $user = $request->user();
@@ -70,6 +71,10 @@ class AnalysisController extends Controller
                     'message' => 'Satu atau lebih lowongan kerja belum selesai diekstrak skill-nya.',
                 ], 422);
             }
+        }
+
+        if (($denied = $quotaGuard->denial()) !== null) {
+            return $denied;
         }
 
         $analysis = Analysis::create([

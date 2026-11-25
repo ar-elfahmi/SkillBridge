@@ -74,10 +74,13 @@ Aturan: controller tipis → Action/Service; Service AI hanya diakses lewat `Mod
 | `ExtractRpsMetadataJob` | setelah parse | Ambil nama/kode/SKS/semester/prodi (dapat diedit pengguna) |
 | `ExtractCompetenciesJob` | pengguna konfirmasi metadata | LLM → kompetensi → validasi bukti → normalisasi → embedding |
 | `ExtractJobSkillsJob` | lowongan disimpan | LLM → skill → normalisasi → embedding |
+| `ExtractJobSkillsGroupJob` | `skillbridge:extract-pending-jobs`, `import-jobs --extract` | Dua lowongan sekaligus (satu permintaan Gemini per lowongan) + satu batch embedding; sisa dikembalikan ke `ExtractJobSkillsJob` |
 | `RunAnalysisJob` | `POST /api/analyses` | Top-K → penilaian → klasifikasi → ringkasan |
 | `GenerateRecommendationsJob` | setelah analisis selesai | Rekomendasi belajar mahasiswa |
 
 Semua job: idempotent, `tries = 3`, `backoff` eksponensial, timeout eksplisit, method `failed()` mengubah status menjadi `failed` dengan pesan aman untuk pengguna. Pembatasan paralelisme job AI via rate limiter / `WithoutOverlapping` per dokumen.
+
+Job yang memanggil Gemini juga: memakai `retryUntil()` + `maxExceptions` (menunggu batas per menit tidak menghabiskan percobaan; `tries = 3` tetap sebagai batas atas lama), `timeout` dari config (120 detik; 300 detik untuk analisis dan rekomendasi), `REDIS_QUEUE_RETRY_AFTER` lebih besar dari timeout terpanjang, dan penghitung kuota RPM/RPD (`GeminiQuota`). Rincian di `AI_PIPELINE.md` §8.
 
 ### Alur
 ```

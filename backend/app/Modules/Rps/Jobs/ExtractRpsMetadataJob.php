@@ -5,7 +5,10 @@ declare(strict_types=1);
 namespace App\Modules\Rps\Jobs;
 
 use App\Models\RpsDocument;
+use App\Modules\Ai\Concerns\HasGeminiJobSettings;
 use App\Modules\Ai\Exceptions\GeminiException;
+use App\Modules\Ai\Exceptions\GeminiQuotaExhaustedException;
+use App\Modules\Ai\Exceptions\GeminiRateLimitedException;
 use App\Modules\Ai\GeminiClient;
 use App\Modules\Rps\Enums\ParseStatus;
 use Illuminate\Bus\Queueable;
@@ -18,13 +21,16 @@ use Throwable;
 
 class ExtractRpsMetadataJob implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Dispatchable, HasGeminiJobSettings, InteractsWithQueue, Queueable, SerializesModels;
 
+    // Legacy upper bound: retryUntil() (see HasGeminiJobSettings) takes precedence while it is defined.
     public int $tries = 3;
 
     public function __construct(
         public int $rpsDocumentId,
-    ) {}
+    ) {
+        $this->configureGeminiJob();
+    }
 
     /**
      * @return list<int>
@@ -39,7 +45,7 @@ class ExtractRpsMetadataJob implements ShouldQueue
      */
     public function middleware(): array
     {
-        return [(new WithoutOverlapping((string) $this->rpsDocumentId))->dontRelease()];
+        return [(new WithoutOverlapping((string) $this->rpsDocumentId))->dontRelease()->expireAfter($this->overlapLockSeconds())];
     }
 
     public function handle(GeminiClient $gemini): void
@@ -130,6 +136,11 @@ class ExtractRpsMetadataJob implements ShouldQueue
                 'detected_metadata' => $validated,
                 'error_message' => null,
             ]);
+        } catch (GeminiRateLimitedException $e) {
+            // Nothing failed: wait for the per-minute budget and try again.
+            $this->releaseForRateLimit($e);
+        } catch (GeminiQuotaExhaustedException $e) {
+            $this->markFailed($document, $this->quotaMessage($e).' Anda dapat melengkapi metadata secara manual.');
         } catch (Throwable $e) {
             $this->markFailed($document, 'Gagal mengekstrak metadata secara otomatis. Silakan lengkapi metadata secara manual.');
 

@@ -13,6 +13,9 @@ use App\Models\RpsDocument;
 use App\Models\Skill;
 use App\Modules\Ai\EmbeddingService;
 use App\Modules\Ai\Exceptions\GeminiException;
+use App\Modules\Ai\Exceptions\GeminiQuotaExhaustedException;
+use App\Modules\Ai\Exceptions\GeminiRateLimitedException;
+use App\Modules\Ai\Services\GeminiQuota;
 use App\Support\Cosine;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Client\Request;
@@ -261,7 +264,7 @@ class EmbeddingServiceTest extends TestCase
 
         Http::fake([
             self::URL => Http::sequence()
-                ->push(['error' => 'Too Many Requests'], 429)
+                ->push(['error' => 'Service Unavailable'], 503)
                 ->push($this->geminiEmbeddingBatchResponse([$vector]), 200),
         ]);
 
@@ -284,5 +287,63 @@ class EmbeddingServiceTest extends TestCase
 
         $service = app(EmbeddingService::class);
         $service->embed('Fail test');
+    }
+
+    public function test_provider_429_is_not_retried_and_surfaces_a_rate_limit_exception(): void
+    {
+        Http::fake([self::URL => Http::response('Too Many Requests', 429, ['Retry-After' => '12'])]);
+
+        try {
+            app(EmbeddingService::class)->embed('Rate limited text');
+            $this->fail('Expected a rate limit exception.');
+        } catch (GeminiRateLimitedException $exception) {
+            $this->assertSame(12, $exception->retryAfterSeconds);
+        }
+
+        Http::assertSentCount(1);
+        Sleep::assertNeverSlept();
+        $this->assertSame(['http_429'], AiRun::where('purpose', 'embedding')->pluck('error')->all());
+    }
+
+    public function test_each_batch_call_counts_as_one_embedding_request(): void
+    {
+        config([
+            'skillbridge.gemini.limits.enabled' => true,
+            'skillbridge.gemini.limits.redis_prefix' => 'test-embed-quota:'.bin2hex(random_bytes(6)),
+            'skillbridge.gemini.limits.embedding.rpm' => 5,
+            'skillbridge.gemini.limits.embedding.rpd' => 50,
+        ]);
+        $quota = new GeminiQuota;
+        Http::fake([self::URL => Http::response($this->geminiEmbeddingBatchResponse([$this->dummyVector(), $this->dummyVector(768, 0.4), $this->dummyVector(768, 0.3)]))]);
+
+        app(EmbeddingService::class)->embedBatch(['text one', 'text two', 'text three']);
+
+        $snapshot = $quota->snapshot(GeminiQuota::BUCKET_EMBEDDING);
+        $this->assertSame(1, $snapshot['rpd_used']);
+        $this->assertSame(1, $snapshot['rpm_used']);
+        $quota->reset(GeminiQuota::BUCKET_EMBEDDING);
+    }
+
+    public function test_embedding_budget_exhausted_sends_nothing(): void
+    {
+        config([
+            'skillbridge.gemini.limits.enabled' => true,
+            'skillbridge.gemini.limits.redis_prefix' => 'test-embed-quota:'.bin2hex(random_bytes(6)),
+            'skillbridge.gemini.limits.embedding.rpm' => 5,
+            'skillbridge.gemini.limits.embedding.rpd' => 1,
+        ]);
+        $quota = new GeminiQuota;
+        Http::fake([self::URL => Http::response($this->geminiEmbeddingBatchResponse([$this->dummyVector()]))]);
+        $service = app(EmbeddingService::class);
+        $service->embed('First text');
+
+        try {
+            $service->embed('Second text');
+            $this->fail('Expected a quota exception.');
+        } catch (GeminiQuotaExhaustedException) {
+            Http::assertSentCount(1);
+        } finally {
+            $quota->reset(GeminiQuota::BUCKET_EMBEDDING);
+        }
     }
 }

@@ -244,3 +244,30 @@ Contoh item rekomendasi:
 | Prasyarat analisis belum terpenuhi | 422 |
 | Melebihi rate limit | 429 |
 | Layanan AI gagal setelah retry | status `failed` + `error_message` aman (tanpa detail internal) |
+| Kuota AI harian habis saat memulai ekstraksi RPS, lowongan, atau analisis | **429** `{ "message": "Kuota AI harian habis. Coba lagi setelah ...", "code": "quota_exhausted", "resets_at": "2026-11-27T08:00:00+00:00" }` |
+| Kuota AI harian habis saat job sudah berjalan | status `failed`, `error_message` berisi pesan kuota, `error_code = "quota_exhausted"`. Tidak ada percobaan ulang sampai kuota di-reset. |
+| Batas AI per menit tercapai | tidak ada error ke pengguna. Job menunggu otomatis dan status tetap `processing`. |
+
+`error_code` bernilai `null` untuk kegagalan lain. Satu-satunya nilai saat ini adalah `quota_exhausted`; klien menampilkan `error_message` apa adanya (sudah berbahasa Indonesia, waktu reset dalam WIB).
+
+## 7. Kuota AI
+| Method | Endpoint | Fungsi |
+|---|---|---|
+| GET | `/api/ai/quota` | Sisa kuota AI harian dan waktu reset. Perlu sesi Sanctum. |
+
+Respons `200`:
+```json
+{
+  "data": {
+    "available": true,
+    "daily_remaining": 123,
+    "resets_at": "2026-11-27T08:00:00+00:00"
+  }
+}
+```
+- `available = false` bila `daily_remaining = 0`. Nilai sisa memakai batas internal (sekitar 80% dari batas penyedia), bukan batas penyedia.
+- `resets_at` berformat ISO 8601 (UTC). Penyedia mereset kuota harian pada tengah malam waktu Pasifik; klien mengonversi ke WIB untuk ditampilkan.
+- Batas per menit dan angka pemakaian internal tidak diekspos.
+- Penghitung kuota dimatikan (`SKILLBRIDGE_QUOTA_ENABLED=false`): `available = true` dan `daily_remaining` mengikuti batas config.
+
+Endpoint yang memicu pemakaian AI menolak permintaan dengan **429** (bentuk di §6) bila kuota harian habis: `POST /api/jobs`, `POST /api/rps/{id}/extract`, `POST /api/analyses`. Resource RPS, lowongan, dan analisis menyertakan `error_code` (dan lowongan juga `error_message`) agar klien dapat menampilkan alasannya.

@@ -9,8 +9,10 @@ use App\Enums\MatchClassification;
 use App\Models\Analysis;
 use App\Models\Recommendation;
 use App\Models\SkillMatch;
+use App\Modules\Ai\Concerns\HasGeminiJobSettings;
 use App\Modules\Ai\Exceptions\GeminiException;
 use App\Modules\Ai\GeminiClient;
+use App\Modules\Ai\Services\RateLimitRetry;
 use App\Modules\Recommendation\Services\PriorityCalculator;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -24,13 +26,17 @@ use Throwable;
 
 class GenerateRecommendationsJob implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Dispatchable, HasGeminiJobSettings, InteractsWithQueue, Queueable, SerializesModels;
 
+    // Legacy upper bound: retryUntil() (see HasGeminiJobSettings) takes precedence while it is defined.
     public int $tries = 3;
 
     public function __construct(
         public int $analysisId,
-    ) {}
+    ) {
+        // One Gemini call per partial/missing skill, so this job gets the long timeout.
+        $this->configureGeminiJob(long: true);
+    }
 
     /**
      * @return list<int>
@@ -45,7 +51,7 @@ class GenerateRecommendationsJob implements ShouldQueue
      */
     public function middleware(): array
     {
-        return [(new WithoutOverlapping((string) $this->analysisId))->dontRelease()];
+        return [(new WithoutOverlapping((string) $this->analysisId))->dontRelease()->expireAfter($this->overlapLockSeconds())];
     }
 
     public function handle(
@@ -143,13 +149,13 @@ class GenerateRecommendationsJob implements ShouldQueue
             );
 
             try {
-                $response = $gemini->generateContent(
+                $response = RateLimitRetry::run(fn (): array => $gemini->generateContent(
                     purpose: 'recommendation',
                     prompt: $prompt,
                     promptVersion: 'reco-v1',
                     subject: $analysis,
                     responseSchema: $responseSchema,
-                );
+                ));
 
                 $rawText = $this->extractCandidateText($response);
                 if ($rawText === null) {

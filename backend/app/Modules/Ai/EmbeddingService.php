@@ -8,6 +8,10 @@ use App\Models\AiRun;
 use App\Models\CourseSkill;
 use App\Models\JobSkill;
 use App\Modules\Ai\Exceptions\GeminiException;
+use App\Modules\Ai\Exceptions\GeminiQuotaExhaustedException;
+use App\Modules\Ai\Exceptions\GeminiRateLimitedException;
+use App\Modules\Ai\Services\GeminiQuota;
+use App\Modules\Ai\Services\RateLimitExceptionFactory;
 use App\Support\Cosine;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Client\ConnectionException;
@@ -304,6 +308,7 @@ class EmbeddingService
 
         $key = config('skillbridge.gemini.api_key');
         $timeout = (int) config('skillbridge.gemini.timeout_seconds', 60);
+        $quota = app(GeminiQuota::class);
 
         if (! is_string($key) || trim($key) === '') {
             if (in_array($mode, ['fallback', 'auto'], true)) {
@@ -314,6 +319,16 @@ class EmbeddingService
         }
 
         for ($attempt = 1; $attempt <= 3; $attempt++) {
+            try {
+                $quota->reserveOrFail(GeminiQuota::BUCKET_EMBEDDING);
+            } catch (GeminiRateLimitedException|GeminiQuotaExhaustedException $exception) {
+                if (in_array($mode, ['fallback', 'auto'], true)) {
+                    return $this->runOfflineBatchEmbed($texts, $model, $dimensions, $inputHash, $subject);
+                }
+
+                throw $exception;
+            }
+
             $started = hrtime(true);
             $response = null;
             $data = null;
@@ -372,7 +387,15 @@ class EmbeddingService
                 return $resultVectors;
             }
 
-            $retryable = $response === null || in_array($response->status(), [408, 429], true) || $response->serverError();
+            $retryable = $response === null || $response->status() === 408 || $response->serverError();
+            if ($response !== null && $response->status() === 429) {
+                if (in_array($mode, ['fallback', 'auto'], true)) {
+                    return $this->runOfflineBatchEmbed($texts, $model, $dimensions, $inputHash, $subject);
+                }
+
+                throw RateLimitExceptionFactory::fromResponse($response, $quota, GeminiQuota::BUCKET_EMBEDDING);
+            }
+
             if (! $retryable || $attempt === 3) {
                 if (in_array($mode, ['fallback', 'auto'], true)) {
                     return $this->runOfflineBatchEmbed($texts, $model, $dimensions, $inputHash, $subject);
