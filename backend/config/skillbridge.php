@@ -102,7 +102,7 @@ return [
     'recommendation' => [
         'priority' => [
             // Share of selected job postings asking for the skill that counts as "high demand".
-            'high_demand_ratio' => (float) env('SKILLBRIDGE_PRIORITY_HIGH_DEMAND_RATIO', 0.5),
+            'high_demand_ratio' => (float) env('SKILLBRIDGE_PRIORITY_HIGH_DEMAND_RATIO', 0.75),
             'missing_high_demand' => 'high',
             'missing' => 'medium',
             'partial_high_demand' => 'medium',
