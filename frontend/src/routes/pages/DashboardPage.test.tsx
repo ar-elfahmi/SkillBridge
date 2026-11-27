@@ -82,7 +82,7 @@ describe('DashboardPage', () => {
 
     expect(screen.getAllByText('Unggah RPS')[0]).toBeInTheDocument()
     expect(screen.getByText('Pilih atau tarik PDF RPS')).toBeInTheDocument()
-    expect(screen.getByText('Skill yang kurang')).toBeInTheDocument()
+    expect(screen.getByText('Skill belum tercakup')).toBeInTheDocument()
 
     expect(await screen.findByText('Pemrograman Web 2025.pdf')).toBeInTheDocument()
     expect(screen.getByText('Analisis selesai')).toBeInTheDocument()

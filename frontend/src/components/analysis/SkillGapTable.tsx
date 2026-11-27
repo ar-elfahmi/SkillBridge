@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { Check, CircleDashed, ExternalLink, Minus, Search, X } from 'lucide-react'
 import type { Classification, SkillMatch } from '@/types/api'
 import { copy } from '@/lib/copy'
+import { formatScore, sourceReferenceLabel } from '@/lib/labels'
 import { useFocusTrap } from '@/lib/useFocusTrap'
 
 interface SkillGapTableProps {
@@ -181,7 +182,7 @@ export function SkillGapTable({ matches, isLoading }: SkillGapTableProps) {
                             {m.matched_competency.competency}
                             {m.matched_competency.source_reference && (
                               <span className="block text-xs text-text-secondary/80">
-                                {m.matched_competency.source_reference}
+                                {sourceReferenceLabel(m.matched_competency.source_reference, '')}
                                 {m.matched_competency.page
                                   ? `, Hal. ${m.matched_competency.page}`
                                   : ''}
@@ -298,12 +299,20 @@ export function SkillGapTable({ matches, isLoading }: SkillGapTableProps) {
                 <p className="text-sm italic text-text-primary">
                   “{drawerMatch.matched_competency.evidence || drawerMatch.matched_competency.competency}”
                 </p>
-                <span className="text-xs text-text-secondary">
-                  {drawerMatch.matched_competency.source_reference || '-'}
-                  {drawerMatch.matched_competency.page
-                    ? ` · Hal. ${drawerMatch.matched_competency.page}`
-                    : ''}
-                </span>
+                {(drawerMatch.matched_competency.source_reference || drawerMatch.matched_competency.page) && (
+                  <span className="text-sm text-text-secondary">
+                    {[
+                      drawerMatch.matched_competency.source_reference
+                        ? sourceReferenceLabel(drawerMatch.matched_competency.source_reference, '')
+                        : null,
+                      drawerMatch.matched_competency.page
+                        ? `Hal. ${drawerMatch.matched_competency.page}`
+                        : null,
+                    ]
+                      .filter(Boolean)
+                      .join(' · ')}
+                  </span>
+                )}
               </div>
             )}
 
@@ -362,7 +371,7 @@ export function SkillGapTable({ matches, isLoading }: SkillGapTableProps) {
               <div className="flex items-center justify-between rounded-lg bg-surface-subtle px-3 py-2 text-xs">
                 <span className="text-text-secondary">{copy.similarityLabel}</span>
                 <span className="font-semibold text-text-primary">
-                  {drawerMatch.similarity_score.toFixed(2)}
+                  {formatScore(drawerMatch.similarity_score)}
                 </span>
               </div>
             )}

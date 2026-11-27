@@ -5,6 +5,7 @@ import type { CourseSkill, CreateCompetencyPayload } from '@/types/api'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { copy } from '@/lib/copy'
+import { categoryLabel, sourceReferenceLabel } from '@/lib/labels'
 
 interface CompetencyReviewTableProps {
   documentId: number
@@ -109,12 +110,15 @@ export function CompetencyReviewTable({
         </div>
 
         {/* Filter Dropdown */}
-        <div className="relative w-full sm:w-60">
+        <div className="relative flex w-full flex-col gap-1 sm:w-60">
+          <label htmlFor="competencyFilter" className="text-sm font-semibold text-text-secondary">
+            Tampilkan
+          </label>
           <select
-            aria-label="Filter kompetensi"
+            id="competencyFilter"
             value={filter}
             onChange={(e) => setFilter(e.target.value as 'all' | 'unverified' | 'pending' | 'rejected')}
-            className="w-full appearance-none h-11 rounded-lg border border-field bg-white px-3 pr-9 text-xs font-semibold text-text-primary outline-none focus-visible:border-brand-accent focus-visible:ring-2 focus-visible:ring-brand-accent/40"
+            className="w-full appearance-none h-11 rounded-lg border border-field bg-white px-3 pr-9 text-base font-semibold text-text-primary outline-none md:text-sm focus-visible:border-brand-accent focus-visible:ring-2 focus-visible:ring-brand-accent/40"
           >
             <option value="all">{copy.rpsDetail.review.filterAll} ({totalCount})</option>
             <option value="unverified">
@@ -123,7 +127,7 @@ export function CompetencyReviewTable({
             <option value="pending">{copy.rpsDetail.review.filterPending} ({pendingCount})</option>
             <option value="rejected">{copy.rpsDetail.review.filterRejected}</option>
           </select>
-          <ChevronDown className="pointer-events-none absolute right-3 top-3.5 size-4 text-text-secondary" />
+          <ChevronDown className="pointer-events-none absolute bottom-3.5 right-3 size-4 text-text-secondary" />
         </div>
       </div>
 
@@ -134,11 +138,11 @@ export function CompetencyReviewTable({
           className="flex flex-col gap-4 rounded-lg border border-border-warm bg-white p-5 shadow-xs"
         >
           <span className="text-sm font-bold text-text-primary">
-            Tambah Kompetensi Baru
+            Tambah kompetensi
           </span>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div className="flex flex-col gap-1">
-              <label htmlFor="newSkill" className="text-xs font-semibold text-text-secondary">Nama Skill</label>
+              <label htmlFor="newSkill" className="text-xs font-semibold text-text-secondary">Nama skill</label>
               <Input
                 id="newSkill"
                 value={newSkill}
@@ -148,7 +152,7 @@ export function CompetencyReviewTable({
               />
             </div>
             <div className="flex flex-col gap-1">
-              <label htmlFor="newCompetency" className="text-xs font-semibold text-text-secondary">Deskripsi Kompetensi</label>
+              <label htmlFor="newCompetency" className="text-xs font-semibold text-text-secondary">Deskripsi kompetensi</label>
               <Input
                 id="newCompetency"
                 value={newCompetency}
@@ -168,7 +172,7 @@ export function CompetencyReviewTable({
               Batal
             </Button>
             <Button type="submit" size="sm" className="bg-brand text-white">
-              Simpan Kompetensi
+              Simpan kompetensi
             </Button>
           </div>
         </form>
@@ -248,7 +252,7 @@ export function CompetencyReviewTable({
                         <div className="flex flex-col gap-0.5">
                           <span className="font-bold text-text-primary">{c.skill}</span>
                           <span className="text-xs text-text-secondary">
-                            {c.category || 'Kompetensi Umum'}
+                            {categoryLabel(c.category)}
                           </span>
                           <p className="mt-1 text-sm text-text-primary leading-relaxed">
                             {c.competency}
@@ -276,7 +280,7 @@ export function CompetencyReviewTable({
                         </span>
                       ) : (
                         <span>
-                          {c.source_reference || c.source_type}
+                          {sourceReferenceLabel(c.source_reference, c.source_type)}
                           {c.week ? `, M${c.week}` : ''}
                           {c.page ? `, Hal. ${c.page}` : ''}
                         </span>
@@ -383,7 +387,7 @@ export function CompetencyReviewTable({
               <div className="flex flex-col">
                 <span className="font-bold text-text-primary">{c.skill}</span>
                 <span className="text-xs text-text-secondary">
-                  {c.category || 'Kompetensi Umum'}
+                  {categoryLabel(c.category)}
                 </span>
               </div>
 
@@ -411,7 +415,7 @@ export function CompetencyReviewTable({
 
             <div className="flex items-center justify-between pt-2 border-t border-border-warm/60">
               <span className="text-xs text-text-secondary">
-                {c.origin === 'user' ? 'Kompetensi Pengguna' : c.source_reference || c.source_type}
+                {c.origin === 'user' ? 'Kompetensi pengguna' : sourceReferenceLabel(c.source_reference, c.source_type)}
               </span>
 
               <div className="flex items-center gap-1.5">

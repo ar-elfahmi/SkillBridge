@@ -17,6 +17,7 @@ import {
 } from '@/lib/query/hooks'
 import { usePageTitle } from '@/lib/usePageTitle'
 import { copy } from '@/lib/copy'
+import { ApiRequestError } from '@/lib/api/client'
 
 export function RpsDetailPage() {
   usePageTitle('Detail RPS')
@@ -27,7 +28,8 @@ export function RpsDetailPage() {
   const { data: user } = useMe()
   const logout = useLogout()
 
-  const { data: document, isLoading: isDocLoading, isError: isDocError } = useRpsDetail(rpsId)
+  const { data: document, isLoading: isDocLoading, isError: isDocError, error: docError, refetch: refetchDoc } =
+    useRpsDetail(rpsId)
   const isExtracted = document?.extraction_status === 'completed'
   const { data: competencies = [] } = useCompetenciesList(rpsId, isExtracted)
 
@@ -61,14 +63,29 @@ export function RpsDetailPage() {
       <div className="flex min-h-svh flex-col bg-background">
         <DashboardTopbar user={user} onLogout={handleLogout} />
         <main className="mx-auto flex w-full max-w-5xl flex-1 flex-col items-center justify-center gap-3 p-6 text-center">
-          <p className="text-base font-semibold text-danger">Dokumen RPS tidak ditemukan atau gagal dimuat.</p>
-          <button
-            type="button"
-            onClick={() => navigate('/dashboard')}
-            className="rounded-lg bg-brand px-4 py-2 text-xs font-bold text-white hover:bg-brand-hover"
-          >
-            Kembali ke Beranda
-          </button>
+          <p className="text-base font-semibold text-danger">
+            {docError instanceof ApiRequestError && docError.status === 404
+              ? copy.analysesResult.docNotFound
+              : copy.analysesResult.loadFailed}
+          </p>
+          <div className="flex flex-wrap justify-center gap-2">
+            {!(docError instanceof ApiRequestError && docError.status === 404) && (
+              <button
+                type="button"
+                onClick={() => void refetchDoc()}
+                className="min-h-11 rounded-lg border border-border-warm px-4 text-sm font-bold text-text-primary hover:bg-surface-subtle"
+              >
+                {copy.analysesResult.retry}
+              </button>
+            )}
+            <button
+              type="button"
+              onClick={() => navigate('/dashboard')}
+              className="min-h-11 rounded-lg bg-brand px-4 text-sm font-bold text-white hover:bg-brand-hover"
+            >
+              {copy.analysesResult.backToDashboard}
+            </button>
+          </div>
         </main>
       </div>
     )

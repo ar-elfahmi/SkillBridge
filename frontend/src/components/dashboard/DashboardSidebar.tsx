@@ -37,35 +37,32 @@ export function DashboardSidebar({
         </div>
         <div className="flex flex-col">
           <span className="text-sm font-bold text-text-primary">{user?.name || 'Mahasiswa'}</span>
-          <span className="text-xs text-text-secondary">{user?.email || ''}</span>
-          <span className="mt-1 inline-block rounded-full bg-surface-subtle px-2.5 py-0.5 text-xs font-semibold text-text-secondary">
-            Mahasiswa
-          </span>
+          <span className="text-sm text-text-secondary">{user?.email || ''}</span>
         </div>
       </div>
 
       {/* Owned Skills Card, sesuai frame "Owned Skills Card" dihsain.pen */}
       <div className="flex flex-col gap-3 rounded-xl border border-border-warm bg-white p-4">
         <div className="flex flex-col">
-          <span className="text-xs font-bold text-text-primary">
+          <span className="text-sm font-bold text-text-primary">
             {copy.dashboard.sidebar.ownedSkillsTitle}
           </span>
-          <span className="text-xs text-text-secondary">
+          <span className="text-sm text-text-secondary">
             {copy.dashboard.sidebar.ownedSkillsNote}
           </span>
         </div>
 
         {skills.length === 0 ? (
-          <p className="text-xs text-text-secondary">Belum ada skill dilaporkan.</p>
+          <p className="text-sm text-text-secondary">Belum ada skill dilaporkan.</p>
         ) : (
           <ul className="flex flex-col gap-2">
             {skills.slice(0, 4).map((s) => (
               <li
                 key={s.id}
-                className="flex items-center justify-between gap-2 rounded-lg bg-surface-subtle px-3 py-2 text-xs"
+                className="flex items-center justify-between gap-2 rounded-lg bg-surface-subtle px-3 py-2 text-sm"
               >
                 <span className="truncate font-semibold text-text-primary">{s.skill}</span>
-                <span className="shrink-0 text-xs text-text-secondary">
+                <span className="shrink-0 text-sm text-text-secondary">
                   {copy.analysesResult.levelOptions[s.level]}
                 </span>
               </li>
@@ -75,7 +72,7 @@ export function DashboardSidebar({
 
         <Link
           to="/profile"
-          className="inline-flex min-h-9 w-fit items-center text-xs font-bold text-brand-strong hover:underline"
+          className="inline-flex min-h-9 w-fit items-center text-sm font-bold text-brand-strong hover:underline"
         >
           {copy.dashboard.sidebar.viewAllSkills}
         </Link>
@@ -83,14 +80,14 @@ export function DashboardSidebar({
 
       {/* Ringkasan Akun & Status */}
       <div className="flex flex-col gap-3 rounded-xl border border-border-warm bg-white p-4">
-        <span className="text-xs font-bold text-text-primary">Status</span>
+        <span className="text-sm font-bold text-text-primary">Status</span>
         <div className="flex flex-col gap-2">
-          <div className="flex items-center justify-between rounded-lg bg-surface-subtle px-3 py-2 text-xs">
+          <div className="flex items-center justify-between rounded-lg bg-surface-subtle px-3 py-2 text-sm">
             <span className="text-text-secondary">Dokumen RPS</span>
             <span className="font-bold text-text-primary">{rpsCount}</span>
           </div>
-          <div className="flex items-center justify-between rounded-lg bg-surface-subtle px-3 py-2 text-xs">
-            <span className="text-text-secondary">Analisis Selesai</span>
+          <div className="flex items-center justify-between rounded-lg bg-surface-subtle px-3 py-2 text-sm">
+            <span className="text-text-secondary">Total analisis</span>
             <span className="font-bold text-text-primary">{analysesCount}</span>
           </div>
         </div>

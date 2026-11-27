@@ -1,6 +1,7 @@
 import { Check, CircleDot, X } from 'lucide-react'
 import type { Analysis } from '@/types/api'
 import { copy } from '@/lib/copy'
+import { formatPercent } from '@/lib/labels'
 
 const STATUS_STYLE = {
   covered: { bar: 'bg-success-solid', chip: 'bg-success-soft text-success', Icon: Check },
@@ -24,7 +25,7 @@ export function CoverageSummary({ analysis, onViewGap }: CoverageSummaryProps) {
   ]
 
   const pct = (n: number) => (total > 0 ? (n / total) * 100 : 0)
-  const fmt = (n: number) => n.toFixed(1).replace('.', ',')
+  const fmt = formatPercent
   const covered = rows[0]!
 
   return (

@@ -62,6 +62,17 @@ describe('LoginPage', () => {
     expect(screen.queryByText('Beranda')).not.toBeInTheDocument()
   })
 
+  it('menandai kolom kosong satu per satu tanpa memanggil API', () => {
+    renderPage()
+    fireEvent.click(screen.getByRole('button', { name: 'Masuk' }))
+
+    expect(authApi.login).not.toHaveBeenCalled()
+    expect(screen.getByText('Email wajib diisi.')).toBeInTheDocument()
+    expect(screen.getByText('Kata sandi wajib diisi.')).toBeInTheDocument()
+    expect(screen.getByLabelText('Email')).toHaveAttribute('aria-invalid', 'true')
+    expect(screen.queryByText('Email atau kata sandi salah.')).not.toBeInTheDocument()
+  })
+
   it('mengubah tipe input kata sandi lewat toggle', () => {
     renderPage()
     const password = screen.getByLabelText('Kata sandi')

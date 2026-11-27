@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom'
 import { AlertCircle, Check, Clock3, FileText } from 'lucide-react'
 import type { Analysis, RpsDocument } from '@/types/api'
 import { copy } from '@/lib/copy'
+import { formatPercent } from '@/lib/labels'
 
 interface AnalyzedRpsSectionProps {
   documents: RpsDocument[]
@@ -115,7 +116,7 @@ export function AnalyzedRpsSection({
                   ) : isNeedReview ? (
                     <span className="inline-flex items-center gap-1.5 rounded-md bg-warning-soft px-2.5 py-1 text-xs font-semibold text-warning">
                       <Clock3 className="size-3.5" aria-hidden="true" />
-                      Perlu review
+                      Perlu ditinjau
                     </span>
                   ) : (
                     <span className="inline-flex items-center gap-1.5 rounded-md bg-danger-soft px-2.5 py-1 text-xs font-semibold text-danger">
@@ -129,7 +130,7 @@ export function AnalyzedRpsSection({
                 {analysis?.summary ? (
                   <div className="flex flex-col gap-1.5">
                     <span className="text-xs text-text-secondary">
-                      {copy.coverageLabel} {analysis.summary.coverage_percentage.toFixed(1).replace('.', ',')}%
+                      {copy.coverageLabel} {formatPercent(analysis.summary.coverage_percentage)}%
                     </span>
                     <div className="h-1.5 w-full overflow-hidden rounded-full bg-progress-track">
                       <div

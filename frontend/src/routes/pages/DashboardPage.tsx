@@ -131,6 +131,7 @@ export function DashboardPage() {
             missingSkillsCount={totalMissingSkills}
             matchedJobsCount={matchedJobsCount}
             careersCount={careersCount}
+            analysesCount={analysesList.length}
           />
 
           <AnalyzedRpsSection

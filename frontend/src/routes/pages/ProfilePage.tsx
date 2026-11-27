@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { ArrowLeft, LogOut, Plus, Trash2 } from 'lucide-react'
 import { DashboardTopbar } from '@/components/dashboard/DashboardTopbar'
@@ -14,6 +14,7 @@ import {
 import type { SkillLevel } from '@/types/api'
 import { usePageTitle } from '@/lib/usePageTitle'
 import { copy } from '@/lib/copy'
+import { LEVEL_LABEL } from '@/lib/labels'
 
 export function ProfilePage() {
   usePageTitle('Profil')
@@ -26,6 +27,9 @@ export function ProfilePage() {
 
   const [value, setValue] = useState('')
   const [level, setLevel] = useState<SkillLevel>('intermediate')
+  const [status, setStatus] = useState('')
+  const [undoSkill, setUndoSkill] = useState<{ skill: string; level: SkillLevel } | null>(null)
+  const inputRef = useRef<HTMLInputElement>(null)
 
   const initials = user?.name
     ? user.name
@@ -44,7 +48,37 @@ export function ProfilePage() {
     e.preventDefault()
     const trimmed = value.trim()
     if (!trimmed) return
-    addSkill.mutate({ skill: trimmed, level }, { onSuccess: () => setValue('') })
+    addSkill.mutate(
+      { skill: trimmed, level },
+      {
+        onSuccess: () => {
+          setValue('')
+          setUndoSkill(null)
+          setStatus(copy.profile.skillAdded(trimmed))
+          inputRef.current?.focus()
+        },
+      }
+    )
+  }
+
+  function handleRemove(id: number, skill: string, skillLevel: SkillLevel) {
+    removeSkill.mutate(id, {
+      onSuccess: () => {
+        setUndoSkill({ skill, level: skillLevel })
+        setStatus(copy.profile.skillRemoved(skill))
+      },
+    })
+  }
+
+  function handleUndo() {
+    if (!undoSkill) return
+    const restore = undoSkill
+    addSkill.mutate(restore, {
+      onSuccess: () => {
+        setUndoSkill(null)
+        setStatus(copy.profile.skillAdded(restore.skill))
+      },
+    })
   }
 
   return (
@@ -73,14 +107,14 @@ export function ProfilePage() {
             </div>
             <div className="flex min-w-0 flex-col">
               <span className="truncate text-sm font-bold text-text-primary">{user?.name}</span>
-              <span className="truncate text-xs text-text-secondary">{user?.email}</span>
+              <span className="truncate text-sm text-text-secondary">{user?.email}</span>
             </div>
           </div>
 
           <button
             type="button"
             onClick={handleLogout}
-            className="flex min-h-11 items-center gap-1.5 rounded-lg border border-border-warm px-4 text-xs font-semibold text-text-secondary active:bg-danger/10 sm:min-h-9 sm:px-3 transition-colors hover:border-danger/40 hover:bg-danger/10 hover:text-danger"
+            className="flex min-h-11 items-center gap-1.5 rounded-lg border border-border-warm px-4 text-sm font-semibold text-text-secondary active:bg-danger/10 sm:min-h-9 sm:px-3 transition-colors hover:border-danger/40 hover:bg-danger/10 hover:text-danger"
           >
             <LogOut className="size-3.5" aria-hidden="true" />
             {copy.profile.logout}
@@ -93,25 +127,31 @@ export function ProfilePage() {
             <h2 className="text-base font-bold text-text-primary">
               {copy.profile.personalSkillsTitle}
             </h2>
-            <p className="max-w-prose text-xs leading-relaxed text-text-secondary">
+            <p className="max-w-prose text-sm leading-relaxed text-text-secondary">
               {copy.profile.personalSkillsDesc}
             </p>
           </div>
 
-          <form onSubmit={submit} className="flex flex-col gap-2 sm:flex-row">
-            <Input
-              value={value}
-              onChange={(e) => setValue(e.target.value)}
-              placeholder={copy.profile.addPlaceholder}
-              aria-label={copy.profile.addPlaceholder}
-              className="h-11 text-sm sm:h-10"
-            />
+          <form onSubmit={submit} className="flex flex-col gap-2 sm:flex-row sm:items-end">
+            <div className="flex flex-1 flex-col gap-1">
+              <label htmlFor="skillName" className="text-sm font-semibold text-text-secondary">
+                {copy.profile.skillNameLabel}
+              </label>
+              <Input
+                id="skillName"
+                ref={inputRef}
+                value={value}
+                onChange={(e) => setValue(e.target.value)}
+                placeholder={copy.profile.addPlaceholder}
+                className="h-11 text-base md:h-11 md:text-sm"
+              />
+            </div>
             <div className="flex gap-2">
               <select
                 aria-label={copy.profile.colLevel}
                 value={level}
                 onChange={(e) => setLevel(e.target.value as SkillLevel)}
-                className="h-11 rounded-lg border border-field bg-white px-2 text-xs sm:h-10 font-semibold text-text-primary outline-none focus-visible:border-brand-accent focus-visible:ring-2 focus-visible:ring-brand-accent/40"
+                className="h-11 rounded-lg border border-field bg-white px-2 text-base font-semibold md:text-sm text-text-primary outline-none focus-visible:border-brand-accent focus-visible:ring-2 focus-visible:ring-brand-accent/40"
               >
                 {(['beginner', 'intermediate', 'advanced'] as const).map((l) => (
                   <option key={l} value={l}>
@@ -122,7 +162,7 @@ export function ProfilePage() {
               <Button
                 type="submit"
                 disabled={addSkill.isPending || !value.trim()}
-                className="h-11 shrink-0 gap-1.5 bg-brand sm:h-10 px-3 text-xs font-bold text-white hover:bg-brand-hover"
+                className="h-11 shrink-0 gap-1.5 bg-brand px-3 text-sm font-bold text-white hover:bg-brand-hover"
               >
                 <Plus className="size-3.5" aria-hidden="true" />
                 {copy.analysesResult.addSkillBtn}
@@ -130,10 +170,24 @@ export function ProfilePage() {
             </div>
           </form>
 
+          <div role="status" aria-live="polite" className="flex min-h-5 flex-wrap items-center gap-2 text-sm text-text-secondary">
+            {status && <span>{status}</span>}
+            {undoSkill && (
+              <button
+                type="button"
+                onClick={handleUndo}
+                disabled={addSkill.isPending}
+                className="min-h-11 font-semibold text-brand-strong underline"
+              >
+                {copy.profile.undo}
+              </button>
+            )}
+          </div>
+
           {isLoading ? (
-            <p className="text-xs text-text-secondary">Memuat skill…</p>
+            <p className="text-sm text-text-secondary">Memuat skill…</p>
           ) : skills.length === 0 ? (
-            <p className="rounded-lg border border-dashed border-border-warm p-6 text-center text-xs text-text-secondary">
+            <p className="rounded-lg border border-dashed border-border-warm p-6 text-center text-sm text-text-secondary">
               {copy.profile.empty}
             </p>
           ) : (
@@ -142,8 +196,8 @@ export function ProfilePage() {
                 <li key={s.id} className="flex items-center justify-between gap-3 px-3 py-2 sm:px-4">
                   <div className="flex min-w-0 flex-col">
                     <span className="truncate text-sm font-semibold text-text-primary">{s.skill}</span>
-                    <span className="flex min-w-0 items-center gap-1 text-xs text-text-secondary">
-                      <span>{copy.analysesResult.levelOptions[s.level]}</span>
+                    <span className="flex min-w-0 items-center gap-1 text-sm text-text-secondary">
+                      <span>{LEVEL_LABEL[s.level]}</span>
                       {s.reported_as && (
                         <>
                           <span aria-hidden="true">·</span>
@@ -154,9 +208,9 @@ export function ProfilePage() {
                   </div>
                   <button
                     type="button"
-                    onClick={() => removeSkill.mutate(s.id)}
+                    onClick={() => handleRemove(s.id, s.skill, s.level)}
                     aria-label={`Hapus ${s.skill}`}
-                    className="inline-flex size-11 shrink-0 items-center justify-center rounded-lg border border-border-warm text-danger transition-colors hover:bg-danger/10 active:bg-danger/10 sm:size-9"
+                    className="inline-flex size-11 shrink-0 items-center justify-center rounded-lg border border-border-warm text-danger transition-colors hover:bg-danger/10 active:bg-danger/10"
                   >
                     <Trash2 className="size-4" aria-hidden="true" />
                   </button>
@@ -164,12 +218,12 @@ export function ProfilePage() {
               ))}
             </ul>          )}
 
-          <p className="text-xs text-text-secondary">{copy.profile.noteCanonical}</p>
+          <p className="text-sm text-text-secondary">{copy.profile.noteCanonical}</p>
         </section>
       </main>
 
       <footer className="flex h-14 shrink-0 items-center justify-center border-t border-border-warm px-4 md:justify-start md:px-8">
-        <p className="text-xs font-medium text-text-secondary">{copy.footerBrand}</p>
+        <p className="text-sm font-medium text-text-secondary">{copy.footerBrand}</p>
       </footer>
     </div>
   )
