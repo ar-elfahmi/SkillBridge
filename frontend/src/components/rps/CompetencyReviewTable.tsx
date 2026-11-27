@@ -1,29 +1,85 @@
-import { useState } from 'react'
+import { useState, type ReactNode } from 'react'
 import { Link } from 'react-router-dom'
-import { Check, ChevronDown, CircleDashed, Minus, Pencil, Plus, Quote, Trash2, X } from 'lucide-react'
+import { Check, ChevronDown, CircleDashed, Minus, Pencil, Plus, Trash2, X } from 'lucide-react'
 import type { CourseSkill, CreateCompetencyPayload } from '@/types/api'
+import { ModalDialog } from '@/components/common/ModalDialog'
+import { StatusNotice } from '@/components/common/StatusNotice'
+import { AddCompetencyForm } from '@/components/rps/AddCompetencyForm'
+import { CompetencyEditor } from '@/components/rps/CompetencyEditor'
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
 import { copy } from '@/lib/copy'
-import { categoryLabel, sourceReferenceLabel } from '@/lib/labels'
+import { categoryLabel, formatSource } from '@/lib/labels'
+import { useStickyInset } from '@/lib/useStickyInset'
 
 interface CompetencyReviewTableProps {
   documentId: number
   competencies: CourseSkill[]
   onApprove: (id: number) => void
+  onApproveMany: (ids: number[]) => Promise<unknown>
   onReject: (id: number) => void
   onDelete: (id: number) => void
-  onEdit: (id: number, skill: string, competency: string) => void
-  onCreate: (payload: CreateCompetencyPayload) => void
-  onConfirmAll: (confirmAllPending?: boolean) => void
+  onEdit: (id: number, skill: string, competency: string) => Promise<unknown>
+  onCreate: (payload: CreateCompetencyPayload) => Promise<unknown>
+  onConfirmAll: (confirmAllPending: boolean) => void
   isConfirming: boolean
   isConfirmedAll: boolean
 }
+
+type Filter = 'all' | 'unverified' | 'pending' | 'rejected'
+type BulkKind = 'all' | 'verified'
+
+/** Lencana status netral: makna dibawa ikon dan teks, bukan warna. */
+function NeutralChip({ icon, children }: { icon: ReactNode; children: ReactNode }) {
+  return (
+    <span className="inline-flex items-center gap-1 whitespace-nowrap rounded-md bg-surface-subtle px-2 py-0.5 text-sm font-semibold text-text-primary">
+      {icon}
+      {children}
+    </span>
+  )
+}
+
+function VerificationChip({ c }: { c: CourseSkill }) {
+  return c.verification_status === 'verified' ? (
+    <NeutralChip icon={<Check className="size-3" aria-hidden="true" />}>
+      {copy.rpsDetail.review.verifiedChip}
+    </NeutralChip>
+  ) : (
+    <NeutralChip icon={<Minus className="size-3" aria-hidden="true" />}>
+      {copy.rpsDetail.review.unverifiedChip}
+    </NeutralChip>
+  )
+}
+
+function ReviewChip({ c }: { c: CourseSkill }) {
+  if (c.review_status === 'confirmed') {
+    return (
+      <NeutralChip icon={<Check className="size-3" aria-hidden="true" />}>
+        {copy.rpsDetail.review.confirmedChip}
+      </NeutralChip>
+    )
+  }
+  if (c.review_status === 'rejected') {
+    return (
+      <NeutralChip icon={<X className="size-3" aria-hidden="true" />}>
+        {copy.rpsDetail.review.rejectedChip}
+      </NeutralChip>
+    )
+  }
+  return (
+    <NeutralChip icon={<CircleDashed className="size-3" aria-hidden="true" />}>
+      {copy.rpsDetail.review.pendingChip}
+    </NeutralChip>
+  )
+}
+
+const ACTION_BASE =
+  'inline-flex items-center justify-center gap-1.5 rounded-lg border border-border-warm bg-white text-sm font-semibold text-text-primary transition-colors hover:bg-surface-subtle active:bg-surface-subtle disabled:opacity-50'
 
 export function CompetencyReviewTable({
   documentId,
   competencies,
   onApprove,
+  onApproveMany,
   onReject,
   onDelete,
   onEdit,
@@ -32,17 +88,14 @@ export function CompetencyReviewTable({
   isConfirming,
   isConfirmedAll,
 }: CompetencyReviewTableProps) {
-  const [filter, setFilter] = useState<'all' | 'unverified' | 'pending' | 'rejected'>('all')
+  const [filter, setFilter] = useState<Filter>('all')
   const [isAddOpen, setIsAddOpen] = useState(false)
-  const [newSkill, setNewSkill] = useState('')
-  const [newCompetency, setNewCompetency] = useState('')
-
-  // Edit modal / inline edit state
   const [editingId, setEditingId] = useState<number | null>(null)
-  const [editSkill, setEditSkill] = useState('')
-  const [editCompetencyText, setEditCompetencyText] = useState('')
+  const [bulk, setBulk] = useState<BulkKind | null>(null)
+  const [isBulkRunning, setIsBulkRunning] = useState(false)
+  const [bulkError, setBulkError] = useState(false)
+  const barRef = useStickyInset('bottom', '(min-width: 640px)')
 
-  // Filter competencies
   const filtered = competencies.filter((c) => {
     if (filter === 'unverified') return c.verification_status === 'unverified'
     if (filter === 'pending') return c.review_status === 'pending'
@@ -50,69 +103,88 @@ export function CompetencyReviewTable({
     return true
   })
 
-  // Counters
   const totalCount = competencies.length
   const unverifiedCount = competencies.filter((c) => c.verification_status === 'unverified').length
-  const pendingCount = competencies.filter((c) => c.review_status === 'pending').length
+  const pending = competencies.filter((c) => c.review_status === 'pending')
+  const pendingCount = pending.length
+  const pendingVerified = pending.filter((c) => c.verification_status === 'verified')
+  const pendingUnverifiedCount = pendingCount - pendingVerified.length
 
-  function handleAddSubmit(e: React.FormEvent) {
-    e.preventDefault()
-    if (!newSkill.trim() || !newCompetency.trim()) return
-    onCreate({ skill: newSkill.trim(), competency: newCompetency.trim() })
-    setNewSkill('')
-    setNewCompetency('')
-    setIsAddOpen(false)
+  async function runBulk() {
+    if (!bulk) return
+    if (bulk === 'all') {
+      setBulk(null)
+      onConfirmAll(true)
+      return
+    }
+    setIsBulkRunning(true)
+    setBulkError(false)
+    try {
+      await onApproveMany(pendingVerified.map((c) => c.id))
+      setBulk(null)
+    } catch {
+      setBulkError(true)
+    } finally {
+      setIsBulkRunning(false)
+    }
   }
 
-  function startEdit(c: CourseSkill) {
-    setEditingId(c.id)
-    setEditSkill(c.skill)
-    setEditCompetencyText(c.competency)
+  function renderEditor(c: CourseSkill, idPrefix: string) {
+    return (
+      <CompetencyEditor
+        idPrefix={`${idPrefix}-${c.id}`}
+        initialSkill={c.skill}
+        initialCompetency={c.competency}
+        onSave={(skill, competency) => onEdit(c.id, skill, competency)}
+        onCancel={() => setEditingId(null)}
+      />
+    )
   }
 
-  function saveEdit(id: number) {
-    if (!editSkill.trim() || !editCompetencyText.trim()) return
-    onEdit(id, editSkill.trim(), editCompetencyText.trim())
-    setEditingId(null)
-  }
+  const rejectLabel = (c: CourseSkill) => (c.origin === 'user' ? copy.rpsDetail.review.remove : copy.rpsDetail.review.reject)
 
   return (
     <div className="flex flex-col gap-3 sm:gap-6">
-      {/* Review Summary Cards & Filters */}
+      {/* Ringkasan dan filter */}
       <div className="flex flex-col gap-3 rounded-xl border border-border-warm bg-white p-3 sm:p-5 md:flex-row md:items-center md:justify-between">
+        <div className="flex flex-col items-start gap-2 md:gap-3">
         <p className="text-sm font-semibold text-text-primary sm:hidden">
           {totalCount} kompetensi, {unverifiedCount} belum terverifikasi, {pendingCount} menunggu tinjauan
         </p>
-        <div className="hidden grid-cols-3 gap-2 sm:grid md:gap-3">
+        <div className="hidden w-full grid-cols-3 gap-2 sm:grid md:gap-3">
+
           <div className="flex flex-col rounded-lg bg-brand-soft px-3 py-2">
-            <span className="font-display text-xl font-bold text-text-primary md:text-3xl">
-              {totalCount}
-            </span>
-            <span className="text-sm font-medium leading-tight text-text-primary md:text-sm">
+            <span className="font-display text-xl font-bold text-text-primary md:text-3xl">{totalCount}</span>
+            <span className="text-sm font-medium leading-tight text-text-primary">
               {copy.rpsDetail.review.totalCompetencies}
             </span>
           </div>
-
           <div className="flex flex-col rounded-lg bg-warning-soft px-3 py-2">
-            <span className="font-display text-xl font-bold text-warning md:text-3xl">
-              {unverifiedCount}
-            </span>
-            <span className="text-sm font-medium leading-tight text-text-primary md:text-sm">
+            <span className="font-display text-xl font-bold text-warning md:text-3xl">{unverifiedCount}</span>
+            <span className="text-sm font-medium leading-tight text-text-primary">
               {copy.rpsDetail.review.unverified}
             </span>
           </div>
-
           <div className="flex flex-col rounded-lg bg-brand-soft px-3 py-2">
-            <span className="font-display text-xl font-bold text-brand-strong md:text-3xl">
-              {pendingCount}
-            </span>
-            <span className="text-sm font-medium leading-tight text-text-primary md:text-sm">
+            <span className="font-display text-xl font-bold text-brand-strong md:text-3xl">{pendingCount}</span>
+            <span className="text-sm font-medium leading-tight text-text-primary">
               {copy.rpsDetail.review.pendingReview}
             </span>
           </div>
         </div>
+        {!isConfirmedAll && pendingVerified.length > 0 && pendingVerified.length < pendingCount && (
+          <Button
+            type="button"
+            variant="outline"
+            disabled={isConfirming}
+            onClick={() => setBulk('verified')}
+            className="min-h-11 px-4 text-sm font-semibold"
+          >
+            {copy.rpsDetail.review.approveVerifiedBtn(pendingVerified.length)}
+          </Button>
+        )}
+        </div>
 
-        {/* Filter Dropdown */}
         <div className="relative flex w-full flex-col gap-1 sm:w-60">
           <label htmlFor="competencyFilter" className="text-sm font-semibold text-text-secondary">
             Tampilkan
@@ -120,65 +192,30 @@ export function CompetencyReviewTable({
           <select
             id="competencyFilter"
             value={filter}
-            onChange={(e) => setFilter(e.target.value as 'all' | 'unverified' | 'pending' | 'rejected')}
-            className="w-full appearance-none h-11 rounded-lg border border-field bg-white px-3 pr-9 text-base font-semibold text-text-primary outline-none md:text-sm focus-visible:border-brand-accent focus-visible:ring-2 focus-visible:ring-brand-accent/40"
+            onChange={(e) => setFilter(e.target.value as Filter)}
+            className="h-11 w-full appearance-none rounded-lg border border-field bg-white px-3 pr-9 text-base font-semibold text-text-primary outline-none focus-visible:border-brand-accent focus-visible:ring-2 focus-visible:ring-brand-accent/40 md:text-sm"
           >
-            <option value="all">{copy.rpsDetail.review.filterAll} ({totalCount})</option>
+            <option value="all">
+              {copy.rpsDetail.review.filterAll} ({totalCount})
+            </option>
             <option value="unverified">
               {copy.rpsDetail.review.filterUnverified} ({unverifiedCount})
             </option>
-            <option value="pending">{copy.rpsDetail.review.filterPending} ({pendingCount})</option>
+            <option value="pending">
+              {copy.rpsDetail.review.filterPending} ({pendingCount})
+            </option>
             <option value="rejected">{copy.rpsDetail.review.filterRejected}</option>
           </select>
-          <ChevronDown className="pointer-events-none absolute bottom-3.5 right-3 size-4 text-text-secondary" />
+          <ChevronDown
+            className="pointer-events-none absolute bottom-3.5 right-3 size-4 text-text-secondary"
+            aria-hidden="true"
+          />
         </div>
       </div>
 
-      {/* Add Competency Section */}
+      {/* Tambah kompetensi */}
       {isAddOpen ? (
-        <form
-          onSubmit={handleAddSubmit}
-          className="flex flex-col gap-4 rounded-lg border border-border-warm bg-white p-5 shadow-xs"
-        >
-          <span className="text-sm font-bold text-text-primary">
-            Tambah kompetensi
-          </span>
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <div className="flex flex-col gap-1">
-              <label htmlFor="newSkill" className="text-sm font-semibold text-text-secondary">Nama skill</label>
-              <Input
-                id="newSkill"
-                value={newSkill}
-                onChange={(e) => setNewSkill(e.target.value)}
-                placeholder="Contoh: Version control"
-                required
-              />
-            </div>
-            <div className="flex flex-col gap-1">
-              <label htmlFor="newCompetency" className="text-sm font-semibold text-text-secondary">Deskripsi kompetensi</label>
-              <Input
-                id="newCompetency"
-                value={newCompetency}
-                onChange={(e) => setNewCompetency(e.target.value)}
-                placeholder="Contoh: Mampu mengoperasikan git dan workflow kolaborasi"
-                required
-              />
-            </div>
-          </div>
-          <div className="flex justify-end gap-2">
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={() => setIsAddOpen(false)}
-            >
-              Batal
-            </Button>
-            <Button type="submit" size="sm" className="bg-brand text-white">
-              Simpan kompetensi
-            </Button>
-          </div>
-        </form>
+        <AddCompetencyForm onCreate={onCreate} onCancel={() => setIsAddOpen(false)} />
       ) : (
         <div className="flex justify-end">
           <Button
@@ -193,7 +230,7 @@ export function CompetencyReviewTable({
         </div>
       )}
 
-      {/* Desktop Table View (md+) */}
+      {/* Tabel desktop (md+) */}
       <div className="hidden overflow-hidden rounded-xl border border-border-warm bg-white md:block">
         <table className="w-full text-left text-sm">
           <thead className="border-b border-border-warm bg-surface-subtle font-semibold text-text-secondary">
@@ -210,293 +247,246 @@ export function CompetencyReviewTable({
             {filtered.length === 0 ? (
               <tr>
                 <td colSpan={6} className="p-8 text-center text-text-secondary">
-                  Tidak ada kompetensi yang sesuai dengan filter.
+                  {copy.rpsDetail.review.noMatch}
                 </td>
               </tr>
             ) : (
-              filtered.map((c) => {
-                const isEditing = editingId === c.id
-                return (
-                  <tr key={c.id} className="hover:bg-surface-subtle/40 transition-colors">
-                    {/* Kompetensi */}
-                    <td className="px-4 py-3.5 align-top">
-                      {isEditing ? (
-                        <div className="flex flex-col gap-1.5">
-                          <Input
-                            value={editSkill}
-                            aria-label="Nama skill"
-                            onChange={(e) => setEditSkill(e.target.value)}
-                            className="h-8 text-sm"
-                          />
-                          <Input
-                            value={editCompetencyText}
-                            aria-label="Deskripsi kompetensi"
-                            onChange={(e) => setEditCompetencyText(e.target.value)}
-                            className="h-8 text-sm"
-                          />
-                          <div className="flex gap-1.5">
-                            <button
-                              type="button"
-                              onClick={() => saveEdit(c.id)}
-                              className="rounded bg-brand px-2 py-0.5 text-sm font-bold text-white"
-                            >
-                              Simpan
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() => setEditingId(null)}
-                              className="rounded border border-border-warm px-2 py-0.5 text-sm"
-                            >
-                              Batal
-                            </button>
-                          </div>
-                        </div>
-                      ) : (
-                        <div className="flex flex-col gap-0.5">
-                          <span className="font-bold text-text-primary">{c.skill}</span>
-                          <span className="text-sm text-text-secondary">
-                            {categoryLabel(c.category)}
-                          </span>
-                          <p className="mt-1 text-sm text-text-primary leading-relaxed">
-                            {c.competency}
-                          </p>
-                        </div>
-                      )}
-                    </td>
-
-                    {/* Bukti */}
-                    <td className="max-w-[240px] px-4 py-3.5 align-top">
-                      {c.evidence ? (
-                        <p className="italic text-text-secondary leading-relaxed">
-                          “{c.evidence}”
-                        </p>
-                      ) : (
-                        <span className="text-text-secondary/70">Tanpa kutipan RPS</span>
-                      )}
-                    </td>
-
-                    {/* Sumber */}
-                    <td className="px-4 py-3.5 align-top text-text-secondary">
-                      {c.origin === 'user' ? (
-                        <span className="rounded bg-brand-soft px-2 py-0.5 text-sm font-semibold text-brand-strong">
-                          Pengguna
-                        </span>
-                      ) : (
-                        <span>
-                          {sourceReferenceLabel(c.source_reference, c.source_type)}
-                          {c.week ? `, M${c.week}` : ''}
-                          {c.page ? `, Hal. ${c.page}` : ''}
-                        </span>
-                      )}
-                    </td>
-
-                    {/* Verifikasi */}
-                    <td className="px-4 py-3.5 align-top">
-                      {c.verification_status === 'verified' ? (
-                        <span className="inline-flex items-center gap-1 whitespace-nowrap rounded-md bg-success-soft px-2 py-0.5 text-sm font-semibold text-success">
-                          <Check className="size-3" />
-                          {copy.rpsDetail.review.verifiedChip}
-                        </span>
-                      ) : (
-                        <span className="inline-flex items-center gap-1 whitespace-nowrap rounded-md bg-danger-soft px-2 py-0.5 text-sm font-semibold text-danger">
-                          <Minus className="size-3" />
-                          {copy.rpsDetail.review.unverifiedChip}
-                        </span>
-                      )}
-                    </td>
-
-                    {/* Tinjauan Status */}
-                    <td className="px-4 py-3.5 align-top">
-                      {c.review_status === 'confirmed' ? (
-                        <span className="inline-flex items-center gap-1 whitespace-nowrap rounded-md bg-success-soft px-2 py-0.5 text-sm font-semibold text-success">
-                          <Check className="size-3" />
-                          {copy.rpsDetail.review.confirmedChip}
-                        </span>
-                      ) : c.review_status === 'rejected' ? (
-                        <span className="inline-flex items-center gap-1 whitespace-nowrap rounded-md bg-danger-soft px-2 py-0.5 text-sm font-semibold text-danger">
-                          <X className="size-3" />
-                          {copy.rpsDetail.review.rejectedChip}
-                        </span>
-                      ) : (
-                        <span className="inline-flex items-center gap-1 whitespace-nowrap rounded-md bg-warning-soft px-2 py-0.5 text-sm font-semibold text-warning">
-                          <CircleDashed className="size-3" />
-                          {copy.rpsDetail.review.pendingChip}
-                        </span>
-                      )}
-                    </td>
-
-                    {/* Aksi */}
-                    <td className="px-4 py-3.5 align-top">
-                      <div className="flex items-center justify-center gap-1.5">
-                        <button
-                          type="button"
-                          title="Setujui"
-                          aria-label={`Setujui ${c.skill}`}
-                          onClick={() => onApprove(c.id)}
-                          className="flex size-11 items-center justify-center rounded-lg border border-border-warm text-success hover:bg-success-soft transition-colors"
-                        >
-                          <Check className="size-3.5" />
-                        </button>
-
-                        <button
-                          type="button"
-                          title="Edit"
-                          aria-label={`Edit ${c.skill}`}
-                          onClick={() => startEdit(c)}
-                          className="flex size-11 items-center justify-center rounded-lg border border-border-warm text-text-secondary hover:bg-surface-subtle transition-colors"
-                        >
-                          <Pencil className="size-3.5" />
-                        </button>
-
-                        {c.origin === 'user' ? (
-                          <button
-                            type="button"
-                            title="Hapus"
-                          aria-label={`Hapus ${c.skill}`}
-                            onClick={() => onDelete(c.id)}
-                            className="flex size-11 items-center justify-center rounded-lg border border-border-warm text-danger hover:bg-danger/10 transition-colors"
-                          >
-                            <Trash2 className="size-3.5" />
-                          </button>
-                        ) : (
-                          <button
-                            type="button"
-                            title="Tolak"
-                          aria-label={`Tolak ${c.skill}`}
-                            onClick={() => onReject(c.id)}
-                            className="flex size-11 items-center justify-center rounded-lg border border-border-warm text-danger hover:bg-danger/10 transition-colors"
-                          >
-                            <X className="size-3.5" />
-                          </button>
-                        )}
+              filtered.map((c) => (
+                <tr key={c.id} className="transition-colors hover:bg-surface-subtle/40">
+                  <td className="px-4 py-3.5 align-top">
+                    {editingId === c.id ? (
+                      renderEditor(c, 'desktop')
+                    ) : (
+                      <div className="flex flex-col gap-0.5">
+                        <span className="font-bold text-text-primary">{c.skill}</span>
+                        <span className="text-sm text-text-secondary">{categoryLabel(c.category)}</span>
+                        <p className="mt-1 text-sm leading-relaxed text-text-primary">{c.competency}</p>
                       </div>
-                    </td>
-                  </tr>
-                )
-              })
+                    )}
+                  </td>
+
+                  <td className="max-w-[240px] px-4 py-3.5 align-top">
+                    {c.evidence ? (
+                      <p className="italic leading-relaxed text-text-secondary">“{c.evidence}”</p>
+                    ) : (
+                      <span className="text-text-secondary">{copy.rpsDetail.review.noEvidence}</span>
+                    )}
+                  </td>
+
+                  <td className="px-4 py-3.5 align-top text-text-secondary">
+                    {c.origin === 'user' ? (
+                      <span className="rounded bg-brand-soft px-2 py-0.5 text-sm font-semibold text-brand-strong">
+                        Pengguna
+                      </span>
+                    ) : (
+                      formatSource(c.source_reference, c.source_type, c.week, c.page)
+                    )}
+                  </td>
+
+                  <td className="px-4 py-3.5 align-top">
+                    <VerificationChip c={c} />
+                  </td>
+                  <td className="px-4 py-3.5 align-top">
+                    <ReviewChip c={c} />
+                  </td>
+
+                  <td className="px-4 py-3.5 align-top">
+                    <div className="flex items-center justify-center gap-1.5">
+                      <button
+                        type="button"
+                        title={copy.rpsDetail.review.approve}
+                        aria-label={`${copy.rpsDetail.review.approve} ${c.skill}`}
+                        disabled={c.review_status === 'confirmed'}
+                        onClick={() => onApprove(c.id)}
+                        className={`${ACTION_BASE} size-11`}
+                      >
+                        <Check className="size-4" aria-hidden="true" />
+                      </button>
+                      <button
+                        type="button"
+                        title={copy.rpsDetail.review.edit}
+                        aria-label={`${copy.rpsDetail.review.edit} ${c.skill}`}
+                        onClick={() => setEditingId(c.id)}
+                        className={`${ACTION_BASE} size-11`}
+                      >
+                        <Pencil className="size-4" aria-hidden="true" />
+                      </button>
+                      <button
+                        type="button"
+                        title={rejectLabel(c)}
+                        aria-label={`${rejectLabel(c)} ${c.skill}`}
+                        disabled={c.origin !== 'user' && c.review_status === 'rejected'}
+                        onClick={() => (c.origin === 'user' ? onDelete(c.id) : onReject(c.id))}
+                        className={`${ACTION_BASE} size-11`}
+                      >
+                        {c.origin === 'user' ? (
+                          <Trash2 className="size-4" aria-hidden="true" />
+                        ) : (
+                          <X className="size-4" aria-hidden="true" />
+                        )}
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))
             )}
           </tbody>
         </table>
       </div>
 
-      {/* Mobile Cards View (< md) */}
-      <div className="md:hidden"><div className="flex flex-col gap-3">
+      {/* Kartu mobile (< md): kutipan dilipat, aksi satu baris */}
+      <div className="flex flex-col gap-3 md:hidden">
+        {filtered.length === 0 && (
+          <p className="rounded-lg border border-dashed border-border-warm bg-white p-6 text-center text-sm text-text-secondary">
+            {copy.rpsDetail.review.noMatch}
+          </p>
+        )}
         {filtered.map((c) => (
-          <div
-            key={c.id}
-            className="flex flex-col gap-3 rounded-lg border border-border-warm bg-white p-4"
-          >
-            <div className="flex items-start justify-between gap-2">
-              <div className="flex flex-col">
-                <span className="font-bold text-text-primary">{c.skill}</span>
-                <span className="text-sm text-text-secondary">
-                  {categoryLabel(c.category)}
-                </span>
-              </div>
-
-              {c.verification_status === 'verified' ? (
-                <span className="inline-flex items-center gap-1 whitespace-nowrap rounded-md bg-success-soft px-2 py-0.5 text-sm font-semibold text-success">
-                  <Check className="size-3" />
-                  {copy.rpsDetail.review.verifiedChip}
-                </span>
-              ) : (
-                <span className="inline-flex items-center gap-1 whitespace-nowrap rounded-md bg-danger-soft px-2 py-0.5 text-sm font-semibold text-danger">
-                  <Minus className="size-3" />
-                  {copy.rpsDetail.review.unverifiedChip}
-                </span>
-              )}
+          <article key={c.id} className="flex flex-col gap-2 rounded-lg border border-border-warm bg-white p-3">
+            <div className="flex flex-col">
+              <h3 className="font-bold text-text-primary">{c.skill}</h3>
+              <span className="text-sm text-text-secondary">{categoryLabel(c.category)}</span>
             </div>
 
-            <p className="text-sm text-text-primary leading-relaxed">{c.competency}</p>
+            {editingId === c.id ? (
+              renderEditor(c, 'mobile')
+            ) : (
+              <>
+                <p className="text-sm leading-relaxed text-text-primary">{c.competency}</p>
 
-            {c.evidence && (
-              <div className="flex items-start gap-2 rounded-lg bg-surface-subtle p-2.5 text-sm italic text-text-secondary">
-                <Quote className="size-3.5 shrink-0 text-brand-accent mt-0.5" />
-                <p>“{c.evidence}”</p>
-              </div>
-            )}
+                <div className="flex flex-wrap items-center gap-1.5">
+                  <VerificationChip c={c} />
+                  <ReviewChip c={c} />
+                </div>
 
-            <div className="flex items-center justify-between pt-2 border-t border-border-warm/60">
-              <span className="text-sm text-text-secondary">
-                {c.origin === 'user' ? 'Kompetensi pengguna' : sourceReferenceLabel(c.source_reference, c.source_type)}
-              </span>
-
-              <div className="flex items-center gap-1.5">
-                <button
-                  type="button"
-                  onClick={() => onApprove(c.id)}
-                  className="rounded-lg bg-success-soft inline-flex min-h-11 items-center px-3 text-sm font-semibold text-success"
-                >
-                  Setujui
-                </button>
-                <button
-                  type="button"
-                  onClick={() => startEdit(c)}
-                  className="rounded-lg border border-border-warm inline-flex min-h-11 items-center px-3 text-sm font-semibold text-text-secondary"
-                >
-                  Edit
-                </button>
-                {c.origin === 'user' ? (
-                  <button
-                    type="button"
-                    onClick={() => onDelete(c.id)}
-                    className="rounded-lg bg-danger-soft inline-flex min-h-11 items-center px-3 text-sm font-semibold text-danger"
-                  >
-                    Hapus
-                  </button>
-                ) : (
-                  <button
-                    type="button"
-                    onClick={() => onReject(c.id)}
-                    className="rounded-lg bg-danger-soft inline-flex min-h-11 items-center px-3 text-sm font-semibold text-danger"
-                  >
-                    Tolak
-                  </button>
+                {c.evidence && (
+                  <details className="group rounded-lg bg-surface-subtle">
+                    <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-2 px-3 text-sm font-semibold text-text-primary">
+                      {copy.rpsDetail.review.showEvidence}
+                      <ChevronDown
+                        className="size-4 transition-transform group-open:rotate-180"
+                        aria-hidden="true"
+                      />
+                    </summary>
+                    <p className="px-3 pb-3 text-sm italic text-text-secondary">“{c.evidence}”</p>
+                  </details>
                 )}
-              </div>
-            </div>
-          </div>
+
+                <p className="text-sm text-text-secondary">
+                  {c.origin === 'user'
+                    ? copy.rpsDetail.review.userCompetency
+                    : formatSource(c.source_reference, c.source_type, c.week, c.page)}
+                </p>
+
+                <div className="grid grid-cols-3 gap-2">
+                  <button
+                    type="button"
+                    aria-label={`${copy.rpsDetail.review.approve} ${c.skill}`}
+                    disabled={c.review_status === 'confirmed'}
+                    onClick={() => onApprove(c.id)}
+                    className={`${ACTION_BASE} min-h-11`}
+                  >
+                    {copy.rpsDetail.review.approve}
+                  </button>
+                  <button
+                    type="button"
+                    aria-label={`${copy.rpsDetail.review.edit} ${c.skill}`}
+                    onClick={() => setEditingId(c.id)}
+                    className={`${ACTION_BASE} min-h-11`}
+                  >
+                    {copy.rpsDetail.review.edit}
+                  </button>
+                  <button
+                    type="button"
+                    aria-label={`${rejectLabel(c)} ${c.skill}`}
+                    disabled={c.origin !== 'user' && c.review_status === 'rejected'}
+                    onClick={() => (c.origin === 'user' ? onDelete(c.id) : onReject(c.id))}
+                    className={`${ACTION_BASE} min-h-11`}
+                  >
+                    {rejectLabel(c)}
+                  </button>
+                </div>
+              </>
+            )}
+          </article>
         ))}
-        </div>
       </div>
 
-      {/* Confirmation Bottom Bar */}
-      <div className="sticky bottom-0 z-10 -mx-4 flex flex-col gap-2 border-t border-border-warm bg-white p-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] sm:static sm:mx-0 sm:gap-3 sm:rounded-xl sm:border sm:p-5 md:flex-row md:items-center md:justify-between">
-        <div className="flex flex-col gap-0.5">
-          <span className="text-sm font-bold text-text-primary">
-            {pendingCount > 0
-              ? `${pendingCount} ${copy.rpsDetail.review.confirmTitle}`
-              : 'Semua kompetensi telah ditinjau'}
-          </span>
-          {pendingCount > 0 && (
-            <p className="text-sm leading-snug text-text-secondary">
-              {copy.rpsDetail.review.confirmNote}
-            </p>
-          )}
-        </div>
+      {/* Bilah konfirmasi */}
+      <div ref={barRef} className="sticky bottom-0 z-10 -mx-4 flex flex-col gap-2 border-t border-border-warm bg-white p-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] sm:static sm:mx-0 sm:gap-3 sm:rounded-xl sm:border sm:p-5 md:flex-row md:items-center md:justify-between">
+        <p className="text-sm font-bold text-text-primary">
+          {pendingCount > 0 ? copy.rpsDetail.review.pendingSummary(pendingCount) : copy.rpsDetail.review.allReviewed}
+        </p>
 
-        <div className="flex items-center gap-3">
-          {isConfirmedAll ? (
-            <Link
-              to={`/analyses/new?rps=${documentId}`}
-              className="flex h-11 items-center justify-center rounded-lg bg-brand px-6 text-sm font-bold text-white shadow hover:bg-brand-hover transition-colors"
-            >
-              {copy.rpsDetail.review.goToMapping}
-            </Link>
-          ) : (
+        {isConfirmedAll ? (
+          <Link
+            to={`/analyses/new?rps=${documentId}`}
+            className="flex min-h-11 w-full items-center justify-center rounded-lg bg-brand px-6 text-center text-sm font-bold text-white transition-colors hover:bg-brand-hover md:w-auto"
+          >
+            {copy.rpsDetail.review.goToMapping}
+          </Link>
+        ) : pendingCount > 0 ? (
+          <div className="flex w-full md:w-auto">
             <Button
               type="button"
               disabled={isConfirming}
-              onClick={() => onConfirmAll(pendingCount > 0)}
-              className="h-11 w-full bg-brand px-6 text-sm font-bold text-white hover:bg-brand-hover sm:w-auto"
+              onClick={() => setBulk('all')}
+              className="min-h-11 w-full bg-brand px-6 text-sm font-bold text-white hover:bg-brand-hover md:w-auto"
             >
-              {isConfirming
-                ? 'Menyimpan Konfirmasi…'
-                : copy.rpsDetail.review.confirmAllBtn}
+              {isConfirming ? copy.rpsDetail.review.confirming : copy.rpsDetail.review.approveAllBtn(pendingCount)}
             </Button>
-          )}
-        </div>
+
+          </div>
+        ) : (
+          <Button
+            type="button"
+            disabled={isConfirming}
+            onClick={() => onConfirmAll(false)}
+            className="min-h-11 w-full bg-brand px-6 text-sm font-bold text-white hover:bg-brand-hover md:w-auto"
+          >
+            {isConfirming ? copy.rpsDetail.review.confirming : copy.rpsDetail.review.goToMapping}
+          </Button>
+        )}
       </div>
+
+      {bulk && (
+        <ModalDialog
+          title={
+            bulk === 'all'
+              ? copy.rpsDetail.review.bulkAllTitle(pendingCount)
+              : copy.rpsDetail.review.bulkVerifiedTitle(pendingVerified.length)
+          }
+          onClose={() => !isBulkRunning && setBulk(null)}
+          showClose={false}
+        >
+          <p className="text-sm leading-relaxed text-text-primary">
+            {bulk === 'all'
+              ? copy.rpsDetail.review.bulkAllBody(pendingCount, pendingUnverifiedCount)
+              : copy.rpsDetail.review.bulkVerifiedBody(pendingVerified.length, pendingCount - pendingVerified.length)}
+          </p>
+          {bulkError && <StatusNotice variant="error">{copy.rpsDetail.review.bulkFailed}</StatusNotice>}
+          <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+            <Button
+              type="button"
+              variant="outline"
+              data-autofocus
+              disabled={isBulkRunning}
+              onClick={() => setBulk(null)}
+              className="h-11 w-full px-5 sm:w-auto"
+            >
+              {copy.rpsDetail.review.bulkCancel}
+            </Button>
+            <Button
+              type="button"
+              disabled={isBulkRunning}
+              onClick={() => void runBulk()}
+              className="h-11 w-full bg-brand px-5 text-white hover:bg-brand-hover sm:w-auto"
+            >
+              {copy.rpsDetail.review.bulkApprove}
+            </Button>
+          </div>
+        </ModalDialog>
+      )}
     </div>
   )
 }

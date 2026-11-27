@@ -13,7 +13,9 @@ import {
   useMe,
   useRpsDetail,
 } from '@/lib/query/hooks'
+import { normalizeCourseCode, toDisplayTitle } from '@/lib/labels'
 import { usePageTitle } from '@/lib/usePageTitle'
+import { useStickyInset } from '@/lib/useStickyInset'
 import { copy } from '@/lib/copy'
 import type { Career } from '@/types/api'
 
@@ -34,7 +36,7 @@ function CareerCard({ career, isSelected, reason, onSelect }: CareerCardProps) {
           : isSelected
             ? 'cursor-pointer border-brand bg-brand-soft/30'
             : 'cursor-pointer border-border-warm bg-white hover:border-brand/60'
-      } has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-brand-accent/40`}
+      } focus-within:ring-2 focus-within:ring-brand-accent focus-within:ring-offset-1`}
     >
       <input
         type="radio"
@@ -94,6 +96,7 @@ export function AnalysesNewPage() {
   const [othersOpen, setOthersOpen] = useState<boolean | null>(null)
   const [careerQuery, setCareerQuery] = useState('')
   const [skillsOpen, setSkillsOpen] = useState(false)
+  const barRef = useStickyInset('bottom', '(min-width: 640px)')
 
   // Suggested professions come first, in the order the server ranked them.
   const suggestionByCareer = new Map((suggestions?.items ?? []).map((s, i) => [s.career_id, { ...s, rank: i + 1 }]))
@@ -163,7 +166,7 @@ export function AnalysesNewPage() {
     document?.original_name ||
     ''
   const courseCode =
-    document?.course?.code || document?.detected_metadata?.code || ''
+    normalizeCourseCode(document?.course?.code || document?.detected_metadata?.code)
 
   return (
     <div className="flex min-h-svh flex-col bg-background">
@@ -174,7 +177,7 @@ export function AnalysesNewPage() {
           <div className="flex items-center gap-3">
             <Link
               to={`/rps/${rpsId}`}
-              className="flex size-11 shrink-0 items-center justify-center rounded-full border border-border-warm bg-white text-text-primary hover:bg-surface-subtle active:bg-surface-subtle sm:size-9"
+              className="flex size-11 shrink-0 items-center justify-center rounded-full border border-border-warm bg-white text-text-primary hover:bg-surface-subtle active:bg-surface-subtle"
               aria-label="Kembali"
             >
               <ArrowLeft className="size-4" />
@@ -184,7 +187,7 @@ export function AnalysesNewPage() {
                 {copy.analysesNew.pageTitle}
               </h1>
               <span className="text-sm text-text-secondary">
-                {courseDisplayName}
+                {toDisplayTitle(courseDisplayName)}
                 {courseCode ? ` · ${courseCode}` : ''}
               </span>
             </div>
@@ -208,9 +211,13 @@ export function AnalysesNewPage() {
           </div>
 
           {suggestions?.status === 'processing' && (
-            <p role="status" className="rounded-lg bg-surface-subtle p-3 text-sm text-text-secondary">
-              {copy.analysesNew.suggestionsLoading}
-            </p>
+            <div role="status" aria-live="polite" className="flex flex-col gap-2 rounded-lg bg-surface-subtle p-3">
+              <p className="text-sm font-semibold text-text-primary">{copy.analysesNew.suggestionsLoading}</p>
+              <div aria-hidden="true" className="flex flex-col gap-2">
+                <div className="h-3 w-3/4 animate-pulse rounded bg-progress-track motion-reduce:animate-none" />
+                <div className="h-3 w-1/2 animate-pulse rounded bg-progress-track motion-reduce:animate-none" />
+              </div>
+            </div>
           )}
 
           {isCareersLoading ? (
@@ -320,7 +327,7 @@ export function AnalysesNewPage() {
           </div>
         )}
 
-        <div className="sticky bottom-0 z-10 -mx-4 flex flex-col gap-2 border-t border-border-warm bg-white px-4 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] sm:static sm:mx-0 sm:flex-row sm:items-center sm:justify-between sm:gap-3 sm:rounded-xl sm:border sm:p-5">
+        <div ref={barRef} className="sticky bottom-0 z-10 -mx-4 flex flex-col gap-2 border-t border-border-warm bg-white px-4 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] sm:static sm:mx-0 sm:flex-row sm:items-center sm:justify-between sm:gap-3 sm:rounded-xl sm:border sm:p-5">
           <p className="text-sm font-semibold text-text-primary">
             {selectedCareer
               ? copy.analysesNew.selectedSummary(selectedCareer.name, selectedCareer.eligible_job_count)

@@ -4,6 +4,7 @@ import { DashboardTopbar } from '@/components/dashboard/DashboardTopbar'
 import { RpsHeader } from '@/components/rps/RpsHeader'
 import { MetadataPanel } from '@/components/rps/MetadataPanel'
 import { CompetencyReviewTable } from '@/components/rps/CompetencyReviewTable'
+import { StatusNotice } from '@/components/common/StatusNotice'
 import {
   useCompetenciesList,
   useConfirmReview,
@@ -18,6 +19,10 @@ import {
 import { usePageTitle } from '@/lib/usePageTitle'
 import { copy } from '@/lib/copy'
 import { ApiRequestError } from '@/lib/api/client'
+
+function messageFrom(err: unknown, fallback: string): string {
+  return err instanceof ApiRequestError && err.body.message ? err.body.message : fallback
+}
 
 export function RpsDetailPage() {
   usePageTitle('Detail RPS')
@@ -39,7 +44,10 @@ export function RpsDetailPage() {
   const createCompetency = useCreateCompetency()
   const confirmReview = useConfirmReview()
 
-  const [notification, setNotification] = useState<{ type: 'success' | 'error'; message: string } | null>(null)
+  const [errorNotice, setErrorNotice] = useState<string | null>(null)
+  // Hanya sesi yang memulai ekstraksi melihat ringkasan "Ekstraksi selesai"; ia hilang saat tahap berganti.
+  const [startedExtraction, setStartedExtraction] = useState(false)
+  const [doneDismissed, setDoneDismissed] = useState(false)
 
   function handleLogout() {
     logout.mutate(undefined, {
@@ -93,8 +101,7 @@ export function RpsDetailPage() {
 
   // Menentukan tahap aktif dari status dokumen
   const isConfirmed = document.review_status === 'confirmed'
-  const defaultStep = isConfirmed ? 3 : isExtracted ? 2 : 1
-  const currentStep = defaultStep
+  const currentStep = isConfirmed ? 3 : isExtracted ? 2 : 1
 
   // Parsing PDF dan ekstraksi metadata AI adalah satu penantian yang sama bagi pengguna.
   const isPreparingMetadata =
@@ -104,6 +111,9 @@ export function RpsDetailPage() {
       document.detected_metadata === null &&
       document.error_message === null)
 
+  const pendingCount = competencies.filter((c) => c.review_status === 'pending').length
+  const showExtractionDone = startedExtraction && currentStep === 2 && !doneDismissed
+
   return (
     <div className="flex min-h-svh flex-col bg-background">
       <DashboardTopbar user={user} onLogout={handleLogout} />
@@ -111,35 +121,31 @@ export function RpsDetailPage() {
       <main className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-3 px-4 py-3 sm:gap-6 sm:py-6 md:px-8 md:py-8">
         <RpsHeader document={document} currentStep={currentStep} />
 
-        {notification && (
-          <div
-            className={`shrink-0 rounded-lg px-4 py-3 text-sm font-semibold ${
-              notification.type === 'success'
-                ? 'bg-success/15 text-success'
-                : 'bg-danger/15 text-danger'
-            }`}
-          >
-            {notification.message}
-          </div>
+        {errorNotice && (
+          <StatusNotice variant="error" onDismiss={() => setErrorNotice(null)}>
+            {errorNotice}
+          </StatusNotice>
         )}
 
-        {/* TAHAP 0: Form Koreksi Metadata */}
+        {showExtractionDone && (
+          <StatusNotice variant="success" onDismiss={() => setDoneDismissed(true)}>
+            {copy.rpsDetail.metadata.extractionDone(pendingCount)}
+          </StatusNotice>
+        )}
+
         {currentStep === 1 ? (
           <MetadataPanel
             document={document}
             onSaveMetadata={(payload) => updateMetadata.mutateAsync({ id: rpsId, payload })}
             onStartExtraction={() => {
+              setErrorNotice(null)
               startExtraction.mutate(rpsId, {
                 onSuccess: () => {
-                  setNotification({
-                    type: 'success',
-                    message: 'Proses ekstraksi kompetensi dimulai. Halaman akan memperbarui status secara otomatis.',
-                  })
+                  setStartedExtraction(true)
+                  setDoneDismissed(false)
                 },
-                onError: (err: unknown) => {
-                  const msg = (err as { body?: { message?: string } })?.body?.message || 'Gagal memulai ekstraksi.'
-                  setNotification({ type: 'error', message: msg })
-                },
+                onError: (err: unknown) =>
+                  setErrorNotice(messageFrom(err, copy.rpsDetail.metadata.startFailed)),
               })
             }}
             isSaving={updateMetadata.isPending}
@@ -147,7 +153,6 @@ export function RpsDetailPage() {
             isPreparing={isPreparingMetadata}
           />
         ) : (
-          /* TAHAP 1: Tabel Tinjauan Kompetensi */
           <CompetencyReviewTable
             documentId={rpsId}
             competencies={competencies}
@@ -157,6 +162,17 @@ export function RpsDetailPage() {
                 competencyId: cid,
                 payload: { review_status: 'confirmed' },
               })
+            }
+            onApproveMany={(ids) =>
+              Promise.all(
+                ids.map((cid) =>
+                  updateCompetency.mutateAsync({
+                    docId: rpsId,
+                    competencyId: cid,
+                    payload: { review_status: 'confirmed' },
+                  })
+                )
+              )
             }
             onReject={(cid) =>
               updateCompetency.mutate({
@@ -173,29 +189,21 @@ export function RpsDetailPage() {
               })
             }
             onEdit={(cid, skill, competency) =>
-              updateCompetency.mutate({
+              updateCompetency.mutateAsync({
                 docId: rpsId,
                 competencyId: cid,
                 payload: { skill, competency },
               })
             }
-            onCreate={(payload) =>
-              createCompetency.mutate({ id: rpsId, payload })
-            }
+            onCreate={(payload) => createCompetency.mutateAsync({ id: rpsId, payload })}
             onConfirmAll={(confirmAllPending) => {
+              setErrorNotice(null)
               confirmReview.mutate(
                 { id: rpsId, confirmAllPending },
                 {
-                  onSuccess: () => {
-                    setNotification({
-                      type: 'success',
-                      message: 'Seluruh hasil review kompetensi telah dikonfirmasi! Anda dapat melanjutkan ke Pemetaan Industri.',
-                    })
-                  },
-                  onError: (err: unknown) => {
-                    const msg = (err as { body?: { message?: string } })?.body?.message || 'Gagal mengonfirmasi review.'
-                    setNotification({ type: 'error', message: msg })
-                  },
+                  onSuccess: () => navigate(`/analyses/new?rps=${rpsId}`),
+                  onError: (err: unknown) =>
+                    setErrorNotice(messageFrom(err, 'Gagal mengonfirmasi tinjauan.')),
                 }
               )
             }}

@@ -72,6 +72,17 @@ export function useUploadRps() {
   })
 }
 
+/** Menghapus dokumen beserta PDF-nya; analisis yang memakai dokumen ikut terhapus di server. */
+export function useDeleteRps() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (id: number) => rpsApi.remove(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.rps })
+      queryClient.invalidateQueries({ queryKey: queryKeys.analyses })
+    },
+  })
+}
 export function useRpsDetail(id: number) {
   return useQuery({
     queryKey: queryKeys.rpsDetail(id),

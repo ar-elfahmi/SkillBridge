@@ -26,7 +26,8 @@ export function ProfilePage() {
   const removeSkill = useRemoveMySkill()
 
   const [value, setValue] = useState('')
-  const [level, setLevel] = useState<SkillLevel>('intermediate')
+  // Kosong = belum dipilih; server mencatat Menengah bila tingkat tidak dikirim.
+  const [level, setLevel] = useState<SkillLevel | ''>('')
   const [status, setStatus] = useState('')
   const [undoSkill, setUndoSkill] = useState<{ skill: string; level: SkillLevel } | null>(null)
   const inputRef = useRef<HTMLInputElement>(null)
@@ -49,7 +50,7 @@ export function ProfilePage() {
     const trimmed = value.trim()
     if (!trimmed) return
     addSkill.mutate(
-      { skill: trimmed, level },
+      level ? { skill: trimmed, level } : { skill: trimmed },
       {
         onSuccess: () => {
           setValue('')
@@ -90,7 +91,7 @@ export function ProfilePage() {
           <Link
             to="/dashboard"
             aria-label={copy.dashboard.nav.home}
-            className="flex size-11 shrink-0 items-center justify-center rounded-full border border-border-warm bg-white text-text-primary transition-colors hover:bg-surface-subtle active:bg-surface-subtle sm:size-10"
+            className="flex size-11 shrink-0 items-center justify-center rounded-full border border-border-warm bg-white text-text-primary transition-colors hover:bg-surface-subtle active:bg-surface-subtle"
           >
             <ArrowLeft className="size-4" aria-hidden="true" />
           </Link>
@@ -114,7 +115,7 @@ export function ProfilePage() {
           <button
             type="button"
             onClick={handleLogout}
-            className="flex min-h-11 items-center gap-1.5 rounded-lg border border-border-warm px-4 text-sm font-semibold text-text-secondary active:bg-danger/10 sm:min-h-9 sm:px-3 transition-colors hover:border-danger/40 hover:bg-danger/10 hover:text-danger"
+            className="flex min-h-11 items-center gap-1.5 rounded-lg border border-border-warm px-4 text-sm font-semibold text-text-secondary active:bg-danger/10 sm:px-3 transition-colors hover:border-danger/40 hover:bg-danger/10 hover:text-danger"
           >
             <LogOut className="size-3.5" aria-hidden="true" />
             {copy.profile.logout}
@@ -150,9 +151,10 @@ export function ProfilePage() {
               <select
                 aria-label={copy.profile.colLevel}
                 value={level}
-                onChange={(e) => setLevel(e.target.value as SkillLevel)}
+                onChange={(e) => setLevel(e.target.value as SkillLevel | '')}
                 className="h-11 rounded-lg border border-field bg-white px-2 text-base font-semibold md:text-sm text-text-primary outline-none focus-visible:border-brand-accent focus-visible:ring-2 focus-visible:ring-brand-accent/40"
               >
+                <option value="">{copy.profile.levelPlaceholder}</option>
                 {(['beginner', 'intermediate', 'advanced'] as const).map((l) => (
                   <option key={l} value={l}>
                     {copy.analysesResult.levelOptions[l]}
@@ -169,6 +171,8 @@ export function ProfilePage() {
               </Button>
             </div>
           </form>
+
+          <p className="text-sm text-text-secondary">{copy.profile.levelDefaultNote}</p>
 
           <div role="status" aria-live="polite" className="flex min-h-5 flex-wrap items-center gap-2 text-sm text-text-secondary">
             {status && <span>{status}</span>}

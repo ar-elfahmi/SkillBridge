@@ -88,11 +88,36 @@ describe('ProfilePage', () => {
     renderPage()
 
     const input = await screen.findByLabelText('Nama skill')
+    expect((screen.getByLabelText('Tingkat') as HTMLSelectElement).value).toBe('')
+    expect(screen.getByRole('option', { name: 'Pilih tingkat' })).toBeInTheDocument()
     fireEvent.change(input, { target: { value: 'Figma' } })
     fireEvent.click(screen.getByRole('button', { name: 'Tambah skill' }))
 
     await waitFor(() => {
-      expect(meApi.addSkill).toHaveBeenCalledWith({ skill: 'Figma', level: 'intermediate' })
+      expect(meApi.addSkill).toHaveBeenCalledWith({ skill: 'Figma' })
+    })
+  })
+
+  it('mengirim tingkat yang dipilih pengguna', async () => {
+    vi.mocked(meApi.addSkill).mockResolvedValue({
+      data: {
+        id: 4,
+        skill_id: 13,
+        skill: 'Figma',
+        canonical_skill: 'Figma',
+        reported_as: null,
+        level: 'advanced',
+        created_at: '',
+      },
+    })
+    renderPage()
+
+    fireEvent.change(await screen.findByLabelText('Nama skill'), { target: { value: 'Figma' } })
+    fireEvent.change(screen.getByLabelText('Tingkat'), { target: { value: 'advanced' } })
+    fireEvent.click(screen.getByRole('button', { name: 'Tambah skill' }))
+
+    await waitFor(() => {
+      expect(meApi.addSkill).toHaveBeenCalledWith({ skill: 'Figma', level: 'advanced' })
     })
   })
 

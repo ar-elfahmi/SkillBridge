@@ -91,7 +91,7 @@ export function DashboardTopbar({ user, onLogout, onSearch }: DashboardTopbarPro
             aria-label={copy.dashboard.profileMenuLabel}
             className="flex shrink-0 items-center gap-2.5 rounded-full bg-white p-1 transition-colors hover:bg-surface-subtle md:pr-3.5"
           >
-            <span className="flex size-11 shrink-0 items-center justify-center rounded-full bg-brand sm:size-10 text-sm font-bold text-white shadow-sm ring-brand-accent/30 transition-shadow hover:ring-2">
+            <span className="flex size-11 shrink-0 items-center justify-center rounded-full bg-brand text-sm font-bold text-white shadow-sm ring-brand-accent/30 transition-shadow hover:ring-2">
               {initials}
             </span>
             <span className="hidden min-w-0 flex-col items-start leading-tight md:flex">

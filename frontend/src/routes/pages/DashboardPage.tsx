@@ -1,15 +1,17 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { DashboardTopbar } from '@/components/dashboard/DashboardTopbar'
 import { AiQuotaBanner } from '@/components/common/AiQuotaBanner'
 import { UploadRpsHero } from '@/components/dashboard/UploadRpsHero'
 import { DashboardStats } from '@/components/dashboard/DashboardStats'
 import { AnalyzedRpsSection } from '@/components/dashboard/AnalyzedRpsSection'
+import { DeleteRpsDialog } from '@/components/dashboard/DeleteRpsDialog'
+import { StatusNotice } from '@/components/common/StatusNotice'
 import { DashboardSidebar } from '@/components/dashboard/DashboardSidebar'
 import {
   useAnalysesList,
   useCareersList,
-  useJobsList,
+  useDeleteRps,
   useLogout,
   useMe,
   useMySkills,
@@ -17,8 +19,12 @@ import {
   useUploadRps,
 } from '@/lib/query/hooks'
 import { ApiRequestError } from '@/lib/api/client'
+import { rpsApi } from '@/lib/api/endpoints'
 import { usePageTitle } from '@/lib/usePageTitle'
 import { copy } from '@/lib/copy'
+import { toDisplayTitle } from '@/lib/labels'
+
+const DELETED_NOTICE_MS = 5000
 
 export function DashboardPage() {
   usePageTitle('Beranda')
@@ -29,13 +35,45 @@ export function DashboardPage() {
   const { data: rpsList = [], isLoading: isRpsLoading } = useRpsList()
   const { data: analysesList = [] } = useAnalysesList()
   const { data: careersList = [] } = useCareersList()
-  const { data: jobsList = [] } = useJobsList()
   const { data: mySkills = [] } = useMySkills()
   const uploadRps = useUploadRps()
+  const deleteRps = useDeleteRps()
+  // Tombol hapus hanya ada bila fungsi API-nya tersedia, agar tidak ada kontrol yang tidak berfungsi.
+  const canDelete = typeof rpsApi.remove === 'function'
+  const [toDelete, setToDelete] = useState<{ id: number; name: string } | null>(null)
+  const [deleteFailed, setDeleteFailed] = useState(false)
+  const [deletedNotice, setDeletedNotice] = useState(false)
+  const noticeRef = useRef<HTMLDivElement>(null)
 
   const [uploadError, setUploadError] = useState<string | null>(null)
   const [duplicateId, setDuplicateId] = useState<number | null>(null)
   const [searchQuery, setSearchQuery] = useState('')
+
+  // Banner konfirmasi hilang sendiri; tombol tutup tetap tersedia.
+  useEffect(() => {
+    if (!deletedNotice) return
+    const timer = setTimeout(() => setDeletedNotice(false), DELETED_NOTICE_MS)
+    return () => clearTimeout(timer)
+  }, [deletedNotice])
+
+  function finishDelete() {
+    setToDelete(null)
+    setDeletedNotice(true)
+    setTimeout(() => noticeRef.current?.focus(), 0)
+  }
+
+  function confirmDelete() {
+    if (!toDelete) return
+    setDeleteFailed(false)
+    deleteRps.mutate(toDelete.id, {
+      onSuccess: finishDelete,
+      onError: (err) => {
+        // 404 berarti dokumen sudah tidak ada: hasil akhirnya sama dengan terhapus.
+        if (err instanceof ApiRequestError && err.status === 404) finishDelete()
+        else setDeleteFailed(true)
+      },
+    })
+  }
 
   function handleLogout() {
     logout.mutate(undefined, {
@@ -57,8 +95,11 @@ export function DashboardPage() {
         if (err instanceof ApiRequestError) {
           if (err.status === 409) {
             const existingId = (err.body as { existing_id?: number }).existing_id
-            if (existingId) setDuplicateId(existingId)
-            setUploadError(copy.dashboard.uploadDuplicate)
+            if (existingId) {
+              setDuplicateId(existingId)
+              return
+            }
+            setUploadError(copy.dashboard.uploadDuplicate(null))
             return
           }
           if (err.status === 413) {
@@ -74,6 +115,25 @@ export function DashboardPage() {
       },
     })
   }
+
+  const duplicateDoc = duplicateId ? rpsList.find((d) => d.id === duplicateId) : undefined
+  const duplicateNotice = duplicateId
+    ? {
+        message: copy.dashboard.uploadDuplicate(
+          duplicateDoc
+            ? toDisplayTitle(
+                duplicateDoc.course?.name || duplicateDoc.detected_metadata?.name || duplicateDoc.original_name
+              )
+            : null
+        ),
+        action: (
+          <Link to={`/rps/${duplicateId}`} className="inline-flex min-h-11 items-center underline">
+            {copy.dashboard.openExisting}
+          </Link>
+        ),
+        onDismiss: () => setDuplicateId(null),
+      }
+    : null
 
   // Filter RPS berdasarkan search bar
   const filteredRps = rpsList.filter((doc) => {
@@ -91,7 +151,7 @@ export function DashboardPage() {
     (acc, a) => acc + (a.summary?.missing ?? 0),
     0
   )
-  const matchedJobsCount = jobsList.length
+  const matchedJobsCount = careersList.reduce((acc, c) => acc + c.eligible_job_count, 0)
   const careersCount = careersList.length
 
   return (
@@ -111,20 +171,18 @@ export function DashboardPage() {
               {notice}
             </p>
           )}
+          <div ref={noticeRef} tabIndex={-1} className="outline-none empty:hidden">
+            {deletedNotice && (
+              <StatusNotice variant="success" onDismiss={() => setDeletedNotice(false)}>
+                {copy.dashboard.deleteDoc.done}
+              </StatusNotice>
+            )}
+          </div>
           <UploadRpsHero
             onFileSelect={handleFileUpload}
             isPending={uploadRps.isPending}
             error={uploadError}
-            errorAction={
-              duplicateId ? (
-                <Link
-                  to={`/rps/${duplicateId}`}
-                  className="inline-flex min-h-11 items-center underline"
-                >
-                  {copy.dashboard.openExisting}
-                </Link>
-              ) : undefined
-            }
+            notice={duplicateNotice}
           />
 
           <DashboardStats
@@ -140,6 +198,15 @@ export function DashboardPage() {
             isLoading={isRpsLoading}
             searchQuery={searchQuery.trim()}
             onClearSearch={() => setSearchQuery('')}
+            onDelete={
+              canDelete
+                ? (doc, name) => {
+                    setDeleteFailed(false)
+                    setDeletedNotice(false)
+                    setToDelete({ id: doc.id, name })
+                  }
+                : undefined
+            }
           />
         </div>
 
@@ -150,6 +217,16 @@ export function DashboardPage() {
           skills={mySkills}
         />
       </main>
+
+      {toDelete && (
+        <DeleteRpsDialog
+          name={toDelete.name}
+          isPending={deleteRps.isPending}
+          hasError={deleteFailed}
+          onConfirm={confirmDelete}
+          onCancel={() => setToDelete(null)}
+        />
+      )}
 
       <footer className="flex h-14 shrink-0 items-center justify-center border-t border-border-warm px-4 md:justify-start md:px-8">
         <p className="text-xs font-medium text-text-secondary">{copy.footerBrand}</p>

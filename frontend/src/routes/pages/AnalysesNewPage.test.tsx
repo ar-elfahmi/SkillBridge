@@ -129,7 +129,7 @@ describe('AnalysesNewPage', () => {
 
     renderAnalysesNew()
 
-    expect(await screen.findByText('Menyiapkan saran profesi untuk RPS Anda…')).toBeInTheDocument()
+    expect(await screen.findByText('Menyiapkan saran profesi…')).toBeInTheDocument()
     expect(screen.getByRole('radio', { name: /Frontend Developer/ })).toBeChecked()
   })
 
