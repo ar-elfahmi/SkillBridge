@@ -250,7 +250,7 @@ export function AnalysesResultPage() {
         ) : tab === 'summary' ? (
           <CoverageSummary analysis={analysis} onViewGap={() => setTab('skillGap')} />
         ) : tab === 'skillGap' ? (
-          <SkillGapTable matches={matches} isLoading={isMatchesLoading} />
+          <SkillGapTable matches={matches} isLoading={isMatchesLoading} jobCount={analysis?.job_count} />
         ) : (
           <div className="flex flex-col gap-4">
             {recoStale && (

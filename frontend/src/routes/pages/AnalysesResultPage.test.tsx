@@ -27,6 +27,8 @@ const mockUser: User = {
 
 const mockAnalysis: Analysis = {
   analysis_id: 101,
+  rps_document_id: 1,
+  job_count: 2,
   status: 'completed',
   career: 'Frontend Developer',
   course: 'Pemrograman Web',

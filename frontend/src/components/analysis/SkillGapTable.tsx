@@ -12,6 +12,7 @@ import { useIsMobile } from '@/lib/useMediaQuery'
 interface SkillGapTableProps {
   matches: SkillMatch[]
   isLoading: boolean
+  jobCount?: number
 }
 
 type Filter = 'all' | Classification
@@ -50,7 +51,7 @@ function WeakMatch() {
   )
 }
 
-export function SkillGapTable({ matches, isLoading }: SkillGapTableProps) {
+export function SkillGapTable({ matches, isLoading, jobCount }: SkillGapTableProps) {
   const isMobile = useIsMobile()
   const [search, setSearch] = useState('')
   const [filter, setFilter] = useState<Filter>('all')
@@ -96,7 +97,7 @@ export function SkillGapTable({ matches, isLoading }: SkillGapTableProps) {
     .sort((a, b) => b.m.demand_count - a.m.demand_count || a.index - b.index)
     .map(({ m }) => m)
 
-  const maxDemand = matches.reduce((max, m) => Math.max(max, m.demand_count), 0)
+  const maxDemand = jobCount ?? matches.reduce((max, m) => Math.max(max, m.demand_count), 0)
 
   const counts = {
     all: matches.length,
@@ -232,7 +233,7 @@ export function SkillGapTable({ matches, isLoading }: SkillGapTableProps) {
                   </span>
                 </div>
                 <span className="text-sm text-text-secondary">
-                  {m.demand_count > 0 ? `Diminta di ${m.demand_count} lowongan` : copy.analysesResult.notInDemand}
+                  {m.demand_count > 0 ? `Diminta di ${m.demand_count}${jobCount ? ` dari ${jobCount}` : ''} lowongan` : copy.analysesResult.notInDemand}
                 </span>
                 <DemandBar value={m.demand_count} max={maxDemand} />
                 {m.matched_competency && (
@@ -293,7 +294,7 @@ export function SkillGapTable({ matches, isLoading }: SkillGapTableProps) {
                     </td>
                     <td className="px-4 py-4 text-text-secondary">
                       <div className="flex flex-col gap-1.5">
-                        <span>{m.demand_count > 0 ? `${m.demand_count} lowongan` : copy.analysesResult.notInDemand}</span>
+                        <span>{m.demand_count > 0 ? `${m.demand_count}${jobCount ? `/${jobCount}` : ''} lowongan` : copy.analysesResult.notInDemand}</span>
                         <DemandBar value={m.demand_count} max={maxDemand} />
                       </div>
                     </td>

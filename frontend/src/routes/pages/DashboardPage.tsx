@@ -147,7 +147,13 @@ export function DashboardPage() {
   })
 
   // Agregasi statistik nyata dari API (0 jika belum ada data)
-  const totalMissingSkills = analysesList.reduce(
+  // Hitung hanya analisis terbaru per dokumen RPS agar analisis ulang tidak menggandakan angka.
+  const latestAnalyses = [...new Map(
+    [...analysesList]
+      .sort((a, b) => a.analysis_id - b.analysis_id)
+      .map((a) => [a.rps_document_id, a] as const)
+  ).values()]
+  const totalMissingSkills = latestAnalyses.reduce(
     (acc, a) => acc + (a.summary?.missing ?? 0),
     0
   )
@@ -189,7 +195,7 @@ export function DashboardPage() {
             missingSkillsCount={totalMissingSkills}
             matchedJobsCount={matchedJobsCount}
             careersCount={careersCount}
-            analysesCount={analysesList.length}
+            analysesCount={latestAnalyses.length}
           />
 
           <AnalyzedRpsSection
@@ -213,7 +219,7 @@ export function DashboardPage() {
         <DashboardSidebar
           user={user}
           rpsCount={rpsList.length}
-          analysesCount={analysesList.length}
+          analysesCount={latestAnalyses.length}
           skills={mySkills}
         />
       </main>
