@@ -6,6 +6,7 @@ import { BrandLogo } from '@/components/common/BrandLogo'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { FieldError } from '@/components/common/FieldError'
 import { usePageTitle } from '@/lib/usePageTitle'
 import { copy } from '@/lib/copy'
 import { useLogin } from '@/lib/query/hooks'
@@ -26,9 +27,16 @@ export function LoginPage() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
+  const [errors, setErrors] = useState<{ email?: string; password?: string }>({})
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
+    const next: { email?: string; password?: string } = {}
+    if (!email.trim()) next.email = copy.auth.emailRequired
+    else if (!/^\S+@\S+\.\S+$/.test(email.trim())) next.email = copy.auth.emailInvalid
+    if (!password) next.password = copy.auth.passwordRequired
+    setErrors(next)
+    if (next.email || next.password) return
     login.mutate({ email, password }, { onSuccess: () => navigate('/dashboard') })
   }
 
@@ -74,8 +82,11 @@ export function LoginPage() {
                 required
                 placeholder={copy.auth.emailPlaceholder}
                 value={email}
+                aria-invalid={errors.email ? true : undefined}
+                aria-describedby={errors.email ? 'email-error' : undefined}
                 onChange={(event) => setEmail(event.target.value)}
               />
+              <FieldError id="email-error" message={errors.email} />
             </div>
 
             <div className="flex flex-col gap-1.5">
@@ -90,6 +101,8 @@ export function LoginPage() {
                   placeholder={copy.auth.passwordPlaceholder}
                   className="pr-12"
                   value={password}
+                  aria-invalid={errors.password ? true : undefined}
+                  aria-describedby={errors.password ? 'password-error' : undefined}
                   onChange={(event) => setPassword(event.target.value)}
                 />
                 <button
@@ -108,9 +121,10 @@ export function LoginPage() {
                   )}
                 </button>
               </div>
+              <FieldError id="password-error" message={errors.password} />
             </div>
 
-            {login.isError && (
+            {login.isError && !errors.email && !errors.password && (
               <div role="alert" className="flex items-center gap-2 rounded-lg bg-danger-soft px-3 py-3">
                 <CircleAlert className="size-4 shrink-0 text-danger" aria-hidden="true" />
                 <p className="text-[13px] font-medium text-danger">

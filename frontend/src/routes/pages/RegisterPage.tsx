@@ -6,6 +6,7 @@ import { BrandLogo } from '@/components/common/BrandLogo'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { FieldError } from '@/components/common/FieldError'
 import { usePageTitle } from '@/lib/usePageTitle'
 import { copy } from '@/lib/copy'
 import { useRegister } from '@/lib/query/hooks'
@@ -38,16 +39,22 @@ export function RegisterPage() {
   const [password, setPassword] = useState('')
   const [passwordConfirmation, setPasswordConfirmation] = useState('')
   const [showPassword, setShowPassword] = useState(false)
-  const [clientError, setClientError] = useState<string | null>(null)
+  const [errors, setErrors] = useState<
+    Partial<Record<'name' | 'email' | 'password' | 'passwordConfirmation', string>>
+  >({})
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
-    setClientError(null)
-
-    if (password !== passwordConfirmation) {
-      setClientError(copy.auth.passwordMismatch)
-      return
-    }
+    const next: typeof errors = {}
+    if (!name.trim()) next.name = copy.auth.nameRequired
+    if (!email.trim()) next.email = copy.auth.emailRequired
+    else if (!/^\S+@\S+\.\S+$/.test(email.trim())) next.email = copy.auth.emailInvalid
+    if (!password) next.password = copy.auth.passwordRequired
+    else if (password.length < 8) next.password = copy.auth.passwordTooShort
+    if (!passwordConfirmation) next.passwordConfirmation = copy.auth.confirmRequired
+    else if (password !== passwordConfirmation) next.passwordConfirmation = copy.auth.passwordMismatch
+    setErrors(next)
+    if (Object.keys(next).length > 0) return
 
     register.mutate(
       { name, email, password, passwordConfirmation },
@@ -55,7 +62,7 @@ export function RegisterPage() {
     )
   }
 
-  const errorMessage = clientError ?? (register.isError ? registerErrorMessage(register.error) : null)
+  const errorMessage = register.isError ? registerErrorMessage(register.error) : null
 
   return (
     <div className="flex min-h-svh flex-col bg-background">
@@ -107,8 +114,11 @@ export function RegisterPage() {
                 required
                 placeholder={copy.auth.namePlaceholder}
                 value={name}
+                aria-invalid={errors.name ? true : undefined}
+                aria-describedby={errors.name ? 'name-error' : undefined}
                 onChange={(event) => setName(event.target.value)}
               />
+              <FieldError id="name-error" message={errors.name} />
             </div>
 
             <div className="flex flex-col gap-1.5">
@@ -121,8 +131,11 @@ export function RegisterPage() {
                 required
                 placeholder={copy.auth.emailPlaceholder}
                 value={email}
+                aria-invalid={errors.email ? true : undefined}
+                aria-describedby={errors.email ? 'email-error' : undefined}
                 onChange={(event) => setEmail(event.target.value)}
               />
+              <FieldError id="email-error" message={errors.email} />
             </div>
 
             <div className="flex flex-col gap-1.5">
@@ -137,6 +150,8 @@ export function RegisterPage() {
                   placeholder={copy.auth.passwordCreatePlaceholder}
                   className="pr-12"
                   value={password}
+                  aria-invalid={errors.password ? true : undefined}
+                  aria-describedby={errors.password ? 'password-error' : undefined}
                   onChange={(event) => setPassword(event.target.value)}
                 />
                 <button
@@ -155,7 +170,8 @@ export function RegisterPage() {
                   )}
                 </button>
               </div>
-              <p className="text-[13px] text-text-secondary">{copy.auth.passwordHelper}</p>
+              <FieldError id="password-error" message={errors.password} />
+              <p className="text-sm text-text-secondary">{copy.auth.passwordHelper}</p>
             </div>
 
             <div className="flex flex-col gap-1.5">
@@ -168,8 +184,11 @@ export function RegisterPage() {
                 required
                 placeholder={copy.auth.passwordConfirmPlaceholder}
                 value={passwordConfirmation}
+                aria-invalid={errors.passwordConfirmation ? true : undefined}
+                aria-describedby={errors.passwordConfirmation ? 'passwordConfirmation-error' : undefined}
                 onChange={(event) => setPasswordConfirmation(event.target.value)}
               />
+              <FieldError id="passwordConfirmation-error" message={errors.passwordConfirmation} />
             </div>
 
             {errorMessage && (

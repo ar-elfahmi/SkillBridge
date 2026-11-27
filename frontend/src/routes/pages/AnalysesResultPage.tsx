@@ -21,6 +21,7 @@ import {
 } from '@/lib/query/hooks'
 import { usePageTitle } from '@/lib/usePageTitle'
 import { copy } from '@/lib/copy'
+import { ApiRequestError } from '@/lib/api/client'
 
 type Tab = 'summary' | 'skillGap' | 'recommendations'
 
@@ -33,7 +34,7 @@ export function AnalysesResultPage() {
   const queryClient = useQueryClient()
   const { data: user } = useMe()
   const logout = useLogout()
-  const { data: analysis, isLoading, isError } = useAnalysis(analysisId)
+  const { data: analysis, isLoading, isError, error: loadError, refetch } = useAnalysis(analysisId)
   const isCompleted = analysis?.status === 'completed'
 
   const { data: matches = [], isLoading: isMatchesLoading } = useAnalysisMatches(
@@ -91,15 +92,28 @@ export function AnalysesResultPage() {
         <DashboardTopbar user={user} onLogout={handleLogout} />
         <main className="mx-auto flex w-full max-w-5xl flex-1 flex-col items-center justify-center gap-3 p-6 text-center">
           <p className="text-base font-semibold text-danger">
-            Analisis tidak ditemukan atau gagal dimuat.
+            {loadError instanceof ApiRequestError && loadError.status === 404
+              ? copy.analysesResult.analysisNotFound
+              : copy.analysesResult.loadFailed}
           </p>
-          <button
-            type="button"
-            onClick={() => navigate('/dashboard')}
-            className="rounded-lg bg-brand px-4 py-2 text-xs font-bold text-white hover:bg-brand-hover"
-          >
-            Kembali ke Beranda
-          </button>
+          <div className="flex flex-wrap justify-center gap-2">
+            {!(loadError instanceof ApiRequestError && loadError.status === 404) && (
+              <button
+                type="button"
+                onClick={() => void refetch()}
+                className="min-h-11 rounded-lg border border-border-warm px-4 text-sm font-bold text-text-primary hover:bg-surface-subtle"
+              >
+                {copy.analysesResult.retry}
+              </button>
+            )}
+            <button
+              type="button"
+              onClick={() => navigate('/dashboard')}
+              className="min-h-11 rounded-lg bg-brand px-4 text-sm font-bold text-white hover:bg-brand-hover"
+            >
+              {copy.analysesResult.backToDashboard}
+            </button>
+          </div>
         </main>
       </div>
     )

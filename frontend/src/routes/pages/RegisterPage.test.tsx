@@ -56,6 +56,19 @@ describe('RegisterPage', () => {
     expect(await screen.findByText('Beranda')).toBeInTheDocument()
   })
 
+  it('menandai setiap kolom kosong dan kata sandi pendek per field', () => {
+    renderPage()
+    fireEvent.click(screen.getByRole('button', { name: 'Daftar' }))
+    expect(screen.getByText('Nama wajib diisi.')).toBeInTheDocument()
+    expect(screen.getByText('Email wajib diisi.')).toBeInTheDocument()
+    expect(screen.getByText('Kata sandi wajib diisi.')).toBeInTheDocument()
+
+    fillForm('Siti', 'siti@example.com', 'abc', 'abc')
+    fireEvent.click(screen.getByRole('button', { name: 'Daftar' }))
+    expect(screen.getByText('Kata sandi minimal 8 karakter.')).toBeInTheDocument()
+    expect(authApi.register).not.toHaveBeenCalled()
+  })
+
   it('mencegah kirim saat kata sandi dan konfirmasi tidak cocok', () => {
     renderPage()
     fillForm('Siti', 'siti@example.com', 'rahasia123', 'beda123')

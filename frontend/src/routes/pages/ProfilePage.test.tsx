@@ -70,7 +70,7 @@ describe('ProfilePage', () => {
     expect(await screen.findByText('React')).toBeInTheDocument()
     expect(screen.getByText('Docker')).toBeInTheDocument()
     expect(screen.getByText('ReactJS')).toBeInTheDocument()
-    expect(screen.getAllByText('Advanced').length).toBeGreaterThan(0)
+    expect(screen.getAllByText('Mahir').length).toBeGreaterThan(0)
   })
 
   it('menambahkan skill pribadi lewat form', async () => {
@@ -87,7 +87,7 @@ describe('ProfilePage', () => {
     })
     renderPage()
 
-    const input = await screen.findByPlaceholderText('Ketik nama skill, mis. Docker')
+    const input = await screen.findByLabelText('Nama skill')
     fireEvent.change(input, { target: { value: 'Figma' } })
     fireEvent.click(screen.getByRole('button', { name: 'Tambah skill' }))
 
