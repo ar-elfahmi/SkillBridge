@@ -130,27 +130,6 @@ export function AnalysesResultPage() {
       <DashboardTopbar user={user} onLogout={handleLogout} />
 
       <main className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-6 px-4 py-6 md:px-8 md:py-8">
-        {/* Tabs */}
-        <div role="tablist" className="flex items-center gap-1 border-b border-border-warm">
-          {tabs.map(([key, label]) => (
-            <button
-              key={key}
-              type="button"
-              role="tab"
-              aria-selected={tab === key}
-              onClick={() => setTab(key)}
-              className={`relative min-h-11 flex-1 px-2 text-center text-xs font-semibold leading-tight transition-colors active:bg-surface-subtle sm:flex-none sm:px-4 md:text-sm ${
-                tab === key ? 'text-brand-strong' : 'text-text-secondary hover:text-text-primary'
-              }`}
-            >
-              {label}
-              {tab === key && (
-                <span className="absolute inset-x-0 -bottom-px h-0.5 rounded-full bg-brand-accent" />
-              )}
-            </button>
-          ))}
-        </div>
-
         {/* Analysis Header */}
         <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
           <div className="flex items-center gap-3">
@@ -162,10 +141,10 @@ export function AnalysesResultPage() {
               <ArrowLeft className="size-4" aria-hidden="true" />
             </Link>
             <div className="flex flex-col gap-1">
-              <h1 className="text-base font-bold text-text-primary md:text-xl">
+              <h1 className="font-display text-2xl font-normal text-text-primary md:text-3xl">
                 {analysis.course}
               </h1>
-              <span className="text-xs text-text-secondary">
+              <span className="text-sm text-text-secondary">
                 {analysis.career}
                 {analysis.created_at
                   ? ` · ${new Date(analysis.created_at).toLocaleDateString('id-ID', {
@@ -188,25 +167,46 @@ export function AnalysesResultPage() {
           </div>
         </div>
 
+        {/* Tabs */}
+        <div role="tablist" className="flex items-center gap-1 border-b border-border-warm">
+          {tabs.map(([key, label]) => (
+            <button
+              key={key}
+              type="button"
+              role="tab"
+              aria-selected={tab === key}
+              onClick={() => setTab(key)}
+              className={`relative min-h-11 flex-1 px-2 text-center text-sm font-semibold leading-tight transition-colors active:bg-surface-subtle sm:flex-none sm:px-4 md:text-base ${
+                tab === key ? 'text-brand-strong' : 'text-text-secondary hover:text-text-primary'
+              }`}
+            >
+              {label}
+              {tab === key && (
+                <span className="absolute inset-x-0 -bottom-px h-0.5 rounded-full bg-brand-accent" />
+              )}
+            </button>
+          ))}
+        </div>
+
         {analysis.status === 'failed' && analysis.error_message && (
-          <div className="rounded-xl bg-danger/15 p-3 text-xs font-semibold text-danger">
+          <div className="rounded-lg bg-danger/15 p-3 text-xs font-semibold text-danger">
             {analysis.error_message}
           </div>
         )}
 
         {/* Tab Content */}
         {analysis.status !== 'completed' ? (
-          <div className="rounded-2xl border border-dashed border-border-warm bg-white p-8 text-center text-xs text-text-secondary">
+          <div className="rounded-xl border border-dashed border-border-warm bg-white p-8 text-center text-xs text-text-secondary">
             Analisis masih diproses. Halaman ini akan memperbarui otomatis.
           </div>
         ) : tab === 'summary' ? (
-          <CoverageSummary analysis={analysis} />
+          <CoverageSummary analysis={analysis} onViewGap={() => setTab('skillGap')} />
         ) : tab === 'skillGap' ? (
           <SkillGapTable matches={matches} isLoading={isMatchesLoading} />
         ) : (
           <div className="flex flex-col gap-4">
             {recoStale && (
-              <div className="flex flex-col gap-2 rounded-xl border border-border-warm bg-warning-soft/60 p-3 text-xs text-warning sm:flex-row sm:items-center sm:justify-between">
+              <div className="flex flex-col gap-2 rounded-lg border border-border-warm bg-warning-soft/60 p-3 text-sm text-warning sm:flex-row sm:items-center sm:justify-between">
                 <span className="flex items-center gap-2">
                   <Info className="size-4 shrink-0" aria-hidden="true" />
                   {copy.analysesResult.recoStaleBanner}
@@ -217,7 +217,7 @@ export function AnalysesResultPage() {
                     refreshReco.mutate(analysisId, { onSuccess: () => setRecoStale(false) })
                   }
                   disabled={refreshReco.isPending}
-                  className="w-fit rounded-lg bg-brand px-3 py-1.5 text-[11px] font-bold text-white hover:bg-brand-hover disabled:opacity-50"
+                  className="w-fit rounded-lg bg-brand px-3 py-1.5 text-xs font-bold text-white hover:bg-brand-hover disabled:opacity-50"
                 >
                   {refreshReco.isPending
                     ? copy.analysesResult.recoRefreshPending
@@ -252,7 +252,7 @@ export function AnalysesResultPage() {
       </main>
 
       <footer className="flex h-14 shrink-0 items-center justify-center border-t border-border-warm px-4 md:justify-start md:px-8">
-        <p className="text-[11px] font-medium text-text-secondary">{copy.footerBrand}</p>
+        <p className="text-xs font-medium text-text-secondary">{copy.footerBrand}</p>
       </footer>
     </div>
   )

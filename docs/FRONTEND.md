@@ -2,11 +2,16 @@
 
 ## 1. Pendekatan desain
 Modern, minimalis, responsif, **mobile-first**.
-- Warna utama biru dan ungu; latar terang.
-- Card sudut membulat; navigasi sederhana.
+- Warna utama biru (`#0066CC`) dengan aksen `#0085FF`; latar terang. Hijau, oranye, dan merah hanya untuk status.
+- Card sudut membulat sedang (`rounded-xl`), baris dan input di dalamnya `rounded-lg`; hanya hero unggah yang `rounded-2xl`. Navigasi sederhana.
 - Visualisasi data dengan chart (komponen chart shadcn/ui atau Recharts).
 - Detail bukti dibuka sesuai kebutuhan (drawer/accordion).
 - Aksesibilitas: status tidak hanya dibedakan warna; selalu sertakan ikon + label teks.
+
+### Tipografi dan ikon
+- Judul halaman memakai DM Serif Display supaya angka dan judul besar (persentase cakupan, nama mata kuliah) terbaca sebagai poin utama. Isi, tabel, dan formulir memakai Plus Jakarta Sans karena angkanya lebar sama dan terbaca jelas di ukuran kecil.
+- Ukuran teks isi minimal 14px untuk konten utama dan 12px untuk keterangan. Tidak ada teks di bawah 12px.
+- Ikon memakai pustaka Lucide dengan goresan lebih tebal dan ujung persegi (diatur sekali di `src/styles/index.css`) supaya serasi dengan huruf serif dan tidak tampil seperti gaya bawaan pustaka.
 
 ### Warna status (konsisten di seluruh UI)
 | Status | Label UI | Warna | Ikon |

@@ -96,7 +96,7 @@ export function RpsDetailPage() {
 
         {notification && (
           <div
-            className={`shrink-0 rounded-xl px-4 py-3 text-xs font-semibold ${
+            className={`shrink-0 rounded-lg px-4 py-3 text-xs font-semibold ${
               notification.type === 'success'
                 ? 'bg-success/15 text-success'
                 : 'bg-danger/15 text-danger'
@@ -189,7 +189,7 @@ export function RpsDetailPage() {
       </main>
 
       <footer className="hidden h-14 shrink-0 items-center justify-center border-t border-border-warm px-4 sm:flex md:justify-start md:px-8">
-        <p className="text-[11px] font-medium text-text-secondary">{copy.footerBrand}</p>
+        <p className="text-xs font-medium text-text-secondary">{copy.footerBrand}</p>
       </footer>
     </div>
   )

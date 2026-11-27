@@ -66,7 +66,7 @@ export function ProfilePage() {
         </div>
 
         {/* Identitas */}
-        <section className="flex flex-col items-start gap-4 rounded-2xl border border-border-warm bg-white p-4 sm:flex-row sm:p-6 sm:items-center sm:justify-between">
+        <section className="flex flex-col items-start gap-4 rounded-xl border border-border-warm bg-white p-4 sm:flex-row sm:p-6 sm:items-center sm:justify-between">
           <div className="flex items-center gap-4">
             <div className="flex size-14 shrink-0 items-center justify-center rounded-full bg-brand text-lg font-bold text-white">
               {initials}
@@ -88,7 +88,7 @@ export function ProfilePage() {
         </section>
 
         {/* Skill pribadi */}
-        <section className="flex flex-col gap-4 rounded-2xl border border-border-warm bg-white p-4 sm:p-6">
+        <section className="flex flex-col gap-4 rounded-xl border border-border-warm bg-white p-4 sm:p-6">
           <div className="flex flex-col gap-1">
             <h2 className="text-base font-bold text-text-primary">
               {copy.profile.personalSkillsTitle}
@@ -133,11 +133,11 @@ export function ProfilePage() {
           {isLoading ? (
             <p className="text-xs text-text-secondary">Memuat skill…</p>
           ) : skills.length === 0 ? (
-            <p className="rounded-xl border border-dashed border-border-warm p-6 text-center text-xs text-text-secondary">
+            <p className="rounded-lg border border-dashed border-border-warm p-6 text-center text-xs text-text-secondary">
               {copy.profile.empty}
             </p>
           ) : (
-            <ul className="divide-y divide-border-warm overflow-hidden rounded-xl border border-border-warm">
+            <ul className="divide-y divide-border-warm overflow-hidden rounded-lg border border-border-warm">
               {skills.map((s) => (
                 <li key={s.id} className="flex items-center justify-between gap-3 px-3 py-2 sm:px-4">
                   <div className="flex min-w-0 flex-col">
@@ -164,12 +164,12 @@ export function ProfilePage() {
               ))}
             </ul>          )}
 
-          <p className="text-[11px] text-text-secondary">{copy.profile.noteCanonical}</p>
+          <p className="text-xs text-text-secondary">{copy.profile.noteCanonical}</p>
         </section>
       </main>
 
       <footer className="flex h-14 shrink-0 items-center justify-center border-t border-border-warm px-4 md:justify-start md:px-8">
-        <p className="text-[11px] font-medium text-text-secondary">{copy.footerBrand}</p>
+        <p className="text-xs font-medium text-text-secondary">{copy.footerBrand}</p>
       </footer>
     </div>
   )

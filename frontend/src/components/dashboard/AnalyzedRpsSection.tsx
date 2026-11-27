@@ -40,18 +40,18 @@ export function AnalyzedRpsSection({
       </div>
 
       {isLoading ? (
-        <div className="flex h-32 items-center justify-center rounded-xl border border-dashed border-border-warm bg-surface-subtle/50 text-sm text-text-secondary">
+        <div className="flex h-32 items-center justify-center rounded-lg border border-dashed border-border-warm bg-surface-subtle/50 text-sm text-text-secondary">
           Memuat data RPS…
         </div>
       ) : documents.length === 0 ? (
-        <div className="flex flex-col items-center justify-center gap-2 rounded-xl border border-dashed border-border-warm bg-white p-8 text-center">
+        <div className="flex flex-col items-center justify-center gap-2 rounded-lg border border-dashed border-border-warm bg-white p-8 text-center">
           <FileText className="size-8 text-border-warm" aria-hidden="true" />
           <p className="max-w-md text-xs text-text-secondary md:text-sm">
             {copy.dashboard.emptyRps}
           </p>
         </div>
       ) : (
-        <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain pb-1 pr-1 sm:flex-none sm:overflow-visible sm:p-0"><div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain pb-1 pr-1 sm:flex-none sm:overflow-visible sm:p-0"><div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
           {documents.map((doc) => {
             const analysis = analysisMap.get(doc.id)
             const courseName =
@@ -72,11 +72,11 @@ export function AnalyzedRpsSection({
               <Link
                 key={doc.id}
                 to={target}
-                className="group flex flex-col gap-3 rounded-2xl border border-border-warm bg-white p-3 active:border-brand sm:p-4.5 transition-all hover:border-brand hover:shadow-md"
+                className="group flex flex-col gap-3 rounded-xl border border-border-warm bg-white p-3 active:border-brand sm:p-4.5 transition-all hover:border-brand hover:shadow-md"
               >
                 <div className="flex items-center gap-3">
                   <div
-                    className={`flex size-11 shrink-0 items-center justify-center rounded-xl transition-colors ${
+                    className={`flex size-11 shrink-0 items-center justify-center rounded-lg transition-colors ${
                       isCompleted ? 'bg-brand text-white' : 'bg-brand-soft text-brand-strong'
                     }`}
                   >
@@ -95,17 +95,17 @@ export function AnalyzedRpsSection({
                 {/* Status Chip */}
                 <div>
                   {isCompleted ? (
-                    <span className="inline-flex items-center gap-1.5 rounded-md bg-success-soft px-2.5 py-1 text-[11px] font-semibold text-success">
+                    <span className="inline-flex items-center gap-1.5 rounded-md bg-success-soft px-2.5 py-1 text-xs font-semibold text-success">
                       <Check className="size-3.5" aria-hidden="true" />
                       Analisis selesai
                     </span>
                   ) : isNeedReview ? (
-                    <span className="inline-flex items-center gap-1.5 rounded-md bg-warning-soft px-2.5 py-1 text-[11px] font-semibold text-warning">
+                    <span className="inline-flex items-center gap-1.5 rounded-md bg-warning-soft px-2.5 py-1 text-xs font-semibold text-warning">
                       <Clock3 className="size-3.5" aria-hidden="true" />
                       Perlu review
                     </span>
                   ) : (
-                    <span className="inline-flex items-center gap-1.5 rounded-md bg-danger-soft px-2.5 py-1 text-[11px] font-semibold text-danger">
+                    <span className="inline-flex items-center gap-1.5 rounded-md bg-danger-soft px-2.5 py-1 text-xs font-semibold text-danger">
                       <AlertCircle className="size-3.5" aria-hidden="true" />
                       Perlu diperbarui
                     </span>
@@ -115,7 +115,7 @@ export function AnalyzedRpsSection({
                 {/* Coverage Bar (hanya ditampilkan jika ada riwayat analisis nyata) */}
                 {analysis?.summary ? (
                   <div className="flex flex-col gap-1.5">
-                    <span className="text-[11px] text-text-secondary">
+                    <span className="text-xs text-text-secondary">
                       {copy.coverageLabel} {analysis.summary.coverage_percentage.toFixed(1).replace('.', ',')}%
                     </span>
                     <div className="h-1.5 w-full overflow-hidden rounded-full bg-progress-track">
@@ -124,12 +124,12 @@ export function AnalyzedRpsSection({
                         style={{ width: `${Math.min(100, Math.max(0, analysis.summary.coverage_percentage))}%` }}
                       />
                     </div>
-                    <span className="text-[11px] text-text-secondary">
+                    <span className="text-xs text-text-secondary">
                       {analysis.summary.missing} skill belum tercakup
                     </span>
                   </div>
                 ) : (
-                  <div className="text-[11px] text-text-secondary">
+                  <div className="text-xs text-text-secondary">
                     {doc.page_count ? `${doc.page_count} halaman` : 'Dokumen RPS'}
                   </div>
                 )}

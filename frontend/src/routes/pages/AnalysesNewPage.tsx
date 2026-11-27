@@ -203,13 +203,13 @@ export function AnalysesNewPage() {
         <AiQuotaBanner />
 
         {errorMsg && (
-          <div className="rounded-xl bg-danger/15 p-3 text-xs font-semibold text-danger">
+          <div className="rounded-lg bg-danger/15 p-3 text-xs font-semibold text-danger">
             {errorMsg}
           </div>
         )}
 
         {/* STEP 1: Pilih Profesi */}
-        <section className="flex flex-col gap-4 rounded-2xl border border-border-warm bg-white p-4 sm:p-6">
+        <section className="flex flex-col gap-4 rounded-xl border border-border-warm bg-white p-4 sm:p-6">
           <div className="flex items-center gap-3">
             <div className="flex size-7 items-center justify-center rounded-full bg-brand text-xs font-bold text-white">
               1
@@ -230,7 +230,7 @@ export function AnalysesNewPage() {
                   setActiveJobDetail(null)
                 }}
                 disabled={isCareersLoading}
-                className="w-full appearance-none rounded-xl border border-field bg-white px-4 py-3 text-sm font-semibold text-text-primary outline-none focus-visible:border-brand-accent focus-visible:ring-2 focus-visible:ring-brand-accent/40 pr-10"
+                className="w-full appearance-none rounded-lg border border-field bg-white px-4 py-3 text-sm font-semibold text-text-primary outline-none focus-visible:border-brand-accent focus-visible:ring-2 focus-visible:ring-brand-accent/40 pr-10"
               >
                 {careers.map((c) => (
                   <option key={c.id} value={c.id}>
@@ -250,7 +250,7 @@ export function AnalysesNewPage() {
         </section>
 
         {/* STEP 2: Pilih Lowongan */}
-        <section className="flex flex-col gap-4 rounded-2xl border border-border-warm bg-white p-4 sm:p-6">
+        <section className="flex flex-col gap-4 rounded-xl border border-border-warm bg-white p-4 sm:p-6">
           <div className="flex items-center gap-3">
             <div className="flex size-7 items-center justify-center rounded-full bg-brand text-xs font-bold text-white">
               2
@@ -309,7 +309,7 @@ export function AnalysesNewPage() {
                   Memuat data lowongan…
                 </div>
               ) : filteredJobs.length === 0 ? (
-                <div className="rounded-xl border border-dashed border-border-warm p-6 text-center text-xs text-text-secondary">
+                <div className="rounded-lg border border-dashed border-border-warm p-6 text-center text-xs text-text-secondary">
                   Tidak ada lowongan yang sesuai. Tambahkan lowongan manual di bawah.
                 </div>
               ) : (
@@ -320,7 +320,7 @@ export function AnalysesNewPage() {
                     <div
                       key={j.id}
                       onClick={() => setActiveJobDetail(j)}
-                      className={`flex cursor-pointer items-start gap-3 rounded-xl border p-4 transition-all ${
+                      className={`flex cursor-pointer items-start gap-3 rounded-lg border p-4 transition-all ${
                         isDrawerActive
                           ? 'border-brand bg-brand-soft/20'
                           : 'border-border-warm bg-white hover:border-brand/60'
@@ -351,7 +351,7 @@ export function AnalysesNewPage() {
                         >
                           {j.title}
                         </button>
-                        <span className="text-xs text-brand-strong font-medium">
+                        <span className="text-sm text-brand-strong font-medium">
                           {j.company}
                         </span>
 
@@ -360,7 +360,7 @@ export function AnalysesNewPage() {
                             {j.skills.map((s) => (
                               <span
                                 key={s.id}
-                                className="rounded bg-surface-subtle px-2 py-0.5 text-[11px] font-semibold text-text-secondary"
+                                className="rounded bg-surface-subtle px-2 py-0.5 text-xs font-semibold text-text-secondary"
                               >
                                 {s.canonical_skill || s.skill}
                               </span>
@@ -369,7 +369,7 @@ export function AnalysesNewPage() {
                         )}
 
                         {isDrawerActive && (
-                          <div className="mt-2 flex flex-col gap-2 border-t border-border-warm pt-2 text-xs leading-relaxed text-text-primary lg:hidden">
+                          <div className="mt-2 flex flex-col gap-2 border-t border-border-warm pt-2 text-sm leading-relaxed text-text-primary lg:hidden">
                             <p className="whitespace-pre-line">{j.description}</p>
                             {j.qualifications && (
                               <p className="italic text-text-secondary">{j.qualifications}</p>
@@ -377,7 +377,7 @@ export function AnalysesNewPage() {
                           </div>
                         )}
 
-                        <span className="mt-1 text-[11px] text-text-secondary">
+                        <span className="mt-1 text-xs text-text-secondary">
                           {j.source_name || 'Industri'}
                           {j.collected_at ? ` · Diambil ${j.collected_at}` : ''}
                         </span>
@@ -387,13 +387,13 @@ export function AnalysesNewPage() {
                 })
               )}
 
-              <p className="text-[11px] text-text-secondary">
+              <p className="text-xs text-text-secondary">
                 {copy.analysesNew.sampleNote}
               </p>
             </div>
 
             {/* Drawer Preview Detail Lowongan */}
-            <div className="hidden flex-col gap-3 rounded-xl border border-border-warm bg-surface-subtle p-5 lg:col-span-5 lg:flex">
+            <div className="hidden flex-col gap-3 rounded-lg border border-border-warm bg-surface-subtle p-5 lg:col-span-5 lg:flex">
               <span className="text-xs font-bold text-text-secondary">
                 {copy.analysesNew.drawerTitle}
               </span>
@@ -409,17 +409,17 @@ export function AnalysesNewPage() {
                     </span>
                   </div>
 
-                  <p className="text-xs text-text-primary leading-relaxed whitespace-pre-line">
+                  <p className="text-sm text-text-primary leading-relaxed whitespace-pre-line">
                     {activeJobDetail.description}
                   </p>
 
                   {activeJobDetail.qualifications && (
-                    <div className="rounded-lg bg-white p-3 text-xs italic text-text-secondary">
+                    <div className="rounded-lg bg-white p-3 text-sm italic text-text-secondary">
                       “{activeJobDetail.qualifications}”
                     </div>
                   )}
 
-                  <span className="text-[11px] text-text-secondary">
+                  <span className="text-xs text-text-secondary">
                     Sumber: {activeJobDetail.source_name || 'Industri'}
                     {activeJobDetail.source_url ? ` · ${activeJobDetail.source_url}` : ''}
                     {activeJobDetail.dataset_version
@@ -438,7 +438,7 @@ export function AnalysesNewPage() {
         </section>
 
         {/* STEP 3: Pratinjau Pemetaan Awal */}
-        <section className="flex flex-col gap-4 rounded-2xl border border-border-warm bg-white p-4 sm:p-6">
+        <section className="flex flex-col gap-4 rounded-xl border border-border-warm bg-white p-4 sm:p-6">
           <div className="flex items-center gap-3">
             <div className="flex size-7 items-center justify-center rounded-full bg-brand text-xs font-bold text-white">
               3
@@ -454,7 +454,7 @@ export function AnalysesNewPage() {
           </div>
 
           {previewSkills.length === 0 ? (
-            <div className="rounded-xl border border-dashed border-border-warm p-6 text-center text-xs text-text-secondary">
+            <div className="rounded-lg border border-dashed border-border-warm p-6 text-center text-xs text-text-secondary">
               Pilih minimal satu lowongan di atas untuk melihat pratinjau skill yang akan dianalisis.
             </div>
           ) : (
@@ -462,10 +462,10 @@ export function AnalysesNewPage() {
               {previewSkills.map((ps) => (
                 <div
                   key={ps.skill}
-                  className="flex items-center justify-between rounded-xl border border-border-warm bg-surface-subtle px-3.5 py-2 text-xs"
+                  className="flex items-center justify-between rounded-lg border border-border-warm bg-surface-subtle px-3.5 py-2 text-xs"
                 >
                   <span className="font-bold text-text-primary">{ps.skill}</span>
-                  <span className="text-[11px] text-text-secondary">
+                  <span className="text-xs text-text-secondary">
                     Diminta di {ps.count} {copy.analysesNew.skillDemandSuffix}
                   </span>
                 </div>
@@ -475,7 +475,7 @@ export function AnalysesNewPage() {
         </section>
 
         {/* Collapsible: Tambah Lowongan Manual */}
-        <div className="flex flex-col rounded-2xl border border-border-warm bg-white overflow-hidden">
+        <div className="flex flex-col rounded-xl border border-border-warm bg-white overflow-hidden">
           <button
             type="button"
             onClick={() => setIsAddJobOpen((v) => !v)}
@@ -569,7 +569,7 @@ export function AnalysesNewPage() {
         </div>
 
         {/* Action Bar Bawah */}
-        <div className="sticky bottom-0 z-10 -mx-4 flex flex-col gap-2 border-t border-border-warm bg-white px-4 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] sm:static sm:mx-0 sm:flex-row sm:items-center sm:justify-between sm:gap-3 sm:rounded-2xl sm:border sm:p-5">
+        <div className="sticky bottom-0 z-10 -mx-4 flex flex-col gap-2 border-t border-border-warm bg-white px-4 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] sm:static sm:mx-0 sm:flex-row sm:items-center sm:justify-between sm:gap-3 sm:rounded-xl sm:border sm:p-5">
           <p className="text-xs text-text-secondary">
             {copy.analysesNew.actionRequirement}
           </p>
@@ -588,7 +588,7 @@ export function AnalysesNewPage() {
       </main>
 
       <footer className="flex h-14 shrink-0 items-center justify-center border-t border-border-warm px-4 md:justify-start md:px-8">
-        <p className="text-[11px] font-medium text-text-secondary">{copy.footerBrand}</p>
+        <p className="text-xs font-medium text-text-secondary">{copy.footerBrand}</p>
       </footer>
     </div>
   )

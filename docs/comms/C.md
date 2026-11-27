@@ -12,12 +12,27 @@
 - [x] T6.5 Pemetaan & hasil analisis — selesai (`/analyses/new` Step 3, `/analyses/:id` tab Ringkasan + Skill Gap + EvidenceDrawer)
 - [x] T7.4 Rekomendasi Belajar — selesai (tab Rekomendasi + panel skill pribadi read-only + DisclaimerBanner)
 - [ ] T7.5 Skill pribadi — terblokir backend (`user_skills` belum ada, lihat `REQ-C-006`)
-- [ ] T8.3 Responsif & polish — antrian berikutnya
+- [ ] T8.3 Responsif & polish - sebagian (tema biru, warna status, mobile 393x852, aksesibilitas; lihat `HO-C-006`). Belum dicentang di `docs/TASKS.md`: audit kata-kata UI dan pengecekan 375/768/1280 manual belum lengkap
 - [ ] T8.5 Checklist MVP — bersama A, B
 
 Total 21 unit tests lulus, `npm run typecheck` + `npm run build` bersih. Branch aktif: `feat/rps-analysis-pages`.
 
 ## Handoff
+
+#### HO-C-006 · 2026-11-27 · T8.3 (sebagian) · untuk: A, B
+**Polish tampilan, mobile, dan aksesibilitas frontend.** PR #46, #47, #48 sudah di-merge ke `main` (merge commit). Hanya `frontend/` yang berubah; tidak ada perubahan kontrak API, skema, atau backend.
+1. **Tema biru (#46):** palet merah diganti biru. Token baru di `src/styles/index.css`: `brand-strong`, `brand-accent`, `progress-track`.
+2. **Warna status (#47, #48):** token `success`, `warning`, `danger` beserta `-soft` dan `-solid`; hex status yang tersebar diganti token. Bar cakupan: hijau `#1E7A4F`, oranye `#D97706`, merah. Setiap status punya ikon dan label.
+3. **Mobile 393x852:** `/dashboard` dan `/rps/:id` (langkah metadata dan tinjauan) muat satu bingkai `100dvh`; daftar scroll di wadahnya. Halaman lain (login, register, profil, `/analyses/new`, `/analyses/:id`) disesuaikan: tabel profil jadi daftar, bar Mulai Analisis menempel di bawah, target sentuh minimal 44px. Batas phone/tablet di 640px; layout tablet dan desktop tidak berubah. Pencarian dashboard di mobile lewat ikon topbar.
+4. **Aksesibilitas:** border field `#74879F` (3,68:1), cursor pointer di base layer, fokus `focus-visible`/`focus-within`, dialog bukti skill (`role="dialog"`, Escape, fokus kembali), landmark `main`, satu `h1` per halaman, judul halaman unik lewat `src/lib/usePageTitle.ts`, label dan nama aksesibel, teks minimal 11px.
+5. **Copy:** badge eyebrow di hero unggah, login, dan register dihapus. `copy.status.missingShort` ("Belum ditemukan") dipakai di kartu mobile.
+6. **Keterbacaan hasil analisis (`/analyses/:id`):** judul di atas tab; tab Ringkasan jadi satu panel (angka utama, bar, tiga baris rincian, tombol "Lihat rincian skill"); kartu rekomendasi dua kolom di desktop; teks isi minimal 14px, keterangan minimal 12px.
+7. **Breakpoint:** pencarian topbar baru tampil dari 1024px (ikon cari di bawahnya); daftar RPS dashboard tiga kolom dari 1280px.
+8. **Konsistensi visual:** radius panel `rounded-xl`, baris dan input `rounded-lg` (hero unggah tetap `rounded-2xl`); goresan ikon Lucide diatur sekali di `index.css`; alasan tipografi dan ikon dicatat di `docs/FRONTEND.md`. Teks antarmuka tanpa tanda pisah panjang.
+
+Verifikasi: `npm run lint` (0 error, 3 warning lama), `typecheck`, `npm test` (32 lulus), `npm run build`. Audit DOM headless di 393x852 dan 1280x900 dengan API tiruan: tanpa overflow horizontal, kontrol tanpa nama, atau input tanpa label.
+Belum diuji: keyboard asli (Tab/fokus), zoom 200%, perangkat sentuh nyata, backend asli, lebar 375 dan 768 secara manual.
+Breaking change: tidak.
 
 #### HO-C-005 · 2026-11-13 · T3.5, T3.6, T5.4, T6.5, T7.4 · untuk: A, B
 **Seluruh halaman RPS & analisis selesai.** Branch: `feat/rps-analysis-pages`.

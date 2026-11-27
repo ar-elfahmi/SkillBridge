@@ -12,7 +12,6 @@ export const copy = {
     loginTitle: 'Masuk',
     loginSubtitle: 'Masuk untuk meninjau hasil analisis RPS Anda.',
     loginInfoTitle: 'Analisis RPS terhadap kebutuhan industri',
-    loginInfoNote: 'Data lowongan pada contoh ini adalah data contoh',
     loginInfoPoints: [
       'Unggah RPS',
       'Tinjau kompetensi',
@@ -166,7 +165,7 @@ export const copy = {
     searchJobsPlaceholder: 'Cari lowongan',
     filterAll: 'Semua',
     filterSelected: 'Dipilih',
-    sampleNote: 'Lowongan pada contoh ini adalah data contoh.',
+    sampleNote: 'Lowongan yang tampil adalah data contoh.',
     drawerTitle: 'Detail lowongan',
     drawerEmpty: 'Pilih salah satu lowongan untuk melihat detail.',
     step3Title: 'Pratinjau pemetaan awal',
@@ -201,6 +200,7 @@ export const copy = {
     chartTitle: 'Cakupan skill dalam RPS',
     ofTotalSkills: 'dari',
     skillCountSuffix: 'skill',
+    viewGapBtn: 'Lihat rincian skill',
     skillGapSearch: 'Cari skill',
     hideReported: 'Sembunyikan yang sudah dilaporkan',
     reportedFlag: 'Dilaporkan',
@@ -225,7 +225,7 @@ export const copy = {
     topicsLabel: 'Topik',
     keywordsPrefix: 'Kata kunci:',
     alreadyLearned: 'Sudah saya pelajari di luar RPS',
-    selfDeclaredTitle: 'Dipelajari mandiri (dilaporkan pengguna)',
+    selfDeclaredTitle: 'Dipelajari mandiri',
     selfDeclaredPlaceholder: 'Ketik nama skill, mis. Docker',
     addSkillBtn: 'Tambah skill',
     selfDeclaredNote:
@@ -248,8 +248,7 @@ export const copy = {
     title: 'Profil',
     logout: 'Keluar',
     personalSkillsTitle: 'Skill pribadi',
-    personalSkillsDesc:
-      'Skill yang Anda pelajari di luar RPS, beserta tingkat pemahaman Anda. Berdasarkan laporan Anda; tidak diverifikasi dan tidak memengaruhi Cakupan skill dalam RPS.',
+    personalSkillsDesc: 'Skill yang Anda pelajari di luar RPS, beserta tingkat pemahaman Anda.',
     noteCanonical:
       'Skill dicocokkan lewat nama kanonik yang sama. Skill ini tidak mengubah status cakupan dalam RPS.',
     addPlaceholder: 'Ketik nama skill, mis. Docker',

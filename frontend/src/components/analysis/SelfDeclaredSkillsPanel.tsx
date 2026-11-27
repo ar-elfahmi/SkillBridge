@@ -33,8 +33,8 @@ export function SelfDeclaredSkillsPanel({
   }
 
   return (
-    <div className="flex flex-col gap-3 rounded-2xl border border-border-warm bg-surface-subtle p-4 sm:p-5">
-      <span className="text-xs font-bold text-text-primary">
+    <div className="flex flex-col gap-3 rounded-xl border border-border-warm bg-surface-subtle p-4 sm:p-5">
+      <span className="text-sm font-bold text-text-primary">
         {copy.analysesResult.selfDeclaredTitle}
       </span>
 
@@ -43,19 +43,19 @@ export function SelfDeclaredSkillsPanel({
           {skills.map((s) => (
             <li
               key={s.id}
-              className="flex items-center justify-between gap-2 rounded-lg bg-white px-3 py-2 text-xs"
+              className="flex items-center justify-between gap-2 rounded-lg bg-white px-3 py-2 text-sm"
             >
               <span className="flex min-w-0 flex-col">
                 <span className="truncate font-semibold text-text-primary">{s.skill}</span>
                 {s.reported_as && (
-                  <span className="truncate text-[11px] text-text-secondary">
+                  <span className="truncate text-xs text-text-secondary">
                     dari kata kunci: {s.reported_as}
                   </span>
                 )}
               </span>
 
               <span className="flex shrink-0 items-center gap-2">
-                <span className="text-[11px] text-text-secondary">
+                <span className="text-xs text-text-secondary">
                   {copy.analysesResult.levelOptions[s.level]}
                 </span>
                 <button
@@ -75,15 +75,15 @@ export function SelfDeclaredSkillsPanel({
           {reportedFromAnalysis.map((s) => (
             <li
               key={s.skill}
-              className="flex items-center justify-between rounded-lg bg-white px-3 py-2 text-xs"
+              className="flex items-center justify-between rounded-lg bg-white px-3 py-2 text-sm"
             >
               <span className="font-semibold text-text-primary">{s.skill}</span>
-              <span className="text-[11px] text-text-secondary">{copy.status[s.classification]}</span>
+              <span className="text-xs text-text-secondary">{copy.status[s.classification]}</span>
             </li>
           ))}
         </ul>
       ) : (
-        <p className="text-[11px] text-text-secondary">{copy.analysesResult.selfDeclaredEmpty}</p>
+        <p className="text-xs text-text-secondary">{copy.analysesResult.selfDeclaredEmpty}</p>
       )}
 
       <form onSubmit={submit} className="flex flex-col gap-2 sm:flex-row">
@@ -99,7 +99,7 @@ export function SelfDeclaredSkillsPanel({
             aria-label={copy.analysesResult.levelLabel}
             value={level}
             onChange={(e) => setLevel(e.target.value as SkillLevel)}
-            className="h-11 rounded-lg border border-field bg-white px-2 text-xs sm:h-10 font-semibold text-text-primary outline-none focus-visible:border-brand-accent focus-visible:ring-2 focus-visible:ring-brand-accent/40"
+            className="h-11 rounded-lg border border-field bg-white px-2 text-sm sm:h-10 font-semibold text-text-primary outline-none focus-visible:border-brand-accent focus-visible:ring-2 focus-visible:ring-brand-accent/40"
           >
             {(['beginner', 'intermediate', 'advanced'] as const).map((l) => (
               <option key={l} value={l}>
@@ -118,11 +118,11 @@ export function SelfDeclaredSkillsPanel({
         </div>
       </form>
 
-      <p className="border-t border-border-warm pt-2 text-[11px] text-text-secondary">
+      <p className="border-t border-border-warm pt-2 text-sm text-text-secondary">
         {copy.analysesResult.selfDeclaredNote}
       </p>
 
-      <Link to="/profile" className="inline-flex min-h-11 w-fit items-center text-xs font-bold text-brand-strong hover:underline sm:min-h-0">
+      <Link to="/profile" className="inline-flex min-h-11 w-fit items-center text-sm font-bold text-brand-strong hover:underline sm:min-h-0">
         {copy.analysesResult.selfDeclaredProfileLink}
       </Link>
     </div>

@@ -136,7 +136,7 @@ export function DashboardPage() {
       </main>
 
       <footer className="hidden h-14 shrink-0 items-center justify-center border-t border-border-warm px-4 sm:flex md:justify-start md:px-8">
-        <p className="text-[11px] font-medium text-text-secondary">{copy.footerBrand}</p>
+        <p className="text-xs font-medium text-text-secondary">{copy.footerBrand}</p>
       </footer>
     </div>
   )
