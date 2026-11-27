@@ -83,7 +83,12 @@ frontend/src/
 ## 7. Responsif
 - Mobile: tabel skill gap menjadi daftar kartu; EvidenceDrawer menjadi bottom sheet.
 - Desktop: tabel penuh, drawer samping.
-- Uji lebar 375px, 768px, 1280px.
+- Uji lebar 375px, 768px, 1280px; di mobile juga 320x568, 360x640, 393x852.
+- Pola frame (keputusan pemilik produk, menggantikan aturan PR #47 "dashboard muat satu bingkai"):
+  - Satu bingkai setinggi layar hanya untuk halaman pendek dan tetap (login, register, profil kosong, langkah metadata `/rps/:id`).
+  - Halaman berdaftar (dashboard, `/rps/:id` langkah tinjau, `/analyses/:id`, `/analyses/new`) memakai gulir halaman tunggal tanpa wadah gulir bersarang, dengan tab atau bilah aksi lengket.
+  - Layar pertama dashboard di 393x852 menampilkan unggah, tiga kartu statistik, dan minimal dua kartu RPS tanpa menggulir.
+- Target sentuh minimal 44px (seluruh baris checkbox berupa `label`), input 16px, teks isi minimal 14px.
 
 ## 8. Kualitas
 - `npm run lint`, `npm run typecheck`, `npm test` harus lulus.
