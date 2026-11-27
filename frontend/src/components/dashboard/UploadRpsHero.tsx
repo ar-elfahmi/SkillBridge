@@ -1,16 +1,18 @@
 import { useRef, useState } from 'react'
 import type { ChangeEvent, DragEvent, ReactNode } from 'react'
 import { FileUp, Upload } from 'lucide-react'
+import { StatusNotice } from '@/components/common/StatusNotice'
 import { copy } from '@/lib/copy'
 
 interface UploadRpsHeroProps {
   onFileSelect: (file: File) => void
   isPending: boolean
   error?: string | null
-  errorAction?: ReactNode
+  /** Info netral, mis. dokumen sudah ada. Bukan galat. */
+  notice?: { message: string; action?: ReactNode; onDismiss: () => void } | null
 }
 
-export function UploadRpsHero({ onFileSelect, isPending, error, errorAction }: UploadRpsHeroProps) {
+export function UploadRpsHero({ onFileSelect, isPending, error, notice }: UploadRpsHeroProps) {
   const [isDragOver, setIsDragOver] = useState(false)
   const [fileError, setFileError] = useState<string | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
@@ -87,7 +89,7 @@ export function UploadRpsHero({ onFileSelect, isPending, error, errorAction }: U
 
           <button
             type="button"
-            className="mt-1 rounded-lg bg-white px-4 py-1.5 text-sm font-bold text-brand-strong shadow hover:bg-white/90 transition-colors"
+            className="mt-1 min-h-11 rounded-lg bg-white px-4 py-1.5 text-sm font-bold text-brand-strong shadow hover:bg-white/90 transition-colors"
           >
             {isPending ? copy.dashboard.uploading : copy.dashboard.chooseFile}
           </button>
@@ -95,10 +97,13 @@ export function UploadRpsHero({ onFileSelect, isPending, error, errorAction }: U
       </div>
 
       {/* Mobile Layout (< md) */}
-      <div className="flex flex-col gap-3 p-4 sm:p-5 md:hidden">
-        <div className="flex flex-col gap-2">
+      <div className="flex flex-col gap-2 p-3 sm:gap-3 sm:p-5 md:hidden">
+        <div className="flex flex-col gap-0.5 sm:gap-2">
           <h2 className="font-display text-xl font-normal sm:text-2xl">{copy.dashboard.uploadTitle}</h2>
-          <p className="text-sm text-white/90">{copy.dashboard.uploadDescMobile}</p>
+          <p className="text-sm text-white/90">
+            {copy.dashboard.uploadDescMobile}{' '}
+            <span className="whitespace-nowrap text-white/80">{copy.dashboard.uploadNote}</span>
+          </p>
         </div>
 
         <button
@@ -110,17 +115,22 @@ export function UploadRpsHero({ onFileSelect, isPending, error, errorAction }: U
           <FileUp className="size-4" aria-hidden="true" />
           <span>{isPending ? copy.dashboard.uploading : copy.dashboard.chooseFile}</span>
         </button>
-
-        <p className="text-center text-sm text-white/90">{copy.dashboard.uploadNote}</p>
       </div>
 
       {shownError && (
         <div
           role="alert"
-          className="flex flex-wrap items-center justify-center gap-x-3 bg-danger px-5 py-2 text-center text-sm font-semibold text-white"
+          className="bg-danger px-5 py-2 text-center text-sm font-semibold text-white"
         >
-          <span>{shownError}</span>
-          {!fileError && errorAction}
+          {shownError}
+        </div>
+      )}
+
+      {notice && !shownError && (
+        <div className="bg-white p-3">
+          <StatusNotice variant="info" onDismiss={notice.onDismiss} action={notice.action}>
+            {notice.message}
+          </StatusNotice>
         </div>
       )}
     </section>

@@ -35,7 +35,7 @@ export function DashboardStats({
         <span className="font-display text-3xl font-normal leading-none text-brand-strong sm:text-4xl">
           {missingSkillsCount}
         </span>
-        <span className="hidden text-sm text-text-secondary sm:block">
+        <span className="text-sm text-text-secondary">
           {copy.dashboard.stats.missingSkillsNote(analysesCount)}
         </span>
       </div>
@@ -51,7 +51,7 @@ export function DashboardStats({
           <span className="font-display text-2xl font-normal leading-none text-text-primary sm:text-3xl">
             {s.value}
           </span>
-          {s.note && <span className="hidden text-sm text-text-secondary sm:block">{s.note}</span>}
+          {s.note && <span className="text-sm text-text-secondary">{s.note}</span>}
         </div>
       ))}
     </div>
