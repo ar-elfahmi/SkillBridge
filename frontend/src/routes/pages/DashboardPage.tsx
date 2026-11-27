@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { DashboardTopbar } from '@/components/dashboard/DashboardTopbar'
 import { AiQuotaBanner } from '@/components/common/AiQuotaBanner'
 import { UploadRpsHero } from '@/components/dashboard/UploadRpsHero'
@@ -23,6 +23,7 @@ import { copy } from '@/lib/copy'
 export function DashboardPage() {
   usePageTitle('Beranda')
   const navigate = useNavigate()
+  const notice = (useLocation().state as { notice?: string } | null)?.notice
   const { data: user } = useMe()
   const logout = useLogout()
   const { data: rpsList = [], isLoading: isRpsLoading } = useRpsList()
@@ -105,6 +106,11 @@ export function DashboardPage() {
         <h1 className="sr-only">Beranda</h1>
         <div className="flex h-full min-h-0 flex-1 flex-col gap-3 sm:h-auto sm:gap-6">
           <AiQuotaBanner />
+          {notice && (
+            <p role="status" className="rounded-lg bg-brand-soft/40 p-3 text-sm font-semibold text-text-primary">
+              {notice}
+            </p>
+          )}
           <UploadRpsHero
             onFileSelect={handleFileUpload}
             isPending={uploadRps.isPending}
