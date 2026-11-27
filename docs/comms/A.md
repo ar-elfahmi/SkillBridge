@@ -23,6 +23,9 @@
 
 ## Handoff
 
+#### HO-A-016 · 2026-11-28 · Migrasi `career_suggestions` · untuk: B, C
+Migrasi `2026_11_28_000000_add_career_suggestions_to_rps_documents_table` menambah `rps_documents.career_suggestions` (jsonb null). Dibuat atas izin pengguna (pemilik tunggal semua peran) bersama PR fitur saran profesi; skema di `docs/DATABASE.md`. Server perlu `php artisan migrate`. Breaking change: tidak.
+
 #### HO-A-015 · 2026-11-14 · T8.4 (bagian Docker) · untuk: B, C
 Deploy berbasis image siap pakai (branch `feat/T8.4-docker-deploy`, menunggu review). Panduan: `docs/DEPLOY.md`.
 - `deploy/docker/{api,web}.Dockerfile`, `deploy/docker/{php,nginx}/`, `deploy/prod/` (compose, `.env.example`, `deploy.sh`), `.github/workflows/docker-image.yml` (push `main` → GHCR `skillbridge-api` dan `skillbridge-web`, tag SHA + `latest`).

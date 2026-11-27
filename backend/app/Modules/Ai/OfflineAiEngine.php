@@ -31,6 +31,7 @@ final class OfflineAiEngine
             'job_extraction' => $this->extractJobSkills($documentText),
             'match_judge' => $this->judgeMatch($prompt),
             'recommendation' => $this->generateRecommendation($documentText),
+            'career_suggestion' => $this->suggestCareers($documentText),
             default => [],
         };
 
@@ -188,6 +189,42 @@ final class OfflineAiEngine
         }
 
         return null;
+    }
+
+    /**
+     * Rank careers by how many of their name/description words appear in the competencies.
+     *
+     * @return list<array{career_id: int, reason: string}>
+     */
+    private function suggestCareers(string $dataJson): array
+    {
+        $data = json_decode($dataJson, true);
+        if (! is_array($data) || ! is_array($data['careers'] ?? null) || ! is_array($data['competencies'] ?? null)) {
+            return [];
+        }
+
+        $haystack = mb_strtolower(implode(' ', array_filter($data['competencies'], 'is_string')));
+        $scored = [];
+
+        foreach ($data['careers'] as $career) {
+            if (! is_array($career) || ! isset($career['id']) || ! is_int($career['id'])) {
+                continue;
+            }
+
+            $words = preg_split('/[^\p{L}\p{N}]+/u', mb_strtolower((string) ($career['name'] ?? '').' '.(string) ($career['description'] ?? ''))) ?: [];
+            $hits = count(array_filter(array_unique($words), fn (string $w): bool => mb_strlen($w) >= 4 && str_contains($haystack, $w)));
+
+            if ($hits > 0) {
+                $scored[] = ['career_id' => $career['id'], 'hits' => $hits];
+            }
+        }
+
+        usort($scored, fn (array $a, array $b): int => $b['hits'] <=> $a['hits']);
+
+        return array_map(
+            fn (array $row): array => ['career_id' => $row['career_id'], 'reason' => 'Kata kunci pada kompetensi RPS selaras dengan profesi ini.'],
+            array_slice($scored, 0, 3),
+        );
     }
 
     /**

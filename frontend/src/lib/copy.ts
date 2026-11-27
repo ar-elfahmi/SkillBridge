@@ -166,6 +166,10 @@ export const copy = {
     careersError: 'Daftar profesi gagal dimuat. Muat ulang halaman ini.',
     careersEmpty: 'Belum ada profesi tersedia.',
     selectedBadge: 'Dipilih',
+    suggestionBadge: 'Saran AI untuk RPS ini',
+    suggestionsLoading: 'Menyiapkan saran profesi untuk RPS Anda…',
+    suggestionsNote:
+      'Profesi di bawah diurutkan berdasarkan kesesuaian isi RPS Anda (saran AI). Anda tetap bebas memilih profesi lain.',
     jobsReady: (n: number) => `${n} lowongan siap dipakai`,
     noJobsReady: 'Belum ada lowongan siap dipakai',
     skillLimitNote:

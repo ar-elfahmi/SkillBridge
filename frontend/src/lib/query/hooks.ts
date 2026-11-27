@@ -205,6 +205,21 @@ export function useAiQuota() {
   })
 }
 
+/** Saran profesi untuk RPS. Polling 2,5 dtk selama diproses, dibatasi 40 kali agar tidak berputar selamanya. */
+export function useCareerSuggestions(rpsId: number) {
+  return useQuery({
+    queryKey: queryKeys.careerSuggestions(rpsId),
+    queryFn: () => rpsApi.careerSuggestions(rpsId),
+    select: (res) => res.data,
+    enabled: Number.isInteger(rpsId) && rpsId > 0,
+    retry: false,
+    refetchInterval: (query) =>
+      query.state.data?.data.status === 'processing' && query.state.dataUpdateCount < 40
+        ? 2500
+        : false,
+  })
+}
+
 export function useCareersList() {
   return useQuery({
     queryKey: queryKeys.careers,

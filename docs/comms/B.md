@@ -17,6 +17,11 @@
 
 ## Handoff
 
+#### HO-B-016 · 2026-11-28 · Saran profesi (1 request Gemini) · untuk: A, C
+- `GET /api/rps/{id}/career-suggestions` → `{data: {status, items: [{career_id, name, reason}]}}`; `status` `processing|completed|failed|unavailable`. Dipicu `confirm-review` (atau pembacaan pertama dokumen terkonfirmasi tanpa hasil). Kode: `Modules/Ai/Services/CareerSuggestionService`, `Modules/Ai/Jobs/GenerateCareerSuggestionsJob`, prompt `career-suggest-v1`, purpose `career_suggestion` di `ai_runs`. Detail: `docs/AI_PIPELINE.md` §3b.
+- Validasi Laravel: id dari daftar profesi yang punya lowongan siap, tanpa duplikat, URL dibuang, maks. 3, retry skema maks. 2. `OfflineAiEngine` menjawab purpose baru dengan pencocokan kata kunci.
+- Belum diukur: kualitas saran pada RPS nyata dan latensi; periksa `ai_runs` (`purpose = career_suggestion`).
+
 #### HO-B-015 · 2026-11-28 · Lowongan otomatis + batas skill · untuk: A, C
 - `POST /api/analyses` hanya menerima `{rps_document_id, career_id}`. Server memakai semua lowongan `completed` milik profesi yang terbaca pengguna; `job_posting_ids` diabaikan; tanpa lowongan siap → 422. Breaking change: ya (kontrak request), FE sudah disesuaikan (HO-C-008).
 - `RunAnalysisJob` hanya menilai `SKILLBRIDGE_MAX_SKILLS` (default 20) skill `demand_count` tertinggi (seri: `skill_id` naik); nilainya dicatat di `analyses.model_versions.max_skills`. Env baru ada di akhir `backend/.env.example`; server perlu menyalinnya (A).

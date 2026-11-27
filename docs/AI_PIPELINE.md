@@ -82,6 +82,15 @@ Kembalikan JSON sesuai skema.
 4. **Deduplikasi:** gabungkan item dengan `skill_id` + `source_reference` sama.
 5. Simpan ke `course_skills`.
 
+## 3b. Saran profesi untuk RPS
+
+Satu request Gemini per RPS (`purpose = career_suggestion`, prompt `career-suggest-v1`), dijalankan `GenerateCareerSuggestionsJob` setelah `confirm-review`.
+- **Input** (dalam `<data>`, JSON dengan `/` tetap di-escape agar `</data>` di dokumen tidak menutup delimiter): maks. 60 kompetensi RPS non-`rejected` (`skill: competency`, dipotong 200 karakter) dan profesi yang punya lowongan siap pakai milik pengguna (`id`, `name`, `description`).
+- **Output**: array `[{career_id, reason}]` maks. 3 item, terurut paling sesuai.
+- **Validasi di Laravel**: `career_id` harus integer dari daftar yang ditawarkan, tanpa duplikat; `reason` string non-kosong, URL dibuang, maks. 200 karakter. Output yang tidak dapat di-parse diulang maks. 2 kali, lalu `status = failed`. Hasil kosong sah (tidak ada profesi yang cocok).
+- **Mode offline/fallback**: `OfflineAiEngine` memeringkat profesi berdasarkan kata kunci nama/deskripsi yang muncul di kompetensi.
+- Hasil disimpan di `rps_documents.career_suggestions`; tidak ada panggilan ulang saat halaman dibuka. Saran adalah kesesuaian isi RPS dengan profesi, bukan penilaian kemampuan mahasiswa.
+
 ## 4. Embedding
 - Model: `gemini-embedding-001`, dimensi 768 (env). Model dan dimensi **sama** untuk kedua sisi.
 - Gunakan task type yang sesuai untuk kemiripan semantik (cek dokumentasi resmi untuk nilai parameter).

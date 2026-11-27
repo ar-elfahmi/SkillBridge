@@ -303,6 +303,19 @@ export interface DuplicateRpsResponse {
  * ========================================================================= */
 
 /** Status kuota AI harian (GET /api/ai/quota). */
+export type CareerSuggestionStatus = 'processing' | 'completed' | 'failed' | 'unavailable'
+
+export interface CareerSuggestion {
+  career_id: number
+  name: string
+  reason: string
+}
+
+export interface CareerSuggestions {
+  status: CareerSuggestionStatus
+  items: CareerSuggestion[]
+}
+
 export interface AiQuota {
   available: boolean
   daily_remaining: number

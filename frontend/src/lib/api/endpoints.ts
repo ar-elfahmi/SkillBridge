@@ -4,6 +4,7 @@ import type {
   Analysis,
   Career,
   CourseSkill,
+  CareerSuggestions,
   CreateAnalysisPayload,
   CreateCompetencyPayload,
   JobPosting,
@@ -39,6 +40,8 @@ export const authApi = {
 export const rpsApi = {
   list: () => api.get<{ data: RpsDocument[] }>('/rps'),
   show: (id: number) => api.get<{ data: RpsDocument }>(`/rps/${id}`),
+  careerSuggestions: (id: number) =>
+    api.get<{ data: CareerSuggestions }>(`/rps/${id}/career-suggestions`),
   updateMetadata: (id: number, payload: UpdateRpsMetadataPayload) =>
     api.patch<{ data: RpsDocument }>(`/rps/${id}`, payload),
   upload: (file: File) => {

@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Modules\Ai\Http\Controllers\CareerSuggestionController;
 use App\Modules\Competency\Http\Controllers\CompetencyController;
 use App\Modules\Rps\Http\Controllers\RpsDocumentController;
 use Illuminate\Support\Facades\Route;
@@ -18,4 +19,5 @@ Route::middleware('auth:sanctum')->group(function (): void {
     Route::patch('rps/{document}/competencies/{competency}', [CompetencyController::class, 'update']);
     Route::delete('rps/{document}/competencies/{competency}', [CompetencyController::class, 'destroy']);
     Route::post('rps/{document}/confirm-review', [CompetencyController::class, 'confirmReview']);
+    Route::get('rps/{document}/career-suggestions', [CareerSuggestionController::class, 'show']);
 });
