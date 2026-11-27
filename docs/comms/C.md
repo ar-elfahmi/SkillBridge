@@ -13,11 +13,48 @@
 - [x] T7.4 Rekomendasi Belajar — selesai (tab Rekomendasi + panel skill pribadi read-only + DisclaimerBanner)
 - [ ] T7.5 Skill pribadi — terblokir backend (`user_skills` belum ada, lihat `REQ-C-006`)
 - [ ] T8.3 Responsif & polish - sebagian (tema biru, warna status, mobile 393x852, aksesibilitas; lihat `HO-C-006`). Belum dicentang di `docs/TASKS.md`: audit kata-kata UI dan pengecekan 375/768/1280 manual belum lengkap
+- [ ] Perbaikan audit E2E mobile (UI-UX-AUDIT.md Bagian 3, E-01 sampai E-40): sebagian besar selesai di branch lokal `fix/ui-audit-e2e-mobile` (belum di-push); lihat `HO-C-010`
+- [ ] Temuan sisa V-01 sampai V-14: dikerjakan di branch yang sama, lihat `HO-C-011`
 - [ ] T8.5 Checklist MVP — bersama A, B
 
 Total 21 unit tests lulus, `npm run typecheck` + `npm run build` bersih. Branch aktif: `feat/rps-analysis-pages`.
 
 ## Handoff
+
+#### HO-C-011 · 2026-11-28 · Temuan sisa verifikasi E2E mobile (V-01 sampai V-14) · untuk: A, B
+Branch lokal `fix/ui-audit-e2e-mobile` (belum di-push, belum ada PR). Hanya `frontend/`, `docs/FRONTEND.md`, dan file ini. Tidak ada perubahan kontrak API atau backend. Lanjutan `HO-C-010`.
+
+**Selesai (kode + test, belum dicoba di browser)**
+- V-06: `useStickyInset` (`frontend/src/lib/useStickyInset.ts`) menulis `--sticky-bottom` / `--sticky-top`; `html` memakai `scroll-padding` (`styles/index.css`). Dipasang di `CompetencyReviewTable`, `AnalysesNewPage`, tab `AnalysesResultPage`. Bilah berada di akhir alur konten, jadi `padding-bottom` tambahan tidak diperlukan.
+- V-08: judul kosong, null, spasi, atau sama dengan nama skill menjadi "Pelajari {skill}" (`LearningRecommendationList`). V-09: baris judul kartu skill `flex-wrap` + `min-w-0 break-words` (`SkillGapTable`). V-04: `MetadataPanel` (`field-sizing` + fallback scrollHeight dengan border, `overflow-hidden`). V-05: aksi sekunder dipindah ke kartu ringkasan, bilah hanya tombol utama. V-07: `normalizeCourseCode` (`lib/labels.ts`) saat simpan, ringkasan, dan subjudul `/analyses/new`. V-10, V-02, V-03 (2 jam), V-13 (5 detik + tombol tutup), V-14 (`aria-pressed`, tombol menggantikan radio di sheet filter), V-11 (`focus-within` ring pada label kartu profesi; `cursor-pointer` sudah ada).
+- V-01: kartu RPS dipadatkan (tanggal·profesi satu baris terpotong, "Baru" dan jumlah halaman satu baris dengan status, coverage dua kolom, padding kartu 12px, tombol hapus tidak lagi memakai `pr-14` seluruh kartu) dan hero unggah ponsel dipadatkan (catatan "PDF · Maks. 10 MB" digabung ke deskripsi). Perkiraan tinggi dari hitungan, belum diukur di 393x852.
+- V-12: `sm:size-8/9/10` dan `sm:min-h-9` pada tombol kembali, avatar topbar, tutup drawer, dan Keluar di profil dihapus agar tetap 44px di 768px. Kolom cari desktop topbar hanya muncul di `lg` (>=1024px), jadi tidak ada di 768px; di bawah itu memakai ikon 44px.
+
+**Perlu dicek di browser**: V-01 (ukuran kartu nyata), V-06 (fokus Tab nyata), V-09 di 320px, V-04 di Chrome/Safari, V-12 hasil inspeksi di 768x1024. Perilaku V-08 diperluas: judul yang sama dengan nama skill juga diganti "Pelajari {skill}".
+
+#### HO-C-010 · 2026-11-28 · Perbaikan audit E2E mobile (E-01 sampai E-40, R-02, R-03, R-05, R-07, F-19) · untuk: A, B
+Branch lokal `fix/ui-audit-e2e-mobile` (belum di-push, belum ada PR). Hanya `frontend/`, `docs/FRONTEND.md`, dan file ini yang berubah. Tidak ada perubahan kontrak API, skema, atau backend.
+
+**Selesai**
+- Unggah dan metadata: E-01 (info duplikat netral, memuat nama dokumen, `role="status"`, tombol tutup), E-03 (lencana "Perlu dicek" berikon pensil, warna warning), E-04 (skeleton dan "Membaca metadata dokumen…"), E-05 (nama dan program studi memakai textarea yang membesar), E-06/E-07 (label "Kode MK" dengan `*`, teks bantu di bawah kolom), E-08 (`autocapitalize="characters"`, `inputMode="numeric"`), E-09 (galat per kolom, `aria-invalid`, `aria-describedby`, fokus), E-10/E-11 (fieldset nonaktif saat dibaca, panel proses dan ringkasan metadata saat ekstraksi), E-12 (ringkasan "Ekstraksi selesai. N kompetensi menunggu tinjauan." hanya untuk sesi yang memulai ekstraksi, bisa ditutup), E-13/E-14 (pasangan token success, wilayah `role="status"`), E-15 ("Simpan dan mulai ekstraksi" menyimpan dulu; "Simpan perubahan" hanya muncul bila ada perubahan).
+- Tinjau: E-16/E-17/E-22 (teks bilah sejalan dengan tombol; "Setujui semua (N) dan lanjut" membuka dialog konfirmasi berisi jumlah; "Setujui semua yang terverifikasi (M)" bila 0 < M < N; N = 0 menjadi "Lanjut ke pemetaan industri"; tautan lanjut penuh lebar, 44px, teks tengah, tanpa panah), E-18 (lencana status netral, aksi satu gaya), E-19 (sumber "Rencana mingguan, minggu 1, hal. 1" di ponsel dan desktop), E-20 (`aria-label` "Setujui {nama}" dan seterusnya), E-21 (satu pernyataan "Semua kompetensi sudah ditinjau."), E-23 (form tambah: tombol 44px, galat Indonesia per kolom, textarea 3 baris), E-24 (penyebab: editor hanya dirender di tabel desktop, sehingga Edit di kartu ponsel tidak menampilkan apa pun; kini editor dipakai bersama. Server tidak mengunci edit setelah konfirmasi, jadi tidak ada teks alasan kunci), R-02 (kutipan dalam akordeon, aksi satu baris).
+- Pemetaan dan proses: E-25 (panel proses bertahap, tab disembunyikan selama proses, tombol "Kembali ke beranda"), E-29 (skeleton "Menyiapkan saran profesi…").
+- Hasil: E-26 (Title Case untuk nama HURUF BESAR, `line-clamp-2`, lencana di baris subjudul), E-30 (3 kelompok pertama, "Lihat N lowongan lain", awalan "- " dibuang, kutipan identik digabung), E-32/E-36/E-37 (ponsel: satu baris cari + tombol Filter ke bottom sheet; desktop: chip membungkus, tanpa gulir horizontal; "+ Tambah" di judul "Dipelajari mandiri" membuka bottom sheet; skill pribadi jadi chip), E-33 (label "Kecocokan lemah" pada status Sebagian), E-34 (judul kosong menjadi "Pelajari {skill}"), E-35 (bottom sheet tingkat, toast dengan "Urungkan", fokus ke kartu berikutnya), E-39 (penanda "Baru" untuk dokumen dalam 24 jam), E-40 (opsi "Pilih tingkat"; tanpa pilihan, server mencatat Menengah dan UI menyebutnya), R-03 (seluruh baris checkbox sudah `label` 44px, juga di sheet), R-07 ("minggu 1"), F-19 (kolom cari sudah `rounded-lg`, tidak ada lagi bentuk pil pada input; pustaka ikon tidak diganti).
+- E-28: tombol hapus pada kartu dashboard + dialog konfirmasi. Catatan: kontrak `DELETE /api/rps/{id}` sudah ada di `docs/API.md` (204, cascade analisis, PDF dihapus) dan route backend sudah ada, jadi tidak ada usulan kontrak baru. Tombol hanya dirender bila `rpsApi.remove` tersedia.
+
+**Sebagian**
+- E-27: kartu memuat tanggal unggah, profesi (bila ada analisis), dan "Baru". Analisis dihubungkan ke dokumen lewat nama mata kuliah, sehingga dua dokumen bernama sama tidak dapat dibedakan secara andal (lihat REQ-C-007).
+- E-31: urut dari permintaan terbanyak dan batang kecil, tetapi relatif terhadap skill yang paling sering diminta. Teks "41 dari 41 lowongan" tidak ditulis karena jumlah lowongan terpilih tidak ada di API (R-17).
+- E-38: keterangan "dari N analisis" kini tampil juga di ponsel. Dedup per dokumen sumber tidak mungkin tanpa `rps_document_id` pada daftar analisis.
+- R-05: "Lowongan tersedia" memakai jumlah `eligible_job_count` semua profesi (`/api/careers`), sumber yang sama dengan kartu pemetaan. Perubahan itu sudah ada di `main` (c535831); di branch ini hanya pembacaan `useJobsList` yang tak terpakai dibuang (itu penyebab `tsc` gagal di `main`).
+
+**Bukan bagian C, perlu B**: R-04 (prioritas hampir semua "Tinggi", kata kunci dan topik berbahasa Inggris), R-06 (alias skill "Agile" vs "Agile/Scrum", ambang `demand_count`), E-33 (kalibrasi kecocokan "Sebagian" terlalu longgar), E-34 (judul kosong dan tidak stabil antarkunjungan, refresh rekomendasi harus idempoten; lihat REQ-C-008).
+
+**Tes**: `RpsDetailPage` (dialog konfirmasi: jumlah, Batal, Escape, focus trap, setujui semua, setujui terverifikasi; galat per kolom; ringkasan ekstraksi selesai tidak muncul pada kunjungan ulang; editor di kartu ponsel dan setelah konfirmasi; form tambah), `AnalysesResultPage` (panel proses, batas kutipan, bottom sheet tingkat dan Urungkan, fallback judul, filter ponsel, Title Case), `DashboardPage` (duplikat netral, hapus dokumen, "Baru"), `ProfilePage`, `labels`. Tidak ada panggilan jaringan nyata: semua endpoint di-mock.
+
+**Sisa uji manual** (tidak dapat dibuktikan lewat jsdom): papan ketik virtual pada form metadata, tambah kompetensi, dan sheet tambah skill (perangkat nyata); zoom 200%; layar 768px; tinggi layar pertama dashboard 393x852 setelah kartu mendapat satu baris tambahan (tanggal/profesi), yaitu apakah dua kartu RPS masih terlihat tanpa menggulir; perilaku auto-grow textarea di Safari lama; pembaca layar untuk toast dan panel proses.
+
+Breaking change: tidak.
 
 #### HO-C-009 · 2026-11-28 · Saran profesi di `/analyses/new` · untuk: B
 Hook `useCareerSuggestions` (polling 2,5 dtk selama `processing`, maks. 40 kali). Profesi tersaran diurutkan paling atas dengan badge `Saran AI untuk RPS ini` dan alasan; profesi tersaran pertama yang punya lowongan siap menjadi pilihan awal. `failed`/`unavailable`/kosong: daftar biasa tanpa pesan error. Menjawab HO-B-016.
@@ -139,3 +176,10 @@ Desain `07 Profil` & `06 Rekomendasi Belajar` membutuhkan kelola skill pribadi d
 2. Tabel `user_skills` (`id`, `user_id`, `skill_id`, `reported_as`, `level`, timestamps).
 3. Endpoint `GET/POST/DELETE /api/me/skills` dan trigger refresh rekomendasi `POST /api/analyses/{id}/recommendations/refresh`.
 Kapan: merge point T7.5.
+
+#### REQ-C-007 · 2026-11-28 · → A · status: open
+**Hubungkan analisis ke dokumen dan jumlah lowongan:** tambahkan `rps_document_id` pada `AnalysisResource` (dan, bila mudah, `job_count`: jumlah lowongan yang dipilih untuk analisis tersebut). Dipakai untuk: (1) dashboard menghubungkan kartu RPS ke analisisnya tanpa mencocokkan nama mata kuliah (E-27), (2) dedup statistik "Skill belum tercakup" per dokumen (E-38), (3) bar permintaan "N dari M lowongan" yang jujur (E-31). Perubahan kontrak: perbarui `docs/API.md` bagian Analisis lebih dulu.
+Kapan: sebelum PR audit E2E ini di-merge, atau dicatat sebagai tindak lanjut.
+
+#### REQ-C-008 · 2026-11-28 · → B · status: open
+**Rekomendasi dan kalibrasi:** (1) judul rekomendasi tidak boleh kosong dan stabil antarkunjungan; refresh rekomendasi idempoten (E-34, R-04); frontend sudah memberi fallback "Pelajari {skill}" tetapi tidak dapat menstabilkan isi. (2) Prioritas lebih membedakan (10 dari 12 "Tinggi"). (3) Kata kunci dan topik berbahasa Indonesia, atau tetap diberi label bahasa Inggris. (4) Normalisasi alias skill lowongan ("Agile" vs "Agile/Scrum") dan ambang minimal `demand_count` (R-06). (5) Kalibrasi kecocokan "Sebagian" yang terlalu longgar (E-33); UI sudah memberi label "Kecocokan lemah".
