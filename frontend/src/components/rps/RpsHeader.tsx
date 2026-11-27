@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import { ArrowLeft, Check, Clock3, AlertCircle } from 'lucide-react'
+import { ArrowLeft, Check, Clock3, AlertCircle, Pencil } from 'lucide-react'
 import type { RpsDocument } from '@/types/api'
 import { copy } from '@/lib/copy'
 
@@ -13,8 +13,8 @@ export function RpsHeader({ document, currentStep }: RpsHeaderProps) {
   const isExtracted = document.extraction_status === 'completed'
 
   let statusLabel: string = copy.rpsDetail.status.metadataDetected
-  let statusIcon = Check
-  let chipClass = 'bg-success-soft text-success'
+  let statusIcon = Pencil
+  let chipClass = 'bg-warning-soft text-warning'
 
   if (document.parse_status === 'parsing') {
     statusLabel = copy.rpsDetail.status.parsing
@@ -50,7 +50,7 @@ export function RpsHeader({ document, currentStep }: RpsHeaderProps) {
           <Link
             to="/dashboard"
             aria-label="Kembali"
-            className="flex size-11 shrink-0 items-center justify-center rounded-full border border-border-warm bg-white text-text-primary transition-colors hover:bg-surface-subtle active:bg-surface-subtle sm:size-10"
+            className="flex size-11 shrink-0 items-center justify-center rounded-full border border-border-warm bg-white text-text-primary transition-colors hover:bg-surface-subtle active:bg-surface-subtle"
           >
             <ArrowLeft className="size-4" aria-hidden="true" />
           </Link>
