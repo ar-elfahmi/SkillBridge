@@ -135,7 +135,7 @@ describe('AnalysesNewPage', () => {
     await screen.findByText('PT Contoh')
 
     // Klik checkbox pilih lowongan
-    const checkbox = screen.getByRole('button', { name: 'Pilih lowongan' })
+    const checkbox = screen.getByRole('button', { name: /^Pilih lowongan / })
     fireEvent.click(checkbox)
 
     // Skill React dan TypeScript harus muncul di list dan Step 3 Pratinjau

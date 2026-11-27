@@ -36,7 +36,7 @@ export function LearningRecommendationList({
         <div
           role="status"
           aria-live="polite"
-          className="flex items-center justify-center gap-2.5 rounded-2xl border border-border-warm bg-white p-8 text-xs text-text-secondary shadow-sm"
+          className="flex items-center justify-center gap-2.5 rounded-2xl border border-border-warm bg-white p-8 text-xs text-text-secondary"
         >
           <Loader2 className="size-4 shrink-0 animate-spin text-brand-accent" aria-hidden="true" />
           <span>{copy.analysesResult.recoLoading}</span>
@@ -50,7 +50,7 @@ export function LearningRecommendationList({
           {recommendations.map((r) => (
             <div
               key={r.skill}
-              className={`flex flex-col gap-3 rounded-2xl border-2 bg-white p-5 shadow-sm transition-colors ${
+              className={`flex flex-col gap-3 rounded-2xl border-2 bg-white p-4 transition-colors sm:p-5 ${
                 declaredSkills.has(r.skill)
                   ? 'border-success/80 '
                   : 'border-border-warm'
@@ -59,7 +59,7 @@ export function LearningRecommendationList({
               <div className="flex items-start justify-between gap-3">
                 <span className="text-sm font-bold text-brand-strong">{r.skill}</span>
                 <span
-                  className={`rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wide ${
+                  className={`rounded-full px-2.5 py-0.5 text-[11px] font-bold ${
                     PRIORITY_STYLE[r.priority]
                   }`}
                 >
@@ -99,7 +99,7 @@ export function LearningRecommendationList({
                 type="button"
                 onClick={() => onAlreadyLearned(r.skill)}
                 disabled={declaredSkills.has(r.skill)}
-                className={`w-fit rounded-lg border px-3 py-1.5 text-[11px] font-semibold transition-colors ${
+                className={`min-h-11 w-fit rounded-lg border px-3 text-xs font-semibold transition-colors active:bg-surface-subtle sm:min-h-9 ${
                   declaredSkills.has(r.skill)
                     ? 'cursor-default border-success/40 bg-success/10 text-success'
                     : 'border-border-warm text-text-primary hover:border-brand hover:text-brand-strong'

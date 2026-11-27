@@ -24,9 +24,11 @@ import {
   useRpsDetail,
 } from '@/lib/query/hooks'
 import type { JobPosting } from '@/types/api'
+import { usePageTitle } from '@/lib/usePageTitle'
 import { copy } from '@/lib/copy'
 
 export function AnalysesNewPage() {
+  usePageTitle('Pemetaan industri')
   const [searchParams] = useSearchParams()
   const navigate = useNavigate()
   const rpsId = searchParams.get('rps') ? parseInt(searchParams.get('rps')!, 10) : 0
@@ -183,7 +185,7 @@ export function AnalysesNewPage() {
           <div className="flex items-center gap-3">
             <Link
               to={rpsId ? `/rps/${rpsId}` : '/dashboard'}
-              className="flex size-9 items-center justify-center rounded-full border border-border-warm bg-white text-text-primary hover:bg-surface-subtle"
+              className="flex size-11 shrink-0 items-center justify-center rounded-full border border-border-warm bg-white text-text-primary hover:bg-surface-subtle active:bg-surface-subtle sm:size-9" aria-label="Kembali"
             >
               <ArrowLeft className="size-4" />
             </Link>
@@ -207,7 +209,7 @@ export function AnalysesNewPage() {
         )}
 
         {/* STEP 1: Pilih Profesi */}
-        <section className="flex flex-col gap-4 rounded-2xl border border-border-warm bg-white p-6 shadow-sm">
+        <section className="flex flex-col gap-4 rounded-2xl border border-border-warm bg-white p-4 sm:p-6">
           <div className="flex items-center gap-3">
             <div className="flex size-7 items-center justify-center rounded-full bg-brand text-xs font-bold text-white">
               1
@@ -228,7 +230,7 @@ export function AnalysesNewPage() {
                   setActiveJobDetail(null)
                 }}
                 disabled={isCareersLoading}
-                className="w-full appearance-none rounded-xl border border-border-warm bg-white px-4 py-3 text-sm font-semibold text-text-primary shadow-xs outline-none focus:border-brand-accent pr-10"
+                className="w-full appearance-none rounded-xl border border-field bg-white px-4 py-3 text-sm font-semibold text-text-primary outline-none focus-visible:border-brand-accent focus-visible:ring-2 focus-visible:ring-brand-accent/40 pr-10"
               >
                 {careers.map((c) => (
                   <option key={c.id} value={c.id}>
@@ -248,7 +250,7 @@ export function AnalysesNewPage() {
         </section>
 
         {/* STEP 2: Pilih Lowongan */}
-        <section className="flex flex-col gap-4 rounded-2xl border border-border-warm bg-white p-6 shadow-sm">
+        <section className="flex flex-col gap-4 rounded-2xl border border-border-warm bg-white p-4 sm:p-6">
           <div className="flex items-center gap-3">
             <div className="flex size-7 items-center justify-center rounded-full bg-brand text-xs font-bold text-white">
               2
@@ -260,14 +262,15 @@ export function AnalysesNewPage() {
 
           {/* Job Toolbar */}
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <div className="flex flex-1 max-w-sm items-center gap-2 rounded-full border border-border-warm bg-surface-subtle px-3 py-1.5 text-xs text-text-primary">
+            <div className="flex min-h-11 flex-1 max-w-sm items-center gap-2 rounded-full border border-field bg-surface-subtle px-3 text-xs focus-within:ring-2 focus-within:ring-brand-accent/40 sm:min-h-0 sm:py-1.5 text-text-primary">
               <Search className="size-3.5 text-text-secondary" />
               <input
                 type="text"
                 placeholder={copy.analysesNew.searchJobsPlaceholder}
+                aria-label={copy.analysesNew.searchJobsPlaceholder}
                 value={jobSearch}
                 onChange={(e) => setJobSearch(e.target.value)}
-                className="w-full bg-transparent outline-none placeholder:text-text-secondary"
+                className="h-11 w-full bg-transparent outline-none placeholder:text-text-secondary sm:h-auto"
               />
             </div>
 
@@ -275,7 +278,7 @@ export function AnalysesNewPage() {
               <button
                 type="button"
                 onClick={() => setJobFilter('all')}
-                className={`rounded-md px-3 py-1 font-semibold transition-colors ${
+                className={`min-h-11 rounded-md px-3 font-semibold transition-colors active:bg-white/70 sm:min-h-8 ${
                   jobFilter === 'all'
                     ? 'bg-white text-brand-strong shadow-xs'
                     : 'text-text-secondary'
@@ -286,7 +289,7 @@ export function AnalysesNewPage() {
               <button
                 type="button"
                 onClick={() => setJobFilter('selected')}
-                className={`rounded-md px-3 py-1 font-semibold transition-colors ${
+                className={`min-h-11 rounded-md px-3 font-semibold transition-colors active:bg-white/70 sm:min-h-8 ${
                   jobFilter === 'selected'
                     ? 'bg-white text-brand-strong shadow-xs'
                     : 'text-text-secondary'
@@ -325,24 +328,29 @@ export function AnalysesNewPage() {
                     >
                       <button
                         type="button"
-                        aria-label="Pilih lowongan"
+                        aria-label={`Pilih lowongan ${j.title}`}
                         onClick={(e) => {
                           e.stopPropagation()
                           toggleJobSelection(j.id)
                         }}
-                        className={`mt-0.5 flex size-5 shrink-0 items-center justify-center rounded border transition-colors ${
+                        className={`relative mt-0.5 flex size-5 shrink-0 items-center justify-center rounded border transition-colors before:absolute before:-inset-3 before:content-[''] ${
                           isChecked
                             ? 'border-brand bg-brand text-white'
-                            : 'border-border-warm bg-white'
+                            : 'border-field bg-white'
                         }`}
                       >
                         {isChecked && <Check className="size-3.5" />}
                       </button>
 
                       <div className="flex flex-col gap-1 overflow-hidden">
-                        <span className="text-sm font-bold text-text-primary">
+                        <button
+                          type="button"
+                          onClick={() => setActiveJobDetail(j)}
+                          aria-expanded={isDrawerActive}
+                          className="inline-flex min-h-11 w-fit items-center text-left text-sm font-bold text-text-primary hover:underline sm:min-h-0"
+                        >
                           {j.title}
-                        </span>
+                        </button>
                         <span className="text-xs text-brand-strong font-medium">
                           {j.company}
                         </span>
@@ -352,11 +360,20 @@ export function AnalysesNewPage() {
                             {j.skills.map((s) => (
                               <span
                                 key={s.id}
-                                className="rounded bg-surface-subtle px-2 py-0.5 text-[10px] font-semibold text-text-secondary"
+                                className="rounded bg-surface-subtle px-2 py-0.5 text-[11px] font-semibold text-text-secondary"
                               >
                                 {s.canonical_skill || s.skill}
                               </span>
                             ))}
+                          </div>
+                        )}
+
+                        {isDrawerActive && (
+                          <div className="mt-2 flex flex-col gap-2 border-t border-border-warm pt-2 text-xs leading-relaxed text-text-primary lg:hidden">
+                            <p className="whitespace-pre-line">{j.description}</p>
+                            {j.qualifications && (
+                              <p className="italic text-text-secondary">{j.qualifications}</p>
+                            )}
                           </div>
                         )}
 
@@ -376,8 +393,8 @@ export function AnalysesNewPage() {
             </div>
 
             {/* Drawer Preview Detail Lowongan */}
-            <div className="flex flex-col gap-3 rounded-xl border border-border-warm bg-surface-subtle p-5 lg:col-span-5">
-              <span className="text-xs font-bold uppercase tracking-wider text-text-secondary">
+            <div className="hidden flex-col gap-3 rounded-xl border border-border-warm bg-surface-subtle p-5 lg:col-span-5 lg:flex">
+              <span className="text-xs font-bold text-text-secondary">
                 {copy.analysesNew.drawerTitle}
               </span>
 
@@ -421,7 +438,7 @@ export function AnalysesNewPage() {
         </section>
 
         {/* STEP 3: Pratinjau Pemetaan Awal */}
-        <section className="flex flex-col gap-4 rounded-2xl border border-border-warm bg-white p-6 shadow-sm">
+        <section className="flex flex-col gap-4 rounded-2xl border border-border-warm bg-white p-4 sm:p-6">
           <div className="flex items-center gap-3">
             <div className="flex size-7 items-center justify-center rounded-full bg-brand text-xs font-bold text-white">
               3
@@ -458,11 +475,11 @@ export function AnalysesNewPage() {
         </section>
 
         {/* Collapsible: Tambah Lowongan Manual */}
-        <div className="flex flex-col rounded-2xl border border-border-warm bg-white shadow-sm overflow-hidden">
+        <div className="flex flex-col rounded-2xl border border-border-warm bg-white overflow-hidden">
           <button
             type="button"
             onClick={() => setIsAddJobOpen((v) => !v)}
-            className="flex items-center justify-between p-4 text-xs font-bold text-text-primary hover:bg-surface-subtle transition-colors"
+            className="flex min-h-11 items-center justify-between p-4 text-xs font-bold text-text-primary hover:bg-surface-subtle active:bg-surface-subtle transition-colors"
           >
             <div className="flex items-center gap-2">
               <Plus className="size-4 text-brand-accent" />
@@ -476,7 +493,7 @@ export function AnalysesNewPage() {
           </button>
 
           {isAddJobOpen && (
-            <form onSubmit={handleAddJob} className="flex flex-col gap-4 border-t border-border-warm p-6 bg-surface-subtle/30">
+            <form onSubmit={handleAddJob} className="flex flex-col gap-4 border-t border-border-warm p-4 sm:p-6 bg-surface-subtle/30">
               <span className="text-sm font-bold text-text-primary">
                 {copy.analysesNew.addJobTitle}
               </span>
@@ -513,7 +530,7 @@ export function AnalysesNewPage() {
                   onChange={(e) => setNewDesc(e.target.value)}
                   placeholder="Ketik deskripsi pekerjaan dan skill yang dicari..."
                   required
-                  className="w-full rounded-lg border border-border-warm bg-background p-3 text-xs outline-none focus:border-brand-accent"
+                  className="w-full rounded-lg border border-field bg-background p-3 text-xs outline-none focus-visible:border-brand-accent focus-visible:ring-2 focus-visible:ring-brand-accent/40"
                 />
               </div>
 
@@ -533,6 +550,7 @@ export function AnalysesNewPage() {
                   type="button"
                   variant="outline"
                   size="sm"
+                  className="h-11 sm:h-7"
                   onClick={() => setIsAddJobOpen(false)}
                 >
                   Batal
@@ -541,7 +559,7 @@ export function AnalysesNewPage() {
                   type="submit"
                   size="sm"
                   disabled={createJob.isPending}
-                  className="bg-brand text-white"
+                  className="h-11 bg-brand text-white sm:h-7"
                 >
                   {createJob.isPending ? 'Menyimpan…' : 'Simpan & Pilih Lowongan'}
                 </Button>
@@ -551,7 +569,7 @@ export function AnalysesNewPage() {
         </div>
 
         {/* Action Bar Bawah */}
-        <div className="flex flex-col gap-3 rounded-2xl border border-border-warm bg-white p-5 shadow-sm sm:flex-row sm:items-center sm:justify-between">
+        <div className="sticky bottom-0 z-10 -mx-4 flex flex-col gap-2 border-t border-border-warm bg-white px-4 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] sm:static sm:mx-0 sm:flex-row sm:items-center sm:justify-between sm:gap-3 sm:rounded-2xl sm:border sm:p-5">
           <p className="text-xs text-text-secondary">
             {copy.analysesNew.actionRequirement}
           </p>
@@ -560,7 +578,7 @@ export function AnalysesNewPage() {
             type="button"
             onClick={handleStartAnalysis}
             disabled={selectedJobIds.length === 0 || createAnalysis.isPending}
-            className="h-11 bg-brand px-6 text-sm font-bold text-white hover:bg-brand-hover shadow disabled:opacity-50"
+            className="h-11 w-full bg-brand px-6 text-sm font-bold text-white hover:bg-brand-hover disabled:opacity-50 sm:w-auto"
           >
             {createAnalysis.isPending
               ? copy.analysesNew.startingAnalysis

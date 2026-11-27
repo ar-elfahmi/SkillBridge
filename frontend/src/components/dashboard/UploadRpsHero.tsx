@@ -51,9 +51,6 @@ export function UploadRpsHero({ onFileSelect, isPending, error }: UploadRpsHeroP
       {/* Desktop Layout (md+) */}
       <div className="hidden md:flex md:items-center md:justify-between md:gap-7 md:p-7">
         <div className="flex max-w-[420px] flex-col gap-3">
-          <span className="w-fit rounded-full bg-white/15 px-3 py-1 text-[11px] font-bold tracking-wide uppercase">
-            {copy.dashboard.uploadEyebrow}
-          </span>
           <h2 className="font-display text-[32px] leading-tight font-normal">
             {copy.dashboard.uploadTitle}
           </h2>
@@ -94,9 +91,6 @@ export function UploadRpsHero({ onFileSelect, isPending, error }: UploadRpsHeroP
       {/* Mobile Layout (< md) */}
       <div className="flex flex-col gap-3 p-4 sm:p-5 md:hidden">
         <div className="flex flex-col gap-2">
-          <span className="hidden w-fit rounded-full bg-white/15 px-3 py-0.5 text-[10px] font-bold tracking-wide uppercase sm:inline">
-            {copy.dashboard.uploadEyebrow}
-          </span>
           <h2 className="font-display text-xl font-normal sm:text-2xl">{copy.dashboard.uploadTitle}</h2>
           <p className="text-xs text-white/90">{copy.dashboard.uploadDescMobile}</p>
         </div>

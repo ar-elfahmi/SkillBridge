@@ -77,7 +77,7 @@ export function MetadataPanel({
 
   return (
     <div className="flex flex-col gap-3 sm:gap-6">
-      <div className="flex flex-col gap-3 rounded-2xl border border-border-warm bg-white p-4 shadow-sm sm:gap-6 sm:p-6 md:p-8">
+      <div className="flex flex-col gap-3 rounded-2xl border border-border-warm bg-white p-4 sm:gap-6 sm:p-6 md:p-8">
         <div className="flex flex-col gap-1">
           <h2 className="font-display text-lg font-normal text-text-primary sm:text-xl md:text-2xl">
             {copy.rpsDetail.metadata.title}

@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Check, CircleDashed, Minus, Search, X } from 'lucide-react'
 import type { Classification, SkillMatch } from '@/types/api'
 import { copy } from '@/lib/copy'
@@ -25,6 +25,30 @@ export function SkillGapTable({ matches, isLoading }: SkillGapTableProps) {
   const [filter, setFilter] = useState<'all' | Classification>('all')
   const [hideReported, setHideReported] = useState(false)
   const [drawerMatch, setDrawerMatch] = useState<SkillMatch | null>(null)
+  const closeRef = useRef<HTMLButtonElement>(null)
+  const triggerRef = useRef<HTMLElement | null>(null)
+
+  function openDrawer(match: SkillMatch) {
+    triggerRef.current = document.activeElement as HTMLElement | null
+    setDrawerMatch(match)
+  }
+
+  function closeDrawer() {
+    setDrawerMatch(null)
+    triggerRef.current?.focus()
+  }
+
+  useEffect(() => {
+    if (!drawerMatch) return
+    closeRef.current?.focus()
+    function onKeyDown(e: KeyboardEvent) {
+      if (e.key !== 'Escape') return
+      setDrawerMatch(null)
+      triggerRef.current?.focus()
+    }
+    document.addEventListener('keydown', onKeyDown)
+    return () => document.removeEventListener('keydown', onKeyDown)
+  }, [drawerMatch])
 
   const filtered = matches.filter((m) => {
     if (filter !== 'all' && m.classification !== filter) return false
@@ -43,15 +67,16 @@ export function SkillGapTable({ matches, isLoading }: SkillGapTableProps) {
   return (
     <div className="flex flex-col gap-4">
       {/* Toolbar */}
-      <div className="flex flex-col gap-3 rounded-2xl border border-border-warm bg-white p-4 shadow-sm md:flex-row md:items-center md:justify-between">
-        <div className="flex flex-1 max-w-sm items-center gap-2 rounded-full border border-border-warm bg-surface-subtle px-3 py-1.5 text-xs">
+      <div className="flex flex-col gap-3 rounded-2xl border border-border-warm bg-white p-4 md:flex-row md:items-center md:justify-between">
+        <div className="flex flex-1 max-w-sm items-center gap-2 rounded-full border border-field bg-surface-subtle px-3 py-1.5 text-xs focus-within:ring-2 focus-within:ring-brand-accent/40">
           <Search className="size-3.5 text-text-secondary" />
           <input
             type="text"
             placeholder={copy.analysesResult.skillGapSearch}
+            aria-label={copy.analysesResult.skillGapSearch}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full bg-transparent outline-none placeholder:text-text-secondary"
+            className="h-11 w-full bg-transparent outline-none placeholder:text-text-secondary sm:h-auto"
           />
         </div>
 
@@ -61,14 +86,14 @@ export function SkillGapTable({ matches, isLoading }: SkillGapTableProps) {
               ['all', copy.analysesResult.tabs.summary ? 'Semua' : 'Semua', counts.all],
               ['covered', copy.status.covered, counts.covered],
               ['partial', copy.status.partial, counts.partial],
-              ['missing', copy.status.missing, counts.missing],
+              ['missing', copy.status.missingShort, counts.missing],
             ] as const
           ).map(([key, label, count]) => (
             <button
               key={key}
               type="button"
               onClick={() => setFilter(key as 'all' | Classification)}
-              className={`rounded-md px-2.5 py-1 font-semibold transition-colors ${
+              className={`inline-flex min-h-11 items-center rounded-md px-3 font-semibold transition-colors active:bg-white/70 sm:min-h-8 sm:px-2.5 ${
                 filter === key ? 'bg-white text-brand-strong shadow-xs' : 'text-text-secondary'
               }`}
             >
@@ -79,12 +104,12 @@ export function SkillGapTable({ matches, isLoading }: SkillGapTableProps) {
       </div>
 
       {/* Toggle */}
-      <label className="flex w-fit cursor-pointer items-center gap-2 text-xs text-text-secondary">
+      <label className="flex min-h-11 w-fit cursor-pointer items-center gap-2.5 text-xs text-text-secondary sm:min-h-0 sm:gap-2">
         <input
           type="checkbox"
           checked={hideReported}
           onChange={(e) => setHideReported(e.target.checked)}
-          className="size-3.5 accent-brand-accent"
+          className="size-5 accent-brand-accent sm:size-3.5"
         />
         {copy.analysesResult.hideReported}
       </label>
@@ -100,7 +125,7 @@ export function SkillGapTable({ matches, isLoading }: SkillGapTableProps) {
       ) : (
         <>
           {/* Desktop Table */}
-          <div className="hidden overflow-hidden rounded-2xl border border-border-warm bg-white shadow-sm md:block">
+          <div className="hidden overflow-hidden rounded-2xl border border-border-warm bg-white md:block">
             <table className="w-full text-left text-xs">
               <thead className="border-b border-border-warm bg-surface-subtle font-semibold text-text-secondary">
                 <tr>
@@ -117,13 +142,24 @@ export function SkillGapTable({ matches, isLoading }: SkillGapTableProps) {
                   return (
                     <tr
                       key={m.skill}
-                      onClick={() => setDrawerMatch(m)}
+                      onClick={() => openDrawer(m)}
                       className="cursor-pointer transition-colors hover:bg-surface-subtle/50"
                     >
-                      <td className="px-4 py-3.5 font-bold text-text-primary">{m.skill}</td>
+                      <td className="px-4 py-3.5 font-bold text-text-primary">
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            openDrawer(m)
+                          }}
+                          className="text-left font-bold hover:underline"
+                        >
+                          {m.skill}
+                        </button>
+                      </td>
                       <td className="px-4 py-3.5">
                         <span
-                          className={`inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-[10px] font-semibold ${
+                          className={`inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-[11px] font-semibold ${
                             CLASSIFICATION_STYLE[m.classification]
                           }`}
                         >
@@ -155,7 +191,7 @@ export function SkillGapTable({ matches, isLoading }: SkillGapTableProps) {
                       </td>
                       <td className="px-4 py-3.5">
                         {m.self_declared && (
-                          <span className="rounded bg-brand-soft px-2 py-0.5 text-[10px] font-semibold text-brand-strong">
+                          <span className="rounded bg-brand-soft px-2 py-0.5 text-[11px] font-semibold text-brand-strong">
                             {copy.analysesResult.reportedFlag}
                           </span>
                         )}
@@ -175,13 +211,13 @@ export function SkillGapTable({ matches, isLoading }: SkillGapTableProps) {
                 <button
                   key={m.skill}
                   type="button"
-                  onClick={() => setDrawerMatch(m)}
-                  className="flex flex-col gap-2 rounded-xl border border-border-warm bg-white p-4 text-left shadow-sm"
+                  onClick={() => openDrawer(m)}
+                  className="flex flex-col gap-2 rounded-xl border border-border-warm bg-white p-4 text-left"
                 >
                   <div className="flex items-start justify-between gap-2">
                     <span className="text-sm font-bold text-text-primary">{m.skill}</span>
                     <span
-                      className={`inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-[10px] font-semibold ${
+                      className={`inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-[11px] font-semibold ${
                         CLASSIFICATION_STYLE[m.classification]
                       }`}
                     >
@@ -200,7 +236,7 @@ export function SkillGapTable({ matches, isLoading }: SkillGapTableProps) {
                     </span>
                   )}
                   {m.self_declared && (
-                    <span className="w-fit rounded bg-brand-soft px-2 py-0.5 text-[10px] font-semibold text-brand-strong">
+                    <span className="w-fit rounded bg-brand-soft px-2 py-0.5 text-[11px] font-semibold text-brand-strong">
                       {copy.analysesResult.reportedFlag}
                     </span>
                   )}
@@ -214,27 +250,31 @@ export function SkillGapTable({ matches, isLoading }: SkillGapTableProps) {
       {/* Evidence Drawer */}
       {drawerMatch && (
         <div
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="skill-drawer-title"
           className="fixed inset-0 z-50 flex items-end justify-end bg-black/30 md:items-stretch"
-          onClick={() => setDrawerMatch(null)}
+          onClick={closeDrawer}
         >
           <div
             onClick={(e) => e.stopPropagation()}
-            className="flex h-[85vh] w-full flex-col gap-4 overflow-y-auto rounded-t-2xl bg-white p-6 md:h-full md:max-w-md md:rounded-none"
+            className="flex h-[85dvh] w-full flex-col gap-4 overflow-y-auto rounded-t-2xl bg-white p-6 md:h-full md:max-w-md md:rounded-none"
           >
             <div className="flex items-start justify-between gap-3">
               <div className="flex flex-col">
-                <span className="text-[11px] font-semibold uppercase tracking-wide text-text-secondary">
+                <span className="text-xs font-semibold text-text-secondary">
                   {copy.analysesResult.evidenceTitle}
                 </span>
-                <h3 className="text-lg font-bold text-text-primary">{drawerMatch.skill}</h3>
+                <h2 id="skill-drawer-title" className="text-lg font-bold text-text-primary">{drawerMatch.skill}</h2>
               </div>
               <button
                 type="button"
-                onClick={() => setDrawerMatch(null)}
+                ref={closeRef}
+                onClick={closeDrawer}
                 aria-label={copy.analysesResult.close}
-                className="flex size-8 items-center justify-center rounded-full hover:bg-surface-subtle"
+                className="flex size-11 shrink-0 items-center justify-center rounded-full hover:bg-surface-subtle active:bg-surface-subtle sm:size-8"
               >
-                <X className="size-4" />
+                <X className="size-4" aria-hidden="true" />
               </button>
             </div>
 

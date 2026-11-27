@@ -29,9 +29,9 @@ export function AnalyzedRpsSection({
   return (
     <div className="flex min-h-0 flex-1 flex-col gap-2 sm:flex-none sm:gap-4">
       <div className="flex shrink-0 items-center justify-between">
-        <h3 className="text-base font-semibold text-text-primary md:text-lg">
+        <h2 className="text-base font-semibold text-text-primary md:text-lg">
           {copy.dashboard.analyzedRpsTitle}
-        </h3>
+        </h2>
         {documents.length > 0 && (
           <span className="text-xs font-semibold text-brand-strong">
             {documents.length} dokumen
@@ -72,7 +72,7 @@ export function AnalyzedRpsSection({
               <Link
                 key={doc.id}
                 to={target}
-                className="group flex flex-col gap-3 rounded-2xl border border-border-warm bg-white p-3 shadow-sm active:border-brand sm:p-4.5 transition-all hover:border-brand hover:shadow-md"
+                className="group flex flex-col gap-3 rounded-2xl border border-border-warm bg-white p-3 active:border-brand sm:p-4.5 transition-all hover:border-brand hover:shadow-md"
               >
                 <div className="flex items-center gap-3">
                   <div

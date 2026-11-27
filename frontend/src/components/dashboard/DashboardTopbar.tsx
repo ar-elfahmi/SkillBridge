@@ -14,6 +14,7 @@ interface DashboardTopbarProps {
 export function DashboardTopbar({ user, onLogout, onSearch }: DashboardTopbarProps) {
   const [searchVal, setSearchVal] = useState('')
   const [menuOpen, setMenuOpen] = useState(false)
+  const [searchOpen, setSearchOpen] = useState(false)
   const menuRef = useRef<HTMLDivElement>(null)
 
   const initials = user?.name
@@ -44,17 +45,19 @@ export function DashboardTopbar({ user, onLogout, onSearch }: DashboardTopbarPro
   }, [menuOpen])
 
   return (
+    <>
     <header className="flex h-14 shrink-0 items-center justify-between border-b border-border-warm bg-white px-4 sm:h-16 md:h-[72px] md:px-8">
       <div className="flex items-center gap-6">
         <BrandLogo />
       </div>
 
       {/* Desktop Search Bar */}
-      <div className="hidden max-w-md flex-1 items-center gap-2.5 rounded-full bg-surface-canvas px-4 py-2 text-sm text-text-primary md:flex">
+      <div className="hidden max-w-md flex-1 items-center gap-2.5 rounded-full border border-field bg-surface-canvas px-4 py-2 text-sm text-text-primary focus-within:ring-2 focus-within:ring-brand-accent/40 md:flex">
         <Search className="size-4 shrink-0 text-brand-accent" aria-hidden="true" />
         <input
           type="text"
           placeholder={copy.dashboard.searchPlaceholder}
+          aria-label={copy.dashboard.searchPlaceholder}
           value={searchVal}
           onChange={(e) => {
             setSearchVal(e.target.value)
@@ -65,7 +68,19 @@ export function DashboardTopbar({ user, onLogout, onSearch }: DashboardTopbarPro
       </div>
 
       {/* Topbar Actions */}
-      <div className="flex items-center gap-2.5">
+      <div className="flex items-center gap-1 sm:gap-2.5">
+        {onSearch && (
+          <button
+            type="button"
+            onClick={() => setSearchOpen((open) => !open)}
+            aria-label={copy.dashboard.searchPlaceholder}
+            aria-expanded={searchOpen}
+            className="flex size-11 items-center justify-center rounded-full text-text-primary transition-colors hover:bg-surface-subtle active:bg-surface-subtle md:hidden"
+          >
+            <Search className="size-5" aria-hidden="true" />
+          </button>
+        )}
+
         {/* Menu Profil */}
         <div ref={menuRef} className="relative">
           <button
@@ -121,5 +136,26 @@ export function DashboardTopbar({ user, onLogout, onSearch }: DashboardTopbarPro
         </div>
       </div>
     </header>
+
+    {onSearch && searchOpen && (
+      <div className="shrink-0 border-b border-border-warm bg-white px-4 py-2 md:hidden">
+        <div className="flex min-h-11 items-center gap-2.5 rounded-full border border-field bg-surface-canvas px-4 focus-within:ring-2 focus-within:ring-brand-accent/40">
+          <Search className="size-4 shrink-0 text-brand-accent" aria-hidden="true" />
+          <input
+            type="search"
+            autoFocus
+            placeholder={copy.dashboard.searchPlaceholder}
+            aria-label={copy.dashboard.searchPlaceholder}
+            value={searchVal}
+            onChange={(e) => {
+              setSearchVal(e.target.value)
+              onSearch(e.target.value)
+            }}
+            className="h-11 w-full bg-transparent text-sm outline-none placeholder:text-text-secondary"
+          />
+        </div>
+      </div>
+    )}
+    </>
   )
 }

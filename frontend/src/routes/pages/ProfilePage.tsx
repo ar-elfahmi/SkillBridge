@@ -12,9 +12,11 @@ import {
   useRemoveMySkill,
 } from '@/lib/query/hooks'
 import type { SkillLevel } from '@/types/api'
+import { usePageTitle } from '@/lib/usePageTitle'
 import { copy } from '@/lib/copy'
 
 export function ProfilePage() {
+  usePageTitle('Profil')
   const navigate = useNavigate()
   const { data: user } = useMe()
   const logout = useLogout()
@@ -49,12 +51,12 @@ export function ProfilePage() {
     <div className="flex min-h-svh flex-col bg-background">
       <DashboardTopbar user={user} onLogout={handleLogout} />
 
-      <main className="mx-auto flex w-full max-w-4xl flex-1 flex-col gap-6 px-4 py-6 md:px-8 md:py-8">
+      <main className="mx-auto flex w-full max-w-4xl flex-1 flex-col gap-4 px-4 py-4 sm:gap-6 sm:py-6 md:px-8 md:py-8">
         <div className="flex items-center gap-3">
           <Link
             to="/dashboard"
             aria-label={copy.dashboard.nav.home}
-            className="flex size-10 shrink-0 items-center justify-center rounded-full border border-border-warm bg-white text-text-primary transition-colors hover:bg-surface-subtle"
+            className="flex size-11 shrink-0 items-center justify-center rounded-full border border-border-warm bg-white text-text-primary transition-colors hover:bg-surface-subtle active:bg-surface-subtle sm:size-10"
           >
             <ArrowLeft className="size-4" aria-hidden="true" />
           </Link>
@@ -64,7 +66,7 @@ export function ProfilePage() {
         </div>
 
         {/* Identitas */}
-        <section className="flex flex-col items-start gap-4 rounded-2xl border border-border-warm bg-white p-6 shadow-sm sm:flex-row sm:items-center sm:justify-between">
+        <section className="flex flex-col items-start gap-4 rounded-2xl border border-border-warm bg-white p-4 sm:flex-row sm:p-6 sm:items-center sm:justify-between">
           <div className="flex items-center gap-4">
             <div className="flex size-14 shrink-0 items-center justify-center rounded-full bg-brand text-lg font-bold text-white">
               {initials}
@@ -78,7 +80,7 @@ export function ProfilePage() {
           <button
             type="button"
             onClick={handleLogout}
-            className="flex items-center gap-1.5 rounded-lg border border-border-warm px-3 py-1.5 text-xs font-semibold text-text-secondary transition-colors hover:border-danger/40 hover:bg-danger/10 hover:text-danger"
+            className="flex min-h-11 items-center gap-1.5 rounded-lg border border-border-warm px-4 text-xs font-semibold text-text-secondary active:bg-danger/10 sm:min-h-9 sm:px-3 transition-colors hover:border-danger/40 hover:bg-danger/10 hover:text-danger"
           >
             <LogOut className="size-3.5" aria-hidden="true" />
             {copy.profile.logout}
@@ -86,7 +88,7 @@ export function ProfilePage() {
         </section>
 
         {/* Skill pribadi */}
-        <section className="flex flex-col gap-4 rounded-2xl border border-border-warm bg-white p-6 shadow-sm">
+        <section className="flex flex-col gap-4 rounded-2xl border border-border-warm bg-white p-4 sm:p-6">
           <div className="flex flex-col gap-1">
             <h2 className="text-base font-bold text-text-primary">
               {copy.profile.personalSkillsTitle}
@@ -102,14 +104,14 @@ export function ProfilePage() {
               onChange={(e) => setValue(e.target.value)}
               placeholder={copy.profile.addPlaceholder}
               aria-label={copy.profile.addPlaceholder}
-              className="h-10 text-sm"
+              className="h-11 text-sm sm:h-10"
             />
             <div className="flex gap-2">
               <select
                 aria-label={copy.profile.colLevel}
                 value={level}
                 onChange={(e) => setLevel(e.target.value as SkillLevel)}
-                className="h-10 rounded-lg border border-border-warm bg-white px-2 text-xs font-semibold text-text-primary outline-none focus:border-brand-accent"
+                className="h-11 rounded-lg border border-field bg-white px-2 text-xs sm:h-10 font-semibold text-text-primary outline-none focus-visible:border-brand-accent focus-visible:ring-2 focus-visible:ring-brand-accent/40"
               >
                 {(['beginner', 'intermediate', 'advanced'] as const).map((l) => (
                   <option key={l} value={l}>
@@ -120,7 +122,7 @@ export function ProfilePage() {
               <Button
                 type="submit"
                 disabled={addSkill.isPending || !value.trim()}
-                className="h-10 shrink-0 gap-1.5 bg-brand px-3 text-xs font-bold text-white hover:bg-brand-hover"
+                className="h-11 shrink-0 gap-1.5 bg-brand sm:h-10 px-3 text-xs font-bold text-white hover:bg-brand-hover"
               >
                 <Plus className="size-3.5" aria-hidden="true" />
                 {copy.analysesResult.addSkillBtn}
@@ -135,40 +137,32 @@ export function ProfilePage() {
               {copy.profile.empty}
             </p>
           ) : (
-            <div className="overflow-hidden rounded-xl border border-border-warm">
-              <table className="w-full text-left text-xs">
-                <thead className="border-b border-border-warm bg-surface-subtle font-semibold text-text-secondary">
-                  <tr>
-                    <th className="px-4 py-2.5">{copy.profile.colSkill}</th>
-                    <th className="px-4 py-2.5">{copy.profile.colReportedAs}</th>
-                    <th className="px-4 py-2.5">{copy.profile.colLevel}</th>
-                    <th className="px-4 py-2.5 text-right">{copy.profile.colAction}</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-border-warm">
-                  {skills.map((s) => (
-                    <tr key={s.id}>
-                      <td className="px-4 py-2.5 font-semibold text-text-primary">{s.skill}</td>
-                      <td className="px-4 py-2.5 text-text-secondary">{s.reported_as ?? '—'}</td>
-                      <td className="px-4 py-2.5 text-text-secondary">
-                        {copy.analysesResult.levelOptions[s.level]}
-                      </td>
-                      <td className="px-4 py-2.5 text-right">
-                        <button
-                          type="button"
-                          onClick={() => removeSkill.mutate(s.id)}
-                          aria-label={`Hapus ${s.skill}`}
-                          className="inline-flex size-7 items-center justify-center rounded-lg border border-border-warm text-danger transition-colors hover:bg-danger/10"
-                        >
-                          <Trash2 className="size-3.5" aria-hidden="true" />
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
+            <ul className="divide-y divide-border-warm overflow-hidden rounded-xl border border-border-warm">
+              {skills.map((s) => (
+                <li key={s.id} className="flex items-center justify-between gap-3 px-3 py-2 sm:px-4">
+                  <div className="flex min-w-0 flex-col">
+                    <span className="truncate text-sm font-semibold text-text-primary">{s.skill}</span>
+                    <span className="flex min-w-0 items-center gap-1 text-xs text-text-secondary">
+                      <span>{copy.analysesResult.levelOptions[s.level]}</span>
+                      {s.reported_as && (
+                        <>
+                          <span aria-hidden="true">·</span>
+                          <span className="truncate">{s.reported_as}</span>
+                        </>
+                      )}
+                    </span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => removeSkill.mutate(s.id)}
+                    aria-label={`Hapus ${s.skill}`}
+                    className="inline-flex size-11 shrink-0 items-center justify-center rounded-lg border border-border-warm text-danger transition-colors hover:bg-danger/10 active:bg-danger/10 sm:size-9"
+                  >
+                    <Trash2 className="size-4" aria-hidden="true" />
+                  </button>
+                </li>
+              ))}
+            </ul>          )}
 
           <p className="text-[11px] text-text-secondary">{copy.profile.noteCanonical}</p>
         </section>

@@ -11,7 +11,6 @@ export const copy = {
   auth: {
     loginTitle: 'Masuk',
     loginSubtitle: 'Masuk untuk meninjau hasil analisis RPS Anda.',
-    loginEyebrow: 'Mulai dari RPS Anda',
     loginInfoTitle: 'Analisis RPS terhadap kebutuhan industri',
     loginInfoNote: 'Data lowongan pada contoh ini adalah data contoh',
     loginInfoPoints: [
@@ -27,7 +26,6 @@ export const copy = {
     genericError: 'Tidak dapat masuk saat ini. Coba lagi.',
     registerTitle: 'Daftar akun',
     registerSubtitle: 'Buat akun untuk mulai menganalisis RPS Anda.',
-    registerEyebrow: 'UNTUK MAHASISWA',
     registerInfoTitle: 'Mulai dari RPS Anda',
     registerInfoNote: 'Sistem memetakan kompetensi dalam RPS terhadap kebutuhan skill lowongan.',
     namePlaceholder: 'Nama lengkap',
@@ -58,11 +56,11 @@ export const copy = {
     covered: 'Tercakup',
     partial: 'Sebagian',
     missing: 'Belum ditemukan dalam RPS',
+    missingShort: 'Belum ditemukan',
   },
 
   dashboard: {
     searchPlaceholder: 'Cari RPS, skill, atau lowongan',
-    uploadEyebrow: 'UNGGAH RPS',
     uploadTitle: 'Unggah RPS',
     uploadDescDesktop:
       'Unggah PDF RPS. Sistem membaca dokumen dan menyiapkan kompetensi untuk Anda tinjau.',
@@ -85,13 +83,13 @@ export const copy = {
       careersNote: 'profil pekerjaan · Target aktif',
     },
     analyzedRpsTitle: 'RPS dianalisis',
-    viewAll: 'Lihat semua →',
+    viewAll: 'Lihat semua',
     emptyRps: 'Belum ada RPS yang diunggah. Mulai dengan mengunggah PDF RPS di atas.',
     sidebar: {
       heading: 'Ringkasan',
       ownedSkillsTitle: 'Skill yang sudah dimiliki',
       ownedSkillsNote: 'Dilaporkan pengguna',
-      viewAllSkills: 'Lihat semua skill →',
+      viewAllSkills: 'Lihat semua skill',
       recentActivityTitle: 'Aktivitas terbaru',
     },
     profileMenuLabel: 'Profil',

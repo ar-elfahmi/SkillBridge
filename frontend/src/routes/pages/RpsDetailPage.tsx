@@ -15,9 +15,11 @@ import {
   useUpdateCompetency,
   useUpdateRpsMetadata,
 } from '@/lib/query/hooks'
+import { usePageTitle } from '@/lib/usePageTitle'
 import { copy } from '@/lib/copy'
 
 export function RpsDetailPage() {
+  usePageTitle('Detail RPS')
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
   const rpsId = id ? parseInt(id, 10) : 0
