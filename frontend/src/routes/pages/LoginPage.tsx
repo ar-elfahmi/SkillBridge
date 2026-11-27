@@ -69,7 +69,7 @@ export function LoginPage() {
 
         <div className="mx-auto flex w-full max-w-[327px] flex-col gap-6 px-6 py-8 md:mx-0 md:h-[544px] md:w-[440px] md:max-w-none md:gap-5 md:rounded-xl md:border md:border-border-warm md:bg-background md:px-8 md:py-8">
           <h1 className="font-display text-2xl font-normal text-text-primary">{copy.auth.loginTitle}</h1>
-          <p className="text-[13px] text-text-secondary">{copy.auth.loginSubtitle}</p>
+          <p className="text-sm text-text-secondary">{copy.auth.loginSubtitle}</p>
 
           <form className="flex flex-col gap-6 md:gap-5" onSubmit={handleSubmit} noValidate>
             <div className="flex flex-col gap-1.5">
@@ -127,7 +127,7 @@ export function LoginPage() {
             {login.isError && !errors.email && !errors.password && (
               <div role="alert" className="flex items-center gap-2 rounded-lg bg-danger-soft px-3 py-3">
                 <CircleAlert className="size-4 shrink-0 text-danger" aria-hidden="true" />
-                <p className="text-[13px] font-medium text-danger">
+                <p className="text-sm font-medium text-danger">
                   {loginErrorMessage(login.error)}
                 </p>
               </div>
@@ -143,7 +143,7 @@ export function LoginPage() {
             </Button>
           </form>
 
-          <p className="text-center text-[13px]">
+          <p className="text-center text-sm">
             <span className="text-text-secondary">{copy.auth.needAccount} </span>
             <Link to="/register" className="inline-flex min-h-11 items-center px-1 font-bold text-brand-strong hover:underline">
               {copy.auth.submitRegister}

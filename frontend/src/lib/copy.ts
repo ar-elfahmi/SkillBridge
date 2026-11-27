@@ -251,6 +251,8 @@ export const copy = {
     recoStaleBanner: 'Rekomendasi belum diperbarui setelah perubahan skill pribadi.',
     recoRefreshBtn: 'Perbarui rekomendasi',
     priorityLabel: { high: 'Tinggi', medium: 'Sedang', low: 'Rendah' },
+    priorityGroup: (priority: 'high' | 'medium' | 'low', n: number) =>
+      `Prioritas ${{ high: 'tinggi', medium: 'sedang', low: 'rendah' }[priority]} (${n})`,
     topicsLabel: 'Topik',
     keywordsPrefix: 'Kata kunci:',
     alreadyLearned: 'Tandai sudah dipelajari',

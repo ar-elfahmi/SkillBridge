@@ -95,16 +95,16 @@ export function DashboardPage() {
   const careersCount = careersList.length
 
   return (
-    <div className="flex h-dvh flex-col overflow-hidden bg-background sm:h-auto sm:min-h-svh sm:overflow-visible">
+    <div className="flex min-h-svh flex-col bg-background">
       <DashboardTopbar
         user={user}
         onLogout={handleLogout}
         onSearch={setSearchQuery}
       />
 
-      <main className="mx-auto flex min-h-0 w-full max-w-7xl flex-1 items-start gap-8 px-4 py-3 sm:py-6 md:px-8 md:py-8">
+      <main className="mx-auto flex w-full max-w-7xl flex-1 items-start gap-8 px-4 py-3 sm:py-6 md:px-8 md:py-8">
         <h1 className="sr-only">Beranda</h1>
-        <div className="flex h-full min-h-0 flex-1 flex-col gap-3 sm:h-auto sm:gap-6">
+        <div className="flex min-w-0 flex-1 flex-col gap-3 sm:gap-6">
           <AiQuotaBanner />
           {notice && (
             <p role="status" className="rounded-lg bg-brand-soft/40 p-3 text-sm font-semibold text-text-primary">
@@ -151,7 +151,7 @@ export function DashboardPage() {
         />
       </main>
 
-      <footer className="hidden h-14 shrink-0 items-center justify-center border-t border-border-warm px-4 sm:flex md:justify-start md:px-8">
+      <footer className="flex h-14 shrink-0 items-center justify-center border-t border-border-warm px-4 md:justify-start md:px-8">
         <p className="text-xs font-medium text-text-secondary">{copy.footerBrand}</p>
       </footer>
     </div>

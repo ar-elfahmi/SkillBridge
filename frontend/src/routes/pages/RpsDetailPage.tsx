@@ -105,15 +105,15 @@ export function RpsDetailPage() {
       document.error_message === null)
 
   return (
-    <div className="flex h-dvh flex-col overflow-hidden bg-background sm:h-auto sm:min-h-svh sm:overflow-visible">
+    <div className="flex min-h-svh flex-col bg-background">
       <DashboardTopbar user={user} onLogout={handleLogout} />
 
-      <main className="mx-auto flex min-h-0 w-full max-w-6xl flex-1 flex-col gap-3 overflow-y-auto sm:overflow-visible px-4 py-3 sm:gap-6 sm:py-6 md:px-8 md:py-8">
+      <main className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-3 px-4 py-3 sm:gap-6 sm:py-6 md:px-8 md:py-8">
         <RpsHeader document={document} currentStep={currentStep} />
 
         {notification && (
           <div
-            className={`shrink-0 rounded-lg px-4 py-3 text-xs font-semibold ${
+            className={`shrink-0 rounded-lg px-4 py-3 text-sm font-semibold ${
               notification.type === 'success'
                 ? 'bg-success/15 text-success'
                 : 'bg-danger/15 text-danger'
@@ -205,7 +205,7 @@ export function RpsDetailPage() {
         )}
       </main>
 
-      <footer className="hidden h-14 shrink-0 items-center justify-center border-t border-border-warm px-4 sm:flex md:justify-start md:px-8">
+      <footer className="flex h-14 shrink-0 items-center justify-center border-t border-border-warm px-4 md:justify-start md:px-8">
         <p className="text-xs font-medium text-text-secondary">{copy.footerBrand}</p>
       </footer>
     </div>

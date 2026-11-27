@@ -59,14 +59,14 @@ export function RpsHeader({ document, currentStep }: RpsHeaderProps) {
             <h1 className="truncate font-display text-lg font-normal text-text-primary sm:text-xl md:text-3xl">
               {document.original_name}
             </h1>
-            <span className="text-xs text-text-secondary">
+            <span className="text-sm text-text-secondary">
               {document.page_count ? `${document.page_count} halaman` : 'Dokumen PDF'}
             </span>
           </div>
         </div>
 
         <span
-          className={`inline-flex w-fit items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold ${chipClass}`}
+          className={`inline-flex w-fit items-center gap-1.5 rounded-full px-3 py-1 text-sm font-semibold ${chipClass}`}
         >
           <StatusIcon className="size-3.5" aria-hidden="true" />
           {statusLabel}
@@ -74,7 +74,10 @@ export function RpsHeader({ document, currentStep }: RpsHeaderProps) {
       </div>
 
       {/* Stage Stepper */}
-      <ol className="grid grid-cols-[auto_1fr_auto_1fr_auto] items-center gap-2 rounded-lg border border-border-warm bg-white p-3 sm:gap-3 sm:p-4 md:gap-5 md:px-6">
+      <p className="text-sm font-semibold text-text-primary sm:hidden">
+        Langkah {currentStep} dari {steps.length}: {steps.find((s) => s.index === currentStep)?.label}
+      </p>
+      <ol className="hidden grid-cols-[auto_1fr_auto_1fr_auto] items-center gap-2 rounded-lg border border-border-warm bg-white p-3 sm:grid sm:gap-3 sm:p-4 md:gap-5 md:px-6">
         {steps.map((step, i) => {
           const done = currentStep > step.index
           const active = currentStep === step.index
@@ -89,7 +92,7 @@ export function RpsHeader({ document, currentStep }: RpsHeaderProps) {
                 className="flex items-center gap-2.5 md:gap-3"
               >
                 <span
-                  className={`flex size-8 shrink-0 items-center justify-center rounded-full text-[13px] font-semibold tabular-nums leading-none ${marker}`}
+                  className={`flex size-8 shrink-0 items-center justify-center rounded-full text-sm font-semibold tabular-nums leading-none ${marker}`}
                 >
                   {done ? <Check className="size-4" aria-hidden="true" /> : step.index}
                 </span>

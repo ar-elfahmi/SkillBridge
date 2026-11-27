@@ -48,14 +48,14 @@ export function SelfDeclaredSkillsPanel({
               <span className="flex min-w-0 flex-col">
                 <span className="truncate font-semibold text-text-primary">{s.skill}</span>
                 {s.reported_as && (
-                  <span className="truncate text-xs text-text-secondary">
+                  <span className="truncate text-sm text-text-secondary">
                     dari kata kunci: {s.reported_as}
                   </span>
                 )}
               </span>
 
               <span className="flex shrink-0 items-center gap-2">
-                <span className="text-xs text-text-secondary">
+                <span className="text-sm text-text-secondary">
                   {copy.analysesResult.levelOptions[s.level]}
                 </span>
                 <button
@@ -78,12 +78,12 @@ export function SelfDeclaredSkillsPanel({
               className="flex items-center justify-between rounded-lg bg-white px-3 py-2 text-sm"
             >
               <span className="font-semibold text-text-primary">{s.skill}</span>
-              <span className="text-xs text-text-secondary">{copy.status[s.classification]}</span>
+              <span className="text-sm text-text-secondary">{copy.status[s.classification]}</span>
             </li>
           ))}
         </ul>
       ) : (
-        <p className="text-xs text-text-secondary">{copy.analysesResult.selfDeclaredEmpty}</p>
+        <p className="text-sm text-text-secondary">{copy.analysesResult.selfDeclaredEmpty}</p>
       )}
 
       <form onSubmit={submit} className="flex flex-col gap-2 sm:flex-row">
@@ -110,7 +110,7 @@ export function SelfDeclaredSkillsPanel({
           <Button
             type="submit"
             disabled={isAdding || !value.trim()}
-            className="h-11 shrink-0 gap-1.5 bg-brand sm:h-10 px-3 text-xs font-bold text-white hover:bg-brand-hover"
+            className="h-11 shrink-0 gap-1.5 bg-brand sm:h-10 px-3 text-sm font-bold text-white hover:bg-brand-hover"
           >
             <Plus className="size-3.5" aria-hidden="true" />
             {copy.analysesResult.addSkillBtn}
