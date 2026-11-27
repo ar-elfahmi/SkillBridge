@@ -95,7 +95,7 @@ export function RpsHeader({ document, currentStep }: RpsHeaderProps) {
                 </span>
                 <span
                   className={`hidden whitespace-nowrap text-sm font-semibold leading-none sm:inline ${
-                    active ? 'text-brand' : done ? 'text-text-primary' : 'text-text-secondary'
+                    active ? 'text-brand-strong' : done ? 'text-text-primary' : 'text-text-secondary'
                   }`}
                 >
                   {step.label}

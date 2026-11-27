@@ -94,7 +94,7 @@ export function MetadataPanel({
               aria-live="polite"
               className="flex items-center gap-2.5 rounded-xl bg-brand-soft/40 px-4 py-3"
             >
-              <Loader2 className="size-4 shrink-0 animate-spin text-brand" aria-hidden="true" />
+              <Loader2 className="size-4 shrink-0 animate-spin text-brand-accent" aria-hidden="true" />
               <p className="text-xs font-semibold text-text-primary">
                 {copy.rpsDetail.metadata.preparing}
               </p>
@@ -206,7 +206,7 @@ export function MetadataPanel({
 
       {/* Derivation Note Panel */}
       <div className="flex items-center gap-3 rounded-xl border border-border-warm bg-surface-subtle p-4 text-xs text-text-secondary">
-        <Info className="size-4 shrink-0 text-brand" aria-hidden="true" />
+        <Info className="size-4 shrink-0 text-brand-accent" aria-hidden="true" />
         <p>{copy.rpsDetail.metadata.derivationNote}</p>
       </div>
     </div>

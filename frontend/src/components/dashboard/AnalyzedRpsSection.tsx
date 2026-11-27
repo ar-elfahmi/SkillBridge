@@ -33,7 +33,7 @@ export function AnalyzedRpsSection({
           {copy.dashboard.analyzedRpsTitle}
         </h3>
         {documents.length > 0 && (
-          <span className="text-xs font-semibold text-brand">
+          <span className="text-xs font-semibold text-brand-strong">
             {documents.length} dokumen
           </span>
         )}
@@ -77,13 +77,13 @@ export function AnalyzedRpsSection({
                 <div className="flex items-center gap-3">
                   <div
                     className={`flex size-11 shrink-0 items-center justify-center rounded-xl transition-colors ${
-                      isCompleted ? 'bg-brand text-white' : 'bg-brand-soft text-brand'
+                      isCompleted ? 'bg-brand text-white' : 'bg-brand-soft text-brand-strong'
                     }`}
                   >
                     <FileText className="size-5" aria-hidden="true" />
                   </div>
                   <div className="flex flex-col overflow-hidden">
-                    <span className="truncate text-xs font-bold text-brand">
+                    <span className="truncate text-xs font-bold text-brand-strong">
                       {courseName}
                     </span>
                     <span className="truncate text-xs text-text-primary">
@@ -118,9 +118,9 @@ export function AnalyzedRpsSection({
                     <span className="text-[11px] text-text-secondary">
                       {copy.coverageLabel} {analysis.summary.coverage_percentage.toFixed(1).replace('.', ',')}%
                     </span>
-                    <div className="h-1.5 w-full overflow-hidden rounded-full bg-border-warm/50">
+                    <div className="h-1.5 w-full overflow-hidden rounded-full bg-progress-track">
                       <div
-                        className="h-full rounded-full bg-brand transition-all duration-500"
+                        className="h-full rounded-full bg-brand-accent transition-all duration-500"
                         style={{ width: `${Math.min(100, Math.max(0, analysis.summary.coverage_percentage))}%` }}
                       />
                     </div>

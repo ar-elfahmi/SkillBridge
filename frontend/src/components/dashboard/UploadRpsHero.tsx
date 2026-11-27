@@ -76,7 +76,7 @@ export function UploadRpsHero({ onFileSelect, isPending, error }: UploadRpsHeroP
               : 'border-white/40 bg-white/10 hover:border-white hover:bg-white/15'
           } ${isPending ? 'pointer-events-none opacity-70' : ''}`}
         >
-          <div className="flex size-[52px] items-center justify-center rounded-full bg-white text-brand shadow-sm">
+          <div className="flex size-[52px] items-center justify-center rounded-full bg-white text-brand-strong shadow-sm">
             <Upload className="size-6" aria-hidden="true" />
           </div>
           <p className="text-sm font-semibold">{copy.dashboard.uploadDropTitle}</p>
@@ -84,7 +84,7 @@ export function UploadRpsHero({ onFileSelect, isPending, error }: UploadRpsHeroP
 
           <button
             type="button"
-            className="mt-1 rounded-lg bg-white px-4 py-1.5 text-xs font-bold text-brand shadow hover:bg-white/90 transition-colors"
+            className="mt-1 rounded-lg bg-white px-4 py-1.5 text-xs font-bold text-brand-strong shadow hover:bg-white/90 transition-colors"
           >
             {isPending ? copy.dashboard.uploading : copy.dashboard.chooseFile}
           </button>
@@ -105,7 +105,7 @@ export function UploadRpsHero({ onFileSelect, isPending, error }: UploadRpsHeroP
           type="button"
           onClick={() => fileInputRef.current?.click()}
           disabled={isPending}
-          className="flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-white text-sm font-bold text-brand shadow hover:bg-white/90 disabled:opacity-50"
+          className="flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-white text-sm font-bold text-brand-strong shadow hover:bg-white/90 disabled:opacity-50"
         >
           <FileUp className="size-4" aria-hidden="true" />
           <span>{isPending ? copy.dashboard.uploading : copy.dashboard.chooseFile}</span>

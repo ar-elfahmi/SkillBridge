@@ -44,7 +44,7 @@ export function CoverageSummary({ analysis }: { analysis: Analysis }) {
           {copy.coverageLabel}
         </h3>
 
-        <div className="flex h-3 w-full overflow-hidden rounded-full bg-surface-subtle">
+        <div className="flex h-3 w-full overflow-hidden rounded-full bg-progress-track">
           {rows.map((r) =>
             r.count > 0 ? (
               <div

@@ -228,7 +228,7 @@ export function AnalysesNewPage() {
                   setActiveJobDetail(null)
                 }}
                 disabled={isCareersLoading}
-                className="w-full appearance-none rounded-xl border border-border-warm bg-white px-4 py-3 text-sm font-semibold text-text-primary shadow-xs outline-none focus:border-brand pr-10"
+                className="w-full appearance-none rounded-xl border border-border-warm bg-white px-4 py-3 text-sm font-semibold text-text-primary shadow-xs outline-none focus:border-brand-accent pr-10"
               >
                 {careers.map((c) => (
                   <option key={c.id} value={c.id}>
@@ -277,7 +277,7 @@ export function AnalysesNewPage() {
                 onClick={() => setJobFilter('all')}
                 className={`rounded-md px-3 py-1 font-semibold transition-colors ${
                   jobFilter === 'all'
-                    ? 'bg-white text-brand shadow-xs'
+                    ? 'bg-white text-brand-strong shadow-xs'
                     : 'text-text-secondary'
                 }`}
               >
@@ -288,7 +288,7 @@ export function AnalysesNewPage() {
                 onClick={() => setJobFilter('selected')}
                 className={`rounded-md px-3 py-1 font-semibold transition-colors ${
                   jobFilter === 'selected'
-                    ? 'bg-white text-brand shadow-xs'
+                    ? 'bg-white text-brand-strong shadow-xs'
                     : 'text-text-secondary'
                 }`}
               >
@@ -343,7 +343,7 @@ export function AnalysesNewPage() {
                         <span className="text-sm font-bold text-text-primary">
                           {j.title}
                         </span>
-                        <span className="text-xs text-brand font-medium">
+                        <span className="text-xs text-brand-strong font-medium">
                           {j.company}
                         </span>
 
@@ -387,7 +387,7 @@ export function AnalysesNewPage() {
                     <h3 className="text-base font-bold text-text-primary">
                       {activeJobDetail.title}
                     </h3>
-                    <span className="text-xs font-semibold text-brand">
+                    <span className="text-xs font-semibold text-brand-strong">
                       {activeJobDetail.company}
                     </span>
                   </div>
@@ -465,7 +465,7 @@ export function AnalysesNewPage() {
             className="flex items-center justify-between p-4 text-xs font-bold text-text-primary hover:bg-surface-subtle transition-colors"
           >
             <div className="flex items-center gap-2">
-              <Plus className="size-4 text-brand" />
+              <Plus className="size-4 text-brand-accent" />
               <span>{copy.analysesNew.addJobLabel}</span>
             </div>
             {isAddJobOpen ? (
@@ -513,7 +513,7 @@ export function AnalysesNewPage() {
                   onChange={(e) => setNewDesc(e.target.value)}
                   placeholder="Ketik deskripsi pekerjaan dan skill yang dicari..."
                   required
-                  className="w-full rounded-lg border border-border-warm bg-background p-3 text-xs outline-none focus:border-brand"
+                  className="w-full rounded-lg border border-border-warm bg-background p-3 text-xs outline-none focus:border-brand-accent"
                 />
               </div>
 
