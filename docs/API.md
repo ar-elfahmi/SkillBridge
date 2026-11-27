@@ -46,6 +46,7 @@ Email dinormalisasi ke huruf kecil. Register & login dibatasi `skillbridge.rate_
 | PATCH | `/api/rps/{id}/competencies/{cid}` | Tinjau satu kompetensi: `review_status` (`confirmed\|rejected`) dan/atau edit `skill`, `competency` (set `user_edited`; embedding dibuat ulang). 200. |
 | POST | `/api/rps/{id}/competencies` | Tambah kompetensi yang terlewat (`skill, competency`); `origin = user`, `evidence = null`, `verification_status = unverified`. 201. |
 | DELETE | `/api/rps/{id}/competencies/{cid}` | Hapus kompetensi tambahan pengguna (hanya `origin = user`; untuk hasil AI gunakan `rejected`). |
+| GET | `/api/rps/{id}/career-suggestions` | Saran profesi untuk RPS (maks. 3, terurut dari paling sesuai): `{data: {status, items: [{career_id, name, reason}]}}`. `status`: `processing` (poll 2–3 dtk), `completed`, `failed`, `unavailable` (RPS belum dikonfirmasi atau kuota Gemini harian habis). Hanya profesi yang punya lowongan siap pakai yang ditawarkan. Pembacaan pertama dokumen terkonfirmasi tanpa hasil memasukkan job ke antrean. 404 bila bukan milik pengguna. |
 | POST | `/api/rps/{id}/confirm-review` | Konfirmasi hasil ekstraksi: `review_status = confirmed`. 422 bila ekstraksi belum `completed` atau masih ada kompetensi `pending` yang belum ditinjau. |
 | DELETE | `/api/rps/{id}` | Hapus dokumen & berkas |
 

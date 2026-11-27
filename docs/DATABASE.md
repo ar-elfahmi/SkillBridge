@@ -51,6 +51,7 @@ erDiagram
 | user_id | FK users | cascade |
 | course_id | FK courses null | diisi setelah metadata dikonfirmasi |
 | detected_metadata | jsonb null | draft metadata hasil `ExtractRpsMetadataJob` / koreksi `PATCH`, mis. `{code, name, credits, semester, study_program}`; tidak menyentuh `courses` |
+| career_suggestions | jsonb null | saran profesi untuk RPS ini dari satu request Gemini (`career-suggest-v1`): `{status: processing\|completed\|failed, items: [{career_id, reason}], prompt_version, generated_at, error_code}`. Diisi saat konfirmasi review (atau saat pembacaan pertama dokumen lama); `null` = belum diminta. Migrasi `2026_11_28_000000`. |
 | metadata_confirmed_at | timestamp null | diisi saat konfirmasi (`POST /api/rps/{id}/extract`) bersama `course_id`; gerbang ekstraksi kompetensi |
 | original_name | string | |
 | file_path | string | disk privat |
@@ -197,7 +198,7 @@ Unique(`user_id`, `skill_id`). Tanpa embedding dan tanpa bukti dokumen: ini klai
 ### `ai_runs` (jejak reproduksibilitas & biaya)
 | Kolom | Tipe | Catatan |
 |---|---|---|
-| purpose | string | `rps_metadata\|rps_extraction\|job_extraction\|embedding\|match_judge\|recommendation` |
+| purpose | string | `rps_metadata\|rps_extraction\|job_extraction\|embedding\|match_judge\|recommendation\|career_suggestion` |
 | model | string | |
 | prompt_version | string null | |
 | input_hash | string(64) | SHA-256 payload JSON request, tanpa API key; bukan teks sumber |

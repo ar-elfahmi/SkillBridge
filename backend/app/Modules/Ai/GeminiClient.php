@@ -22,7 +22,7 @@ use SensitiveParameter;
 
 final class GeminiClient
 {
-    private const PURPOSES = ['rps_metadata', 'rps_extraction', 'job_extraction', 'match_judge', 'recommendation'];
+    private const PURPOSES = ['rps_metadata', 'rps_extraction', 'job_extraction', 'match_judge', 'recommendation', 'career_suggestion'];
 
     private const THINKING_LEVELS = ['minimal', 'low', 'medium', 'high'];
 

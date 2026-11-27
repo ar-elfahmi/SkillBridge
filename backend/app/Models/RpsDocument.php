@@ -22,10 +22,11 @@ use Illuminate\Support\Carbon;
  * @property ExtractionStatus $extraction_status
  * @property ReviewStatus $review_status
  * @property array<string, mixed>|null $detected_metadata
+ * @property array<string, mixed>|null $career_suggestions
  * @property Carbon|null $metadata_confirmed_at
  */
 #[Fillable([
-    'user_id', 'course_id', 'detected_metadata', 'metadata_confirmed_at', 'original_name', 'file_path', 'file_hash', 'file_size',
+    'user_id', 'course_id', 'detected_metadata', 'metadata_confirmed_at', 'career_suggestions', 'original_name', 'file_path', 'file_hash', 'file_size',
     'page_count', 'parse_status', 'extraction_status', 'review_status', 'reviewed_at', 'error_code', 'error_message',
 ])]
 // Storage path is internal; never expose it in API responses.
@@ -57,6 +58,7 @@ class RpsDocument extends Model
             'review_status' => ReviewStatus::class,
             'reviewed_at' => 'datetime',
             'detected_metadata' => 'array',
+            'career_suggestions' => 'array',
             'metadata_confirmed_at' => 'datetime',
         ];
     }

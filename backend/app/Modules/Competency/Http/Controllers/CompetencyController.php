@@ -14,6 +14,7 @@ use App\Models\CourseSkill;
 use App\Models\RpsDocument;
 use App\Modules\Ai\EmbeddingService;
 use App\Modules\Ai\Services\AiQuotaGuard;
+use App\Modules\Ai\Services\CareerSuggestionService;
 use App\Modules\Competency\Http\Resources\CourseSkillResource;
 use App\Modules\Competency\Jobs\ExtractCompetenciesJob;
 use App\Modules\Competency\Services\SkillNormalizer;
@@ -351,7 +352,7 @@ class CompetencyController extends Controller
         return response()->noContent();
     }
 
-    public function confirmReview(Request $request, RpsDocument $document): JsonResponse
+    public function confirmReview(Request $request, RpsDocument $document, CareerSuggestionService $careerSuggestions): JsonResponse
     {
         Gate::authorize('update', $document);
 
@@ -381,6 +382,9 @@ class CompetencyController extends Controller
             'review_status' => ReviewStatus::Confirmed,
             'reviewed_at' => now(),
         ]);
+
+        // One Gemini request; skipped silently when the daily budget is gone (the read endpoint reports it).
+        $careerSuggestions->request($document);
 
         /** @var JsonResponse $response */
         $response = (new RpsDocumentResource($document->fresh('course')))

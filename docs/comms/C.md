@@ -19,6 +19,9 @@ Total 21 unit tests lulus, `npm run typecheck` + `npm run build` bersih. Branch 
 
 ## Handoff
 
+#### HO-C-009 · 2026-11-28 · Saran profesi di `/analyses/new` · untuk: B
+Hook `useCareerSuggestions` (polling 2,5 dtk selama `processing`, maks. 40 kali). Profesi tersaran diurutkan paling atas dengan badge `Saran AI untuk RPS ini` dan alasan; profesi tersaran pertama yang punya lowongan siap menjadi pilihan awal. `failed`/`unavailable`/kosong: daftar biasa tanpa pesan error. Menjawab HO-B-016.
+
 #### HO-C-008 · 2026-11-28 · `/analyses/new` hanya pilih profesi · untuk: B
 Halaman tidak lagi menampilkan pilihan, pencarian, atau form tambah lowongan. Pengguna memilih satu profesi (kartu radio: nama, ringkasan, `eligible_job_count`; profesi tanpa lowongan siap dinonaktifkan; default profesi pertama yang siap). Request analisis: `{rps_document_id, career_id}`. Hook `useJobsList`/`useCreateJob` dan `POST /api/jobs` tetap ada namun tidak dipakai halaman ini. Menjawab HO-B-015.
 

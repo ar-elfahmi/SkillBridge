@@ -5,6 +5,7 @@ import { AiQuotaBanner } from '@/components/common/AiQuotaBanner'
 import { DashboardTopbar } from '@/components/dashboard/DashboardTopbar'
 import { Button } from '@/components/ui/button'
 import {
+  useCareerSuggestions,
   useCareersList,
   useCreateAnalysis,
   useLogout,
@@ -26,10 +27,19 @@ export function AnalysesNewPage() {
   const { data: careers = [], isLoading: isCareersLoading, isError: isCareersError } =
     useCareersList()
 
+  const { data: suggestions } = useCareerSuggestions(rpsId)
+
   const [selectedCareerId, setSelectedCareerId] = useState<number | null>(null)
 
-  // Default: first profession that has job postings ready to use.
-  const defaultCareerId = careers.find((c) => c.eligible_job_count > 0)?.id ?? null
+  // Suggested professions come first, in the order the server ranked them.
+  const suggestionByCareer = new Map((suggestions?.items ?? []).map((s, i) => [s.career_id, { ...s, rank: i + 1 }]))
+  const orderedCareers = [...careers].sort(
+    (a, b) =>
+      (suggestionByCareer.get(a.id)?.rank ?? Infinity) - (suggestionByCareer.get(b.id)?.rank ?? Infinity)
+  )
+
+  // Default: best suggestion that has ready job postings, else the first profession that has them.
+  const defaultCareerId = orderedCareers.find((c) => c.eligible_job_count > 0)?.id ?? null
   const currentCareerId = selectedCareerId ?? defaultCareerId
   const selectedCareer = careers.find((c) => c.id === currentCareerId)
 
@@ -122,6 +132,17 @@ export function AnalysesNewPage() {
             </p>
           </div>
 
+          {suggestions?.status === 'processing' && (
+            <p role="status" className="rounded-lg bg-surface-subtle p-3 text-xs text-text-secondary">
+              {copy.analysesNew.suggestionsLoading}
+            </p>
+          )}
+          {suggestions?.status === 'completed' && suggestions.items.length > 0 && (
+            <p className="rounded-lg bg-brand-soft/40 p-3 text-xs text-text-primary">
+              {copy.analysesNew.suggestionsNote}
+            </p>
+          )}
+
           {isCareersLoading ? (
             <div className="p-8 text-center text-xs text-text-secondary">
               {copy.analysesNew.careersLoading}
@@ -140,9 +161,10 @@ export function AnalysesNewPage() {
               aria-label={copy.analysesNew.step1Title}
               className="grid grid-cols-1 gap-3 md:grid-cols-2"
             >
-              {careers.map((c) => {
+              {orderedCareers.map((c) => {
                 const isSelected = c.id === currentCareerId
                 const isDisabled = c.eligible_job_count === 0
+                const suggestion = suggestionByCareer.get(c.id)
                 return (
                   <label
                     key={c.id}
@@ -172,9 +194,19 @@ export function AnalysesNewPage() {
                         </span>
                       )}
                     </span>
+                    {suggestion && (
+                      <span className="w-fit rounded-md bg-brand-soft px-2 py-0.5 text-xs font-semibold text-brand-strong">
+                        {copy.analysesNew.suggestionBadge}
+                      </span>
+                    )}
                     {c.description && (
                       <span className="text-xs leading-relaxed text-text-secondary">
                         {c.description}
+                      </span>
+                    )}
+                    {suggestion && (
+                      <span className="text-xs leading-relaxed text-text-primary">
+                        {suggestion.reason}
                       </span>
                     )}
                     <span className="text-xs font-semibold text-text-secondary">

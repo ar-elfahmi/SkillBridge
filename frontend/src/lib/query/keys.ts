@@ -11,6 +11,7 @@ export const queryKeys = {
   job: (id: number) => ['jobs', 'detail', id] as const,
   rps: ['rps'] as const,
   rpsDetail: (id: number) => ['rps', id] as const,
+  careerSuggestions: (id: number) => ['rps', id, 'career-suggestions'] as const,
   competencies: (id: number) => ['rps', id, 'competencies'] as const,
   meSkills: ['me', 'skills'] as const,
   analyses: ['analyses'] as const,

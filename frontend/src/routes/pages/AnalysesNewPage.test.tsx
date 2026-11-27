@@ -9,7 +9,7 @@ import type { Career, RpsDocument, User } from '@/types/api'
 vi.mock('@/lib/api/endpoints', () => ({
   aiApi: { quota: vi.fn() },
   authApi: { me: vi.fn(), logout: vi.fn() },
-  rpsApi: { show: vi.fn() },
+  rpsApi: { show: vi.fn(), careerSuggestions: vi.fn() },
   industryApi: { careers: vi.fn() },
   analysisApi: { create: vi.fn() },
 }))
@@ -74,6 +74,7 @@ describe('AnalysesNewPage', () => {
     vi.mocked(authApi.me).mockResolvedValue({ data: mockUser })
     vi.mocked(rpsApi.show).mockResolvedValue({ data: mockDoc })
     vi.mocked(industryApi.careers).mockResolvedValue({ data: mockCareers })
+    vi.mocked(rpsApi.careerSuggestions).mockResolvedValue({ data: { status: 'unavailable', items: [] } })
     vi.mocked(analysisApi.create).mockReset()
   })
 
@@ -95,6 +96,37 @@ describe('AnalysesNewPage', () => {
     expect(screen.getByRole('radio', { name: /Frontend Developer/ })).toBeChecked()
     expect(screen.getByRole('radio', { name: /Data Analyst/ })).toBeDisabled()
     expect(screen.getByText('Belum ada lowongan siap dipakai')).toBeInTheDocument()
+  })
+
+  it('mengurutkan saran AI di atas dan menjadikannya pilihan awal', async () => {
+    vi.mocked(rpsApi.careerSuggestions).mockResolvedValue({
+      data: {
+        status: 'completed',
+        items: [
+          { career_id: 3, name: 'Backend Developer', reason: 'RPS membahas REST API dan basis data.' },
+          { career_id: 1, name: 'Data Analyst', reason: 'Ada unsur data.' },
+        ],
+      },
+    })
+
+    renderAnalysesNew()
+
+    expect(await screen.findByText('RPS membahas REST API dan basis data.')).toBeInTheDocument()
+    const radios = screen.getAllByRole('radio')
+    expect(radios[0]).toHaveAccessibleName(/Backend Developer/)
+    expect(radios[0]).toBeChecked()
+    // Saran untuk profesi tanpa lowongan siap tetap tampil, tetapi tidak bisa dipilih.
+    expect(screen.getByRole('radio', { name: /Data Analyst/ })).toBeDisabled()
+    expect(screen.getAllByText('Saran AI untuk RPS ini')).toHaveLength(2)
+  })
+
+  it('menampilkan status menyiapkan saran saat masih diproses', async () => {
+    vi.mocked(rpsApi.careerSuggestions).mockResolvedValue({ data: { status: 'processing', items: [] } })
+
+    renderAnalysesNew()
+
+    expect(await screen.findByText('Menyiapkan saran profesi untuk RPS Anda…')).toBeInTheDocument()
+    expect(screen.getByRole('radio', { name: /Frontend Developer/ })).toBeChecked()
   })
 
   it('memulai analisis hanya dengan RPS dan profesi pilihan', async () => {
