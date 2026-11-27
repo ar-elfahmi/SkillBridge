@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { Check, CircleDashed, Minus, Search, X } from 'lucide-react'
+import { Check, CircleDashed, ExternalLink, Minus, Search, X } from 'lucide-react'
 import type { Classification, SkillMatch } from '@/types/api'
 import { copy } from '@/lib/copy'
 
@@ -310,13 +310,37 @@ export function SkillGapTable({ matches, isLoading }: SkillGapTableProps) {
                 </span>
                 {drawerMatch.job_evidence.map((je) => (
                   <div
-                    key={`${je.job_posting_id}-${je.evidence}`}
+                    key={je.job_posting_id}
                     className="flex flex-col gap-1 rounded-lg border border-border-warm p-3"
                   >
+                    {je.title && (
+                      <span className="text-sm font-semibold text-text-primary">{je.title}</span>
+                    )}
                     <span className="text-xs font-semibold text-brand-strong">{je.company}</span>
-                    <p className="text-sm italic text-text-secondary">“{je.evidence}”</p>
+                    {je.evidence && (
+                      <p className="text-sm italic text-text-secondary">“{je.evidence}”</p>
+                    )}
+                    {je.source_url && (
+                      <a
+                        href={je.source_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex min-h-11 w-fit items-center gap-1 text-xs font-semibold text-brand-strong underline sm:min-h-0"
+                      >
+                        {copy.analysesResult.evidenceJobOpen}
+                        {je.source_name ? ` (${je.source_name})` : ''}
+                        <ExternalLink className="size-3" aria-hidden="true" />
+                      </a>
+                    )}
                   </div>
                 ))}
+                {drawerMatch.job_evidence_total > drawerMatch.job_evidence.length && (
+                  <span className="text-xs text-text-secondary">
+                    {copy.analysesResult.evidenceJobMore(
+                      drawerMatch.job_evidence_total - drawerMatch.job_evidence.length
+                    )}
+                  </span>
+                )}
               </div>
             )}
 

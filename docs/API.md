@@ -204,13 +204,23 @@ Contoh item `GET /api/analyses/101/matches`:
         "page": 3
       },
       "job_evidence": [
-        { "job_posting_id": 10, "company": "PT Contoh", "evidence": "Pengalaman dengan Laravel" }
-      ]
+        {
+          "job_posting_id": 10,
+          "title": "Backend Developer",
+          "company": "PT Contoh",
+          "source_name": "Remotive",
+          "source_url": "https://example.com/lowongan/10",
+          "evidence": "Pengalaman dengan Laravel"
+        }
+      ],
+      "job_evidence_total": 2
     }
   ]
 }
 ```
 Skor adalah ilustrasi dan **tidak** boleh ditampilkan sebagai persentase penguasaan.
+
+`job_evidence` berisi satu entri per lowongan (tanpa duplikat), maksimal `config('skillbridge.matching.max_job_evidence')` (default 10). `job_evidence_total` adalah jumlah semua lowongan yang meminta skill tersebut, agar UI dapat menulis "dan N lowongan lain". `source_name` dan `source_url` bernilai `null` bila lowongan tidak punya sumber; `source_url` hanya dikeluarkan bila berskema `http`/`https`. Klien hanya menampilkan tautan bila nilainya ada.
 
 `self_declared` dihitung saat dibaca: `true` bila `skill_id` ada pada `user_skills` milik pengguna yang sedang login. Nilai ini tidak mengubah `classification` dan `summary`.
 

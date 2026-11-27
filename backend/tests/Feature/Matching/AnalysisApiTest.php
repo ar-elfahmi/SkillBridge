@@ -270,7 +270,54 @@ class AnalysisApiTest extends TestCase
             ->assertJsonPath('data.0.matched_competency.id', $courseSkill->id)
             ->assertJsonPath('data.0.matched_competency.source_reference', 'CPMK 2')
             ->assertJsonPath('data.0.job_evidence.0.job_posting_id', $this->jobPosting->id)
-            ->assertJsonPath('data.0.job_evidence.0.evidence', 'Pengalaman kerja dengan Laravel');
+            ->assertJsonPath('data.0.job_evidence.0.evidence', 'Pengalaman kerja dengan Laravel')
+            ->assertJsonPath('data.0.job_evidence.0.title', $this->jobPosting->title)
+            ->assertJsonPath('data.0.job_evidence.0.source_url', $this->jobPosting->source_url)
+            ->assertJsonPath('data.0.job_evidence_total', 1);
+    }
+
+    public function test_job_evidence_lists_each_posting_once_with_safe_links_and_cap(): void
+    {
+        config(['skillbridge.matching.max_job_evidence' => 2]);
+
+        $analysis = Analysis::factory()->create([
+            'user_id' => $this->user->id,
+            'rps_document_id' => $this->rpsDocument->id,
+            'career_id' => $this->career->id,
+            'status' => AnalysisStatus::Completed,
+        ]);
+        $skill = Skill::factory()->create(['canonical_name' => 'Docker']);
+
+        $postings = [
+            JobPosting::factory()->create(['career_id' => $this->career->id, 'source_url' => 'https://example.com/a']),
+            JobPosting::factory()->create(['career_id' => $this->career->id, 'source_url' => 'javascript:alert(1)']),
+            JobPosting::factory()->create(['career_id' => $this->career->id, 'source_url' => null]),
+        ];
+
+        $ids = [];
+        foreach ($postings as $posting) {
+            $ids[] = JobSkill::factory()->create(['job_posting_id' => $posting->id, 'skill_id' => $skill->id])->id;
+        }
+        // Second skill row on the first posting must not produce a duplicate entry.
+        $ids[] = JobSkill::factory()->create(['job_posting_id' => $postings[0]->id, 'skill_id' => $skill->id])->id;
+
+        SkillMatch::create([
+            'analysis_id' => $analysis->id,
+            'skill_id' => $skill->id,
+            'demand_count' => 3,
+            'source_job_skill_ids' => $ids,
+            'classification' => MatchClassification::Missing,
+            'reason' => 'Belum ditemukan.',
+            'candidates' => [],
+            'judged_by' => JudgedBy::Rule,
+        ]);
+
+        $this->actingAs($this->user)->getJson("/api/analyses/{$analysis->id}/matches")
+            ->assertOk()
+            ->assertJsonCount(2, 'data.0.job_evidence')
+            ->assertJsonPath('data.0.job_evidence_total', 3)
+            ->assertJsonPath('data.0.job_evidence.0.source_url', 'https://example.com/a')
+            ->assertJsonPath('data.0.job_evidence.1.source_url', null);
     }
 
     public function test_deletes_analysis_returns_204_and_cascades(): void

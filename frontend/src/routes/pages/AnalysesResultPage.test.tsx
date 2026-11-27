@@ -57,7 +57,25 @@ const mockMatches: SkillMatch[] = [
       source_reference: 'Sub-CPMK 3',
       page: 4,
     },
-    job_evidence: [{ job_posting_id: 10, company: 'PT Contoh', evidence: 'React' }],
+    job_evidence: [
+      {
+        job_posting_id: 10,
+        title: 'Frontend Engineer',
+        company: 'PT Contoh',
+        source_name: 'Remotive',
+        source_url: 'https://example.com/lowongan/10',
+        evidence: 'React',
+      },
+      {
+        job_posting_id: 11,
+        title: 'UI Engineer',
+        company: 'PT Tanpa Tautan',
+        source_name: null,
+        source_url: null,
+        evidence: 'React dan TypeScript',
+      },
+    ],
+    job_evidence_total: 3,
   },
   {
     skill: 'Docker',
@@ -68,6 +86,7 @@ const mockMatches: SkillMatch[] = [
     reason: 'Tidak ditemukan dalam RPS.',
     matched_competency: null,
     job_evidence: [],
+    job_evidence_total: 0,
   },
 ]
 
@@ -144,6 +163,25 @@ describe('AnalysesResultPage', () => {
 
     fireEvent.keyDown(document, { key: 'Escape' })
     await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument())
+  })
+
+  it('menampilkan bukti lowongan dengan judul, tautan aman, dan sisa lowongan', async () => {
+    renderPage()
+
+    await screen.findByText('Pemrograman Web')
+    fireEvent.click(screen.getByRole('tab', { name: 'Skill Gap' }))
+    const skillButtons = await screen.findAllByRole('button', { name: 'React' })
+    fireEvent.click(skillButtons[0]!)
+
+    const dialog = await screen.findByRole('dialog')
+    expect(dialog).toHaveTextContent('Frontend Engineer')
+    expect(dialog).toHaveTextContent('UI Engineer')
+
+    const links = screen.getAllByRole('link', { name: /Buka lowongan/ })
+    expect(links).toHaveLength(1)
+    expect(links[0]).toHaveAttribute('href', 'https://example.com/lowongan/10')
+    expect(links[0]).toHaveAttribute('rel', 'noopener noreferrer')
+    expect(dialog).toHaveTextContent('dan 1 lowongan lain')
   })
 
   it('berpindah ke tab Rekomendasi Belajar', async () => {

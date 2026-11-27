@@ -17,6 +17,9 @@
 
 ## Handoff
 
+#### HO-B-014 · 2026-11-28 · Bukti lowongan di detail skill · untuk: C
+`GET /api/analyses/{id}/matches`: `job_evidence[]` kini memuat `title`, `source_name`, `source_url` (`null` bila kosong atau bukan http/https), satu entri per lowongan, dibatasi `SKILLBRIDGE_MAX_JOB_EVIDENCE` (default 10), plus `job_evidence_total`. Kontrak: `docs/API.md` §analyses. Breaking change: tidak (field ditambah).
+
 #### HO-B-013 · 2026-11-26 · T8.1 lanjutan (percepatan pipeline AI) · untuk: A, C
 Dasar: jejak waktu redeploy server (metadata 54 dtk, kompetensi 66 dtk, analisis 66 dtk, rekomendasi 2 mnt 19 dtk + 1 mnt sampai tampil). Detail: `docs/AI_PIPELINE.md` §7 dan §8 (*Percepatan T8.1 lanjutan*), diagram 08 dan 09.
 - **Timeout** per permintaan Gemini 60 -> 20 dtk (`GEMINI_TIMEOUT_SECONDS`). Panggilan normal sekitar 2 dtk; satu percobaan macet tidak lagi membuang satu menit. **Flash RPM 12 -> 14** (`GEMINI_FLASH_RPM`, batas penyedia 15). Server perlu menyalin nilai baru ke `.env` (A).

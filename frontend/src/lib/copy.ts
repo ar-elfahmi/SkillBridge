@@ -213,6 +213,8 @@ export const copy = {
     evidenceTitle: 'Rincian bukti',
     evidenceRps: 'Kutipan RPS',
     evidenceJob: 'Kutipan lowongan',
+    evidenceJobOpen: 'Buka lowongan',
+    evidenceJobMore: (n: number) => `dan ${n} lowongan lain`,
     evidenceReason: 'Alasan klasifikasi',
     similarity: 'Kemiripan semantik',
     close: 'Tutup',
