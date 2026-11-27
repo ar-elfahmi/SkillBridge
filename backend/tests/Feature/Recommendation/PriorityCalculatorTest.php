@@ -23,7 +23,7 @@ class PriorityCalculatorTest extends TestCase
     }
 
     /**
-     * Rules table from docs/AI_PIPELINE.md §7 with the default 50% threshold.
+     * Rules table from docs/AI_PIPELINE.md §7 with the default 75% threshold.
      *
      * @return array<string, array{MatchClassification, int, int, RecommendationPriority|null}>
      */
@@ -35,11 +35,11 @@ class PriorityCalculatorTest extends TestCase
 
         return [
             'missing, asked by all postings' => [$m, 2, 2, RecommendationPriority::High],
-            'missing, exactly 50%' => [$m, 1, 2, RecommendationPriority::High],
-            'missing, below 50%' => [$m, 1, 3, RecommendationPriority::Medium],
-            'partial, exactly 50%' => [$p, 2, 4, RecommendationPriority::Medium],
-            'partial, above 50%' => [$p, 3, 4, RecommendationPriority::Medium],
-            'partial, below 50%' => [$p, 1, 4, RecommendationPriority::Low],
+            'missing, exactly 75%' => [$m, 3, 4, RecommendationPriority::High],
+            'missing, below 75%' => [$m, 1, 2, RecommendationPriority::Medium],
+            'partial, exactly 75%' => [$p, 3, 4, RecommendationPriority::Medium],
+            'partial, above 75%' => [$p, 4, 4, RecommendationPriority::Medium],
+            'partial, below 75%' => [$p, 2, 4, RecommendationPriority::Low],
             'covered, high demand' => [$c, 4, 4, null],
             'covered, low demand' => [$c, 1, 4, null],
             'missing, no postings selected' => [$m, 0, 0, RecommendationPriority::Medium],

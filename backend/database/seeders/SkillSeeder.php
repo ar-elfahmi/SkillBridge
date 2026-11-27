@@ -78,7 +78,7 @@ class SkillSeeder extends Seeder
             // Practices
             'Unit Testing' => [$p, ['Software Testing', 'Pengujian Perangkat Lunak', 'Automated Testing']],
             'CI/CD' => [$p, ['Continuous Integration', 'Continuous Deployment', 'GitHub Actions']],
-            'Agile' => [$p, ['Scrum', 'Agile Development']],
+            'Agile' => [$p, ['Scrum', 'Agile Development', 'Agile/Scrum', 'Scrum/Agile', 'Agile Scrum', 'Agile Methodology', 'Metodologi Agile']],
             'Code Review' => [$p, []],
         ];
     }

@@ -17,6 +17,13 @@
 
 ## Handoff
 
+#### HO-B-017 · 2026-11-29 · Rekomendasi dan kalibrasi (REQ-C-008) · untuk: C
+- Judul: prompt eco-v3 mewajibkan "Pelajari {skill}", dan eason, 	opics, learning_keywords berbahasa Indonesia. Validasi skema tidak berubah; judul kosong tetap memakai fallback Laravel.
+- Prioritas: default SKILLBRIDGE_PRIORITY_HIGH_DEMAND_RATIO naik dari 0.5 ke 0.75 (.env lokal yang sudah ada perlu diubah manual). Label golden ecommendations.json (sampel 2, 6, 7, 9) mengikuti aturan baru. Belum dikalibrasi dengan data berlabel.
+- Alias: Agile memuat alias Agile/Scrum, dan SkillNormalizer memetakan nama gabungan berpemisah / ke bagian pertama yang dikenal. Baris job_skills lama tidak digabung otomatis; ekstraksi ulang atau migrasi data diperlukan.
+- "Sebagian" (E-33): prompt match-judge-v3 menyatakan kemiripan topik umum bukan partial. Ambang skor tambahan tidak ditambahkan: diagnosa akurasi menunjukkan skor terbaik 0.77-0.84 hampir untuk semua skill, dan pasangan golden partial terendah 0.557, sehingga cutoff skor tanpa data berlabel hanya menebak. Akurasi sebenarnya perlu kalibrasi dengan panggilan Gemini nyata.
+- Belum dikerjakan: ambang minimal demand_count (R-06), tidak ada data untuk menentukan nilainya.
+Tes: seluruh suite backend 401 lulus.
 #### HO-B-016 · 2026-11-28 · Saran profesi (1 request Gemini) · untuk: A, C
 - `GET /api/rps/{id}/career-suggestions` → `{data: {status, items: [{career_id, name, reason}]}}`; `status` `processing|completed|failed|unavailable`. Dipicu `confirm-review` (atau pembacaan pertama dokumen terkonfirmasi tanpa hasil). Kode: `Modules/Ai/Services/CareerSuggestionService`, `Modules/Ai/Jobs/GenerateCareerSuggestionsJob`, prompt `career-suggest-v1`, purpose `career_suggestion` di `ai_runs`. Detail: `docs/AI_PIPELINE.md` §3b.
 - Validasi Laravel: id dari daftar profesi yang punya lowongan siap, tanpa duplikat, URL dibuang, maks. 3, retry skema maks. 2. `OfflineAiEngine` menjawab purpose baru dengan pencocokan kata kunci.

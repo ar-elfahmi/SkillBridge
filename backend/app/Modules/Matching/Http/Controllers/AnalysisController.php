@@ -90,6 +90,7 @@ class AnalysisController extends Controller
     {
         $analyses = Analysis::where('user_id', $request->user()->id)
             ->with(['career', 'rpsDocument.course'])
+            ->withCount('jobPostings')
             ->latest('id')
             ->paginate(15);
 
@@ -103,7 +104,7 @@ class AnalysisController extends Controller
     {
         Gate::authorize('view', $analysis);
 
-        $analysis->load(['career', 'rpsDocument.course']);
+        $analysis->load(['career', 'rpsDocument.course'])->loadCount('jobPostings');
 
         return new AnalysisResource($analysis);
     }

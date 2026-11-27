@@ -32,7 +32,7 @@
       "classification": "missing",
       "demand_count": 2,
       "selected_postings": 4,
-      "expected_priority": "high",
+      "expected_priority": "medium",
       "title": "Caching dan Antrean Pekerjaan Menggunakan Redis",
       "reason": "Redis dibutuhkan oleh separuh lowongan Backend Developer untuk optimasi performa dan queue.",
       "topics": [
@@ -116,7 +116,7 @@
       "classification": "partial",
       "demand_count": 2,
       "selected_postings": 3,
-      "expected_priority": "medium",
+      "expected_priority": "low",
       "title": "Pembuatan Dashboard Interaktif Menggunakan Power BI",
       "reason": "Konsep visualisasi data sudah tercakup di RPS, tetapi penggunaan tool spesifik Power BI belum tercantum.",
       "topics": [
@@ -137,7 +137,7 @@
       "classification": "missing",
       "demand_count": 2,
       "selected_postings": 3,
-      "expected_priority": "high",
+      "expected_priority": "medium",
       "title": "Sistem Tipe Statis Modern dengan TypeScript",
       "reason": "TypeScript diminta pada mayoritas lowongan Frontend & Full Stack namun RPS baru mencakup JavaScript ES6.",
       "topics": [
@@ -179,7 +179,7 @@
       "classification": "missing",
       "demand_count": 2,
       "selected_postings": 4,
-      "expected_priority": "high",
+      "expected_priority": "medium",
       "title": "Dasar Administrasi Server Linux dan Command Line",
       "reason": "Kemampuan operasional Linux command line dibutuhkan pada 2 dari 4 lowongan backend untuk deployment.",
       "topics": [

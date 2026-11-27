@@ -22,7 +22,7 @@ class MatchJudge
 {
     public const PROMPT_VERSION = 'match-judge-v1';
 
-    public const BATCH_PROMPT_VERSION = 'match-judge-v2';
+    public const BATCH_PROMPT_VERSION = 'match-judge-v3';
 
     public function __construct(
         private readonly GeminiClient $gemini,
@@ -68,7 +68,7 @@ class MatchJudge
      * Judge many skills with as few Gemini requests as possible.
      *
      * Skills that need Gemini are grouped (`skillbridge.gemini.judge_batch_size` per prompt, prompt
-     * `match-judge-v2`) and the groups are sent in parallel (`skillbridge.gemini.max_concurrent`).
+     * `match-judge-v3`) and the groups are sent in parallel (`skillbridge.gemini.max_concurrent`).
      * Every skill keeps its own candidates and its own guardrails: an answer only counts when its `id`
      * belongs to the group and is not repeated, and `matched_course_skill_id` must be one of that
      * skill's candidates (ClassificationGuardrails). Skills without a valid answer are asked again

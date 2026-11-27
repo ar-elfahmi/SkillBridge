@@ -219,7 +219,9 @@ class AnalysisApiTest extends TestCase
 
         $response->assertOk()
             ->assertJsonCount(1, 'data')
-            ->assertJsonPath('data.0.analysis_id', $myAnalysis->id);
+            ->assertJsonPath('data.0.analysis_id', $myAnalysis->id)
+            ->assertJsonPath('data.0.rps_document_id', $this->rpsDocument->id)
+            ->assertJsonPath('data.0.job_count', 0);
     }
 
     public function test_shows_analysis_detail_200_for_owner_and_404_for_non_owner(): void
@@ -248,6 +250,8 @@ class AnalysisApiTest extends TestCase
             ->assertJsonPath('data.status', 'completed')
             ->assertJsonPath('data.career', 'Backend Developer')
             ->assertJsonPath('data.course', 'Pemrograman Web')
+            ->assertJsonPath('data.rps_document_id', $this->rpsDocument->id)
+            ->assertJsonPath('data.job_count', 0)
             ->assertJsonPath('data.summary.total_skills', 10);
 
         $this->assertEquals(60.0, $response->json('data.summary.coverage_percentage'));

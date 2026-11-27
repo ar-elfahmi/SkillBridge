@@ -372,7 +372,7 @@ final class OfflineAiEngine
      */
     private function judgeMatch(string $prompt): array
     {
-        // Batched prompt (match-judge-v2): one answer per item, same "id".
+        // Batched prompt (match-judge-v3): one answer per item, same "id".
         $itemsText = $this->extractLastTagBlock($prompt, 'items');
         if ($itemsText !== null) {
             $items = json_decode($itemsText, true);
@@ -491,7 +491,7 @@ final class OfflineAiEngine
     }
 
     /**
-     * Batched prompts (reco-v2) carry an "items" list and get one answer per item (same "id").
+     * Batched prompts (reco-v3) carry an "items" list and get one answer per item (same "id").
      * A single skill object still gets a single answer.
      *
      * @return array<string, mixed>|list<array<string, mixed>>
