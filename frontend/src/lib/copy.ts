@@ -254,7 +254,7 @@ export const copy = {
     priorityGroup: (priority: 'high' | 'medium' | 'low', n: number) =>
       `Prioritas ${{ high: 'tinggi', medium: 'sedang', low: 'rendah' }[priority]} (${n})`,
     topicsLabel: 'Topik',
-    keywordsPrefix: 'Kata kunci:',
+    keywordsPrefix: 'Kata kunci (bahasa Inggris):',
     alreadyLearned: 'Tandai sudah dipelajari',
     selfDeclaredTitle: 'Dipelajari mandiri',
     selfDeclaredPlaceholder: 'Contoh: Docker',

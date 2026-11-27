@@ -284,7 +284,7 @@ export function CompetencyReviewTable({
                       ) : (
                         <span>
                           {sourceReferenceLabel(c.source_reference, c.source_type)}
-                          {c.week ? `, M${c.week}` : ''}
+                          {c.week ? `, minggu ${c.week}` : ''}
                           {c.page ? `, Hal. ${c.page}` : ''}
                         </span>
                       )}

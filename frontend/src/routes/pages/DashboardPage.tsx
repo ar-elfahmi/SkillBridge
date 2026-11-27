@@ -91,7 +91,7 @@ export function DashboardPage() {
     (acc, a) => acc + (a.summary?.missing ?? 0),
     0
   )
-  const matchedJobsCount = jobsList.length
+  const matchedJobsCount = careersList.reduce((acc, c) => acc + c.eligible_job_count, 0)
   const careersCount = careersList.length
 
   return (
