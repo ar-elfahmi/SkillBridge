@@ -44,11 +44,11 @@ export function DashboardStats({
           >
             <div className="flex flex-col gap-1">
               <span className="text-xs font-semibold text-text-primary md:text-sm">{s.label}</span>
-              <span className="font-display text-xl font-normal text-brand">{s.value}</span>
+              <span className="font-display text-xl font-normal text-brand-strong">{s.value}</span>
               <span className="text-[11px] text-text-secondary">{s.note}</span>
             </div>
 
-            <div className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-brand-soft text-brand">
+            <div className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-brand-soft text-brand-strong">
               <Icon className="size-5" aria-hidden="true" />
             </div>
           </div>

@@ -192,8 +192,8 @@ export function RegisterPage() {
           </form>
 
           <p className="text-center text-[13px]">
-            <span className="text-[#a8a8a8]">{copy.auth.haveAccount} </span>
-            <Link to="/login" className="font-bold text-brand hover:underline">
+            <span className="text-text-secondary">{copy.auth.haveAccount} </span>
+            <Link to="/login" className="font-bold text-brand-strong hover:underline">
               {copy.auth.submitLogin}
             </Link>
           </p>

@@ -62,7 +62,7 @@ export function SelfDeclaredSkillsPanel({
                   type="button"
                   onClick={() => onRemove(s.id)}
                   aria-label={`Hapus ${s.skill}`}
-                  className="flex size-6 items-center justify-center rounded-md text-text-secondary transition-colors hover:bg-brand-soft/40 hover:text-danger"
+                  className="flex size-6 items-center justify-center rounded-md text-text-secondary transition-colors hover:bg-danger/10 hover:text-danger"
                 >
                   <X className="size-3.5" aria-hidden="true" />
                 </button>
@@ -99,7 +99,7 @@ export function SelfDeclaredSkillsPanel({
             aria-label={copy.analysesResult.levelLabel}
             value={level}
             onChange={(e) => setLevel(e.target.value as SkillLevel)}
-            className="h-10 rounded-lg border border-border-warm bg-white px-2 text-xs font-semibold text-text-primary outline-none focus:border-brand"
+            className="h-10 rounded-lg border border-border-warm bg-white px-2 text-xs font-semibold text-text-primary outline-none focus:border-brand-accent"
           >
             {(['beginner', 'intermediate', 'advanced'] as const).map((l) => (
               <option key={l} value={l}>
@@ -122,7 +122,7 @@ export function SelfDeclaredSkillsPanel({
         {copy.analysesResult.selfDeclaredNote}
       </p>
 
-      <Link to="/profile" className="w-fit text-[11px] font-bold text-brand hover:underline">
+      <Link to="/profile" className="w-fit text-[11px] font-bold text-brand-strong hover:underline">
         {copy.analysesResult.selfDeclaredProfileLink}
       </Link>
     </div>

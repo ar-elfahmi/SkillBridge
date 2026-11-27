@@ -38,7 +38,7 @@ export function LearningRecommendationList({
           aria-live="polite"
           className="flex items-center justify-center gap-2.5 rounded-2xl border border-border-warm bg-white p-8 text-xs text-text-secondary shadow-sm"
         >
-          <Loader2 className="size-4 shrink-0 animate-spin text-brand" aria-hidden="true" />
+          <Loader2 className="size-4 shrink-0 animate-spin text-brand-accent" aria-hidden="true" />
           <span>{copy.analysesResult.recoLoading}</span>
         </div>
       ) : recommendations.length === 0 ? (
@@ -57,7 +57,7 @@ export function LearningRecommendationList({
               }`}
             >
               <div className="flex items-start justify-between gap-3">
-                <span className="text-sm font-bold text-brand">{r.skill}</span>
+                <span className="text-sm font-bold text-brand-strong">{r.skill}</span>
                 <span
                   className={`rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wide ${
                     PRIORITY_STYLE[r.priority]
@@ -102,7 +102,7 @@ export function LearningRecommendationList({
                 className={`w-fit rounded-lg border px-3 py-1.5 text-[11px] font-semibold transition-colors ${
                   declaredSkills.has(r.skill)
                     ? 'cursor-default border-success/40 bg-success/10 text-success'
-                    : 'border-border-warm text-text-primary hover:border-brand hover:text-brand'
+                    : 'border-border-warm text-text-primary hover:border-brand hover:text-brand-strong'
                 }`}
               >
                 {copy.analysesResult.alreadyLearned}

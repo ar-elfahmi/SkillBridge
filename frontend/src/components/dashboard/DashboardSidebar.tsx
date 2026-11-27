@@ -75,7 +75,7 @@ export function DashboardSidebar({
 
         <Link
           to="/profile"
-          className="w-fit text-xs font-bold text-brand hover:underline"
+          className="w-fit text-xs font-bold text-brand-strong hover:underline"
         >
           {copy.dashboard.sidebar.viewAllSkills}
         </Link>

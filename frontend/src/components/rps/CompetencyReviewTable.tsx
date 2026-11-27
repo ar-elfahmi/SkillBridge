@@ -103,7 +103,7 @@ export function CompetencyReviewTable({
           <div className="h-10 w-px bg-border-warm" />
 
           <div className="flex flex-col">
-            <span className="font-display text-2xl font-bold text-brand md:text-3xl">
+            <span className="font-display text-2xl font-bold text-brand-strong md:text-3xl">
               {pendingCount}
             </span>
             <span className="text-xs text-text-secondary">
@@ -118,7 +118,7 @@ export function CompetencyReviewTable({
             aria-label="Filter kompetensi"
             value={filter}
             onChange={(e) => setFilter(e.target.value as 'all' | 'unverified' | 'pending' | 'rejected')}
-            className="w-full appearance-none rounded-lg border border-border-warm bg-white px-3 py-2 pr-9 text-xs font-semibold text-text-primary shadow-xs outline-none focus:border-brand"
+            className="w-full appearance-none rounded-lg border border-border-warm bg-white px-3 py-2 pr-9 text-xs font-semibold text-text-primary shadow-xs outline-none focus:border-brand-accent"
           >
             <option value="all">{copy.rpsDetail.review.filterAll} ({totalCount})</option>
             <option value="unverified">
@@ -180,7 +180,7 @@ export function CompetencyReviewTable({
             type="button"
             variant="outline"
             onClick={() => setIsAddOpen(true)}
-            className="flex items-center gap-1.5 border-dashed border-brand text-brand hover:bg-brand-soft/20"
+            className="flex items-center gap-1.5 border-dashed border-brand text-brand-strong hover:bg-brand-soft/20"
           >
             <Plus className="size-4" aria-hidden="true" />
             <span>{copy.rpsDetail.review.addCompetency}</span>
@@ -271,7 +271,7 @@ export function CompetencyReviewTable({
                     {/* Sumber */}
                     <td className="px-4 py-3.5 align-top text-text-secondary">
                       {c.origin === 'user' ? (
-                        <span className="rounded bg-brand-soft px-2 py-0.5 text-[10px] font-semibold text-brand">
+                        <span className="rounded bg-brand-soft px-2 py-0.5 text-[10px] font-semibold text-brand-strong">
                           Pengguna
                         </span>
                       ) : (
@@ -344,7 +344,7 @@ export function CompetencyReviewTable({
                             type="button"
                             title="Hapus"
                             onClick={() => onDelete(c.id)}
-                            className="flex size-7 items-center justify-center rounded-lg border border-border-warm text-danger hover:bg-brand-soft/40 transition-colors"
+                            className="flex size-7 items-center justify-center rounded-lg border border-border-warm text-danger hover:bg-danger/10 transition-colors"
                           >
                             <Trash2 className="size-3.5" />
                           </button>
@@ -353,7 +353,7 @@ export function CompetencyReviewTable({
                             type="button"
                             title="Tolak"
                             onClick={() => onReject(c.id)}
-                            className="flex size-7 items-center justify-center rounded-lg border border-border-warm text-danger hover:bg-brand-soft/40 transition-colors"
+                            className="flex size-7 items-center justify-center rounded-lg border border-border-warm text-danger hover:bg-danger/10 transition-colors"
                           >
                             <X className="size-3.5" />
                           </button>
@@ -400,7 +400,7 @@ export function CompetencyReviewTable({
 
             {c.evidence && (
               <div className="flex items-start gap-2 rounded-lg bg-surface-subtle p-2.5 text-xs italic text-text-secondary">
-                <Quote className="size-3.5 shrink-0 text-brand mt-0.5" />
+                <Quote className="size-3.5 shrink-0 text-brand-accent mt-0.5" />
                 <p>“{c.evidence}”</p>
               </div>
             )}
@@ -429,7 +429,7 @@ export function CompetencyReviewTable({
                   <button
                     type="button"
                     onClick={() => onDelete(c.id)}
-                    className="rounded-lg bg-brand-soft px-2.5 py-1 text-xs font-semibold text-danger"
+                    className="rounded-lg bg-[#F8E4E1] px-2.5 py-1 text-xs font-semibold text-danger"
                   >
                     Hapus
                   </button>
@@ -437,7 +437,7 @@ export function CompetencyReviewTable({
                   <button
                     type="button"
                     onClick={() => onReject(c.id)}
-                    className="rounded-lg bg-brand-soft px-2.5 py-1 text-xs font-semibold text-danger"
+                    className="rounded-lg bg-[#F8E4E1] px-2.5 py-1 text-xs font-semibold text-danger"
                   >
                     Tolak
                   </button>

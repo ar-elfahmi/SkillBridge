@@ -132,8 +132,8 @@ export function LoginPage() {
           </form>
 
           <p className="text-center text-[13px]">
-            <span className="text-[#a8a8a8]">{copy.auth.needAccount} </span>
-            <Link to="/register" className="font-bold text-brand hover:underline">
+            <span className="text-text-secondary">{copy.auth.needAccount} </span>
+            <Link to="/register" className="font-bold text-brand-strong hover:underline">
               {copy.auth.submitRegister}
             </Link>
           </p>

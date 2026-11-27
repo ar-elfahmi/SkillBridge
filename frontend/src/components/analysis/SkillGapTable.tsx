@@ -69,7 +69,7 @@ export function SkillGapTable({ matches, isLoading }: SkillGapTableProps) {
               type="button"
               onClick={() => setFilter(key as 'all' | Classification)}
               className={`rounded-md px-2.5 py-1 font-semibold transition-colors ${
-                filter === key ? 'bg-white text-brand shadow-xs' : 'text-text-secondary'
+                filter === key ? 'bg-white text-brand-strong shadow-xs' : 'text-text-secondary'
               }`}
             >
               {label} ({count})
@@ -84,7 +84,7 @@ export function SkillGapTable({ matches, isLoading }: SkillGapTableProps) {
           type="checkbox"
           checked={hideReported}
           onChange={(e) => setHideReported(e.target.checked)}
-          className="size-3.5 accent-[#9a0002]"
+          className="size-3.5 accent-brand-accent"
         />
         {copy.analysesResult.hideReported}
       </label>
@@ -155,7 +155,7 @@ export function SkillGapTable({ matches, isLoading }: SkillGapTableProps) {
                       </td>
                       <td className="px-4 py-3.5">
                         {m.self_declared && (
-                          <span className="rounded bg-brand-soft px-2 py-0.5 text-[10px] font-semibold text-brand">
+                          <span className="rounded bg-brand-soft px-2 py-0.5 text-[10px] font-semibold text-brand-strong">
                             {copy.analysesResult.reportedFlag}
                           </span>
                         )}
@@ -200,7 +200,7 @@ export function SkillGapTable({ matches, isLoading }: SkillGapTableProps) {
                     </span>
                   )}
                   {m.self_declared && (
-                    <span className="w-fit rounded bg-brand-soft px-2 py-0.5 text-[10px] font-semibold text-brand">
+                    <span className="w-fit rounded bg-brand-soft px-2 py-0.5 text-[10px] font-semibold text-brand-strong">
                       {copy.analysesResult.reportedFlag}
                     </span>
                   )}
@@ -273,7 +273,7 @@ export function SkillGapTable({ matches, isLoading }: SkillGapTableProps) {
                     key={`${je.job_posting_id}-${je.evidence}`}
                     className="flex flex-col gap-1 rounded-lg border border-border-warm p-3"
                   >
-                    <span className="text-xs font-semibold text-brand">{je.company}</span>
+                    <span className="text-xs font-semibold text-brand-strong">{je.company}</span>
                     <p className="text-xs italic text-text-secondary">“{je.evidence}”</p>
                   </div>
                 ))}

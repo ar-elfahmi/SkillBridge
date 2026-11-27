@@ -51,7 +51,7 @@ export function DashboardTopbar({ user, onLogout, onSearch }: DashboardTopbarPro
 
       {/* Desktop Search Bar */}
       <div className="hidden max-w-md flex-1 items-center gap-2.5 rounded-full bg-surface-canvas px-4 py-2 text-sm text-text-primary md:flex">
-        <Search className="size-4 shrink-0 text-brand" aria-hidden="true" />
+        <Search className="size-4 shrink-0 text-brand-accent" aria-hidden="true" />
         <input
           type="text"
           placeholder={copy.dashboard.searchPlaceholder}
@@ -76,7 +76,7 @@ export function DashboardTopbar({ user, onLogout, onSearch }: DashboardTopbarPro
             aria-label={copy.dashboard.profileMenuLabel}
             className="flex shrink-0 items-center gap-2.5 rounded-full bg-white p-1 transition-colors hover:bg-surface-subtle md:pr-3.5"
           >
-            <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-brand text-xs font-bold text-white shadow-sm ring-brand/30 transition-shadow hover:ring-2">
+            <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-brand text-xs font-bold text-white shadow-sm ring-brand-accent/30 transition-shadow hover:ring-2">
               {initials}
             </span>
             <span className="hidden min-w-0 flex-col items-start leading-tight md:flex">
@@ -111,7 +111,7 @@ export function DashboardTopbar({ user, onLogout, onSearch }: DashboardTopbarPro
                   setMenuOpen(false)
                   onLogout()
                 }}
-                className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-xs font-semibold text-danger transition-colors hover:bg-brand-soft/40"
+                className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-xs font-semibold text-danger transition-colors hover:bg-danger/10"
               >
                 <LogOut className="size-3.5" aria-hidden="true" />
                 {copy.dashboard.logoutLabel}

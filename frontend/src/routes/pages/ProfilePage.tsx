@@ -78,7 +78,7 @@ export function ProfilePage() {
           <button
             type="button"
             onClick={handleLogout}
-            className="flex items-center gap-1.5 rounded-lg border border-border-warm px-3 py-1.5 text-xs font-semibold text-text-secondary transition-colors hover:border-danger/40 hover:bg-brand-soft/40 hover:text-danger"
+            className="flex items-center gap-1.5 rounded-lg border border-border-warm px-3 py-1.5 text-xs font-semibold text-text-secondary transition-colors hover:border-danger/40 hover:bg-danger/10 hover:text-danger"
           >
             <LogOut className="size-3.5" aria-hidden="true" />
             {copy.profile.logout}
@@ -109,7 +109,7 @@ export function ProfilePage() {
                 aria-label={copy.profile.colLevel}
                 value={level}
                 onChange={(e) => setLevel(e.target.value as SkillLevel)}
-                className="h-10 rounded-lg border border-border-warm bg-white px-2 text-xs font-semibold text-text-primary outline-none focus:border-brand"
+                className="h-10 rounded-lg border border-border-warm bg-white px-2 text-xs font-semibold text-text-primary outline-none focus:border-brand-accent"
               >
                 {(['beginner', 'intermediate', 'advanced'] as const).map((l) => (
                   <option key={l} value={l}>
@@ -158,7 +158,7 @@ export function ProfilePage() {
                           type="button"
                           onClick={() => removeSkill.mutate(s.id)}
                           aria-label={`Hapus ${s.skill}`}
-                          className="inline-flex size-7 items-center justify-center rounded-lg border border-border-warm text-danger transition-colors hover:bg-brand-soft/40"
+                          className="inline-flex size-7 items-center justify-center rounded-lg border border-border-warm text-danger transition-colors hover:bg-danger/10"
                         >
                           <Trash2 className="size-3.5" aria-hidden="true" />
                         </button>

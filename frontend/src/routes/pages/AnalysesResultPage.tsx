@@ -136,12 +136,12 @@ export function AnalysesResultPage() {
               type="button"
               onClick={() => setTab(key)}
               className={`relative px-4 py-2.5 text-xs font-semibold transition-colors md:text-sm ${
-                tab === key ? 'text-brand' : 'text-text-secondary hover:text-text-primary'
+                tab === key ? 'text-brand-strong' : 'text-text-secondary hover:text-text-primary'
               }`}
             >
               {label}
               {tab === key && (
-                <span className="absolute inset-x-0 -bottom-px h-0.5 rounded-full bg-brand" />
+                <span className="absolute inset-x-0 -bottom-px h-0.5 rounded-full bg-brand-accent" />
               )}
             </button>
           ))}
