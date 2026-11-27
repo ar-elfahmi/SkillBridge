@@ -194,6 +194,9 @@
     }
   html {
     @apply font-sans;
+    /* Diisi useStickyInset: fokus papan ketik tidak tertutup bilah lengket. */
+    scroll-padding-top: var(--sticky-top, 0px);
+    scroll-padding-bottom: var(--sticky-bottom, 0px);
     }
 }
 
