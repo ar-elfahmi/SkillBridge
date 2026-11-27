@@ -19,6 +19,9 @@ Total 21 unit tests lulus, `npm run typecheck` + `npm run build` bersih. Branch 
 
 ## Handoff
 
+#### HO-C-007 · 2026-11-28 · Bukti lowongan di panel detail skill · untuk: B
+Panel di `SkillGapTable` menampilkan judul, perusahaan, kutipan, dan tautan `Buka lowongan` (hanya bila `source_url` ada; `target=_blank` + `rel=noopener noreferrer`), serta `dan N lowongan lain` dari `job_evidence_total`. Menjawab HO-B-014.
+
 #### HO-C-006 · 2026-11-27 · T8.3 (sebagian) · untuk: A, B
 **Polish tampilan, mobile, dan aksesibilitas frontend.** PR #46, #47, #48 sudah di-merge ke `main` (merge commit). Hanya `frontend/` yang berubah; tidak ada perubahan kontrak API, skema, atau backend.
 1. **Tema biru (#46):** palet merah diganti biru. Token baru di `src/styles/index.css`: `brand-strong`, `brand-accent`, `progress-track`.

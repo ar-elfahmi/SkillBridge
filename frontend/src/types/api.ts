@@ -188,7 +188,10 @@ export interface MatchedCompetency {
 
 export interface JobEvidence {
   job_posting_id: number
+  title: string
   company: string
+  source_name: string | null
+  source_url: string | null
   evidence: string | null
 }
 
@@ -201,6 +204,7 @@ export interface SkillMatch {
   reason: string | null
   matched_competency: MatchedCompetency | null
   job_evidence: JobEvidence[]
+  job_evidence_total: number
 }
 
 /* =========================================================================

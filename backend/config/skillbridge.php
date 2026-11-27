@@ -76,6 +76,8 @@ return [
         'top_k' => (int) env('SKILLBRIDGE_TOP_K', 3),
         'sim_floor' => (float) env('SKILLBRIDGE_SIM_FLOOR', 0.50),
         'sim_high' => (float) env('SKILLBRIDGE_SIM_HIGH', 0.80),
+        // Max job postings listed as evidence per skill in the matches API.
+        'max_job_evidence' => (int) env('SKILLBRIDGE_MAX_JOB_EVIDENCE', 10),
     ],
 
     // --- Upload (Modules/Rps) ---

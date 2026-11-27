@@ -84,14 +84,28 @@ class SkillMatchResource extends JsonResource
                 $jobSkills = JobSkill::whereIn('id', $sourceIds)->with('jobPosting')->get();
             }
 
+            // One entry per job posting, so the same posting never fills the evidence list twice.
+            $seenPostings = [];
             foreach ($jobSkills as $js) {
+                if (isset($seenPostings[$js->job_posting_id])) {
+                    continue;
+                }
+                $seenPostings[$js->job_posting_id] = true;
+
+                $posting = $js->jobPosting;
                 $jobEvidence[] = [
                     'job_posting_id' => $js->job_posting_id,
-                    'company' => $js->jobPosting?->company ?? '',
+                    'title' => $posting?->title ?? '',
+                    'company' => $posting?->company ?? '',
+                    'source_name' => $posting?->source_name,
+                    'source_url' => $this->safeUrl($posting?->source_url),
                     'evidence' => $js->evidence,
                 ];
             }
         }
+
+        $jobEvidenceTotal = count($jobEvidence);
+        $jobEvidence = array_slice($jobEvidence, 0, max(1, (int) config('skillbridge.matching.max_job_evidence', 10)));
 
         return [
             'skill' => $this->skill?->canonical_name ?? '',
@@ -102,6 +116,19 @@ class SkillMatchResource extends JsonResource
             'reason' => $this->reason,
             'matched_competency' => $matchedCompetency,
             'job_evidence' => $jobEvidence,
+            'job_evidence_total' => $jobEvidenceTotal,
         ];
+    }
+
+    /**
+     * Only http(s) links are exposed; anything else is dropped rather than rewritten.
+     */
+    private function safeUrl(?string $url): ?string
+    {
+        if ($url === null || ! preg_match('#^https?://#i', $url)) {
+            return null;
+        }
+
+        return $url;
     }
 }
