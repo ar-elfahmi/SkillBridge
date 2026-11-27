@@ -28,7 +28,7 @@ function registerErrorMessage(error: unknown): string {
   return copy.auth.genericError
 }
 
-/** Halaman `/register`. Desain: docs/dihsain.pen frame "02 Register — Desktop/Mobile". */
+/** Halaman `/register`. Desain: docs/dihsain.pen frame "02 Register Desktop/Mobile". */
 export function RegisterPage() {
   usePageTitle('Daftar')
   const navigate = useNavigate()
@@ -64,7 +64,7 @@ export function RegisterPage() {
       </header>
 
       <main className="flex flex-1 flex-col md:flex-row md:items-start md:gap-12 md:px-16 md:py-12 justify-center">
-        <section className="hidden flex-col gap-6 rounded-2xl bg-brand p-10 text-white md:flex md:h-[704px] md:w-[664px]">
+        <section className="hidden flex-col gap-6 rounded-xl bg-brand p-10 text-white md:flex md:h-[704px] md:w-[664px]">
           <p className="font-display text-[34px] leading-tight font-normal">
             {copy.auth.registerInfoTitle}
           </p>
@@ -83,12 +83,12 @@ export function RegisterPage() {
             })}
           </ul>
 
-          <p className="text-[11px] font-medium text-white/90">
+          <p className="text-xs font-medium text-white/90">
             {copy.auth.registerInfoNote}
           </p>
         </section>
 
-        <div className="mx-auto flex w-full max-w-[327px] flex-col gap-6 px-6 py-8 md:mx-0 md:h-[704px] md:w-[440px] md:max-w-none md:gap-5 md:rounded-2xl md:border md:border-border-warm md:bg-background md:px-8 md:py-8">
+        <div className="mx-auto flex w-full max-w-[327px] flex-col gap-6 px-6 py-8 md:mx-0 md:h-[704px] md:w-[440px] md:max-w-none md:gap-5 md:rounded-xl md:border md:border-border-warm md:bg-background md:px-8 md:py-8">
           <div className="flex flex-col gap-1">
             <h1 className="font-display text-2xl font-normal text-text-primary">
               {copy.auth.registerTitle}
@@ -199,7 +199,7 @@ export function RegisterPage() {
       </main>
 
       <footer className="flex h-16 shrink-0 items-center justify-center px-6 md:h-[88px] md:justify-start md:px-16">
-        <p className="text-[11px] font-medium text-text-secondary">{copy.footerBrand}</p>
+        <p className="text-xs font-medium text-text-secondary">{copy.footerBrand}</p>
       </footer>
     </div>
   )

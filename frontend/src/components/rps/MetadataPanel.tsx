@@ -77,12 +77,12 @@ export function MetadataPanel({
 
   return (
     <div className="flex flex-col gap-3 sm:gap-6">
-      <div className="flex flex-col gap-3 rounded-2xl border border-border-warm bg-white p-4 sm:gap-6 sm:p-6 md:p-8">
+      <div className="flex flex-col gap-3 rounded-xl border border-border-warm bg-white p-4 sm:gap-6 sm:p-6 md:p-8">
         <div className="flex flex-col gap-1">
           <h2 className="font-display text-lg font-normal text-text-primary sm:text-xl md:text-2xl">
             {copy.rpsDetail.metadata.title}
           </h2>
-          <p className="text-[11px] leading-snug text-text-secondary sm:text-xs md:text-sm">
+          <p className="text-xs leading-snug text-text-secondary sm:text-xs md:text-sm">
             {copy.rpsDetail.metadata.note}
           </p>
         </div>
@@ -92,7 +92,7 @@ export function MetadataPanel({
             <div
               role="status"
               aria-live="polite"
-              className="flex items-center gap-2.5 rounded-xl bg-brand-soft/40 px-4 py-3"
+              className="flex items-center gap-2.5 rounded-lg bg-brand-soft/40 px-4 py-3"
             >
               <Loader2 className="size-4 shrink-0 animate-spin text-brand-accent" aria-hidden="true" />
               <p className="text-xs font-semibold text-text-primary">
@@ -205,7 +205,7 @@ export function MetadataPanel({
       </div>
 
       {/* Derivation Note Panel */}
-      <div className="flex items-center gap-3 rounded-xl border border-border-warm bg-surface-subtle p-3 text-[11px] sm:p-4 sm:text-xs text-text-secondary">
+      <div className="flex items-center gap-3 rounded-lg border border-border-warm bg-surface-subtle p-3 text-xs sm:p-4 sm:text-xs text-text-secondary">
         <Info className="size-4 shrink-0 text-brand-accent" aria-hidden="true" />
         <p>{copy.rpsDetail.metadata.derivationNote}</p>
       </div>

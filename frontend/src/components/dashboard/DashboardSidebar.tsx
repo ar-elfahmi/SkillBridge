@@ -31,32 +31,32 @@ export function DashboardSidebar({
       </h3>
 
       {/* User Profile Card */}
-      <div className="flex flex-col items-center gap-3 rounded-2xl border border-border-warm bg-white p-5 text-center">
+      <div className="flex flex-col items-center gap-3 rounded-xl border border-border-warm bg-white p-5 text-center">
         <div className="flex size-14 items-center justify-center rounded-full bg-brand text-lg font-bold text-white shadow-sm">
           {initials}
         </div>
         <div className="flex flex-col">
           <span className="text-sm font-bold text-text-primary">{user?.name || 'Mahasiswa'}</span>
           <span className="text-xs text-text-secondary">{user?.email || ''}</span>
-          <span className="mt-1 inline-block rounded-full bg-surface-subtle px-2.5 py-0.5 text-[11px] font-semibold text-text-secondary">
+          <span className="mt-1 inline-block rounded-full bg-surface-subtle px-2.5 py-0.5 text-xs font-semibold text-text-secondary">
             Mahasiswa
           </span>
         </div>
       </div>
 
-      {/* Owned Skills Card — sesuai frame "Owned Skills Card" dihsain.pen */}
-      <div className="flex flex-col gap-3 rounded-2xl border border-border-warm bg-white p-4">
+      {/* Owned Skills Card, sesuai frame "Owned Skills Card" dihsain.pen */}
+      <div className="flex flex-col gap-3 rounded-xl border border-border-warm bg-white p-4">
         <div className="flex flex-col">
           <span className="text-xs font-bold text-text-primary">
             {copy.dashboard.sidebar.ownedSkillsTitle}
           </span>
-          <span className="text-[11px] text-text-secondary">
+          <span className="text-xs text-text-secondary">
             {copy.dashboard.sidebar.ownedSkillsNote}
           </span>
         </div>
 
         {skills.length === 0 ? (
-          <p className="text-[11px] text-text-secondary">Belum ada skill dilaporkan.</p>
+          <p className="text-xs text-text-secondary">Belum ada skill dilaporkan.</p>
         ) : (
           <ul className="flex flex-col gap-2">
             {skills.slice(0, 4).map((s) => (
@@ -65,7 +65,7 @@ export function DashboardSidebar({
                 className="flex items-center justify-between gap-2 rounded-lg bg-surface-subtle px-3 py-2 text-xs"
               >
                 <span className="truncate font-semibold text-text-primary">{s.skill}</span>
-                <span className="shrink-0 text-[11px] text-text-secondary">
+                <span className="shrink-0 text-xs text-text-secondary">
                   {copy.analysesResult.levelOptions[s.level]}
                 </span>
               </li>
@@ -82,7 +82,7 @@ export function DashboardSidebar({
       </div>
 
       {/* Ringkasan Akun & Status */}
-      <div className="flex flex-col gap-3 rounded-2xl border border-border-warm bg-white p-4">
+      <div className="flex flex-col gap-3 rounded-xl border border-border-warm bg-white p-4">
         <span className="text-xs font-bold text-text-primary">Status</span>
         <div className="flex flex-col gap-2">
           <div className="flex items-center justify-between rounded-lg bg-surface-subtle px-3 py-2 text-xs">

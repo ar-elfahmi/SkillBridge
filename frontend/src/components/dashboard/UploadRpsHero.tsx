@@ -105,7 +105,7 @@ export function UploadRpsHero({ onFileSelect, isPending, error }: UploadRpsHeroP
           <span>{isPending ? copy.dashboard.uploading : copy.dashboard.chooseFile}</span>
         </button>
 
-        <p className="text-center text-[11px] text-white/90">{copy.dashboard.uploadNote}</p>
+        <p className="text-center text-xs text-white/90">{copy.dashboard.uploadNote}</p>
       </div>
 
       {error && (

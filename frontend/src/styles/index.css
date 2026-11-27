@@ -166,6 +166,11 @@
 }
 
 @layer base {
+  svg.lucide {
+    stroke-width: 2.25;
+    stroke-linecap: square;
+    stroke-linejoin: miter;
+  }
   button:not(:disabled),
   [role='button']:not([aria-disabled='true']),
   [role='tab'],

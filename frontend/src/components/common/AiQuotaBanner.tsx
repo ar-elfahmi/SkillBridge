@@ -16,7 +16,7 @@ export function AiQuotaBanner() {
   return (
     <div
       role="alert"
-      className="flex items-start gap-2 rounded-xl border border-warning/40 bg-warning/10 p-3 text-xs font-semibold text-text-primary"
+      className="flex items-start gap-2 rounded-lg border border-warning/40 bg-warning/10 p-3 text-xs font-semibold text-text-primary"
     >
       <AlertTriangle aria-hidden className="mt-0.5 size-4 shrink-0" />
       <p>

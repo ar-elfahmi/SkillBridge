@@ -8,7 +8,7 @@ export function PagePlaceholder({ title, task }: { title: string; task: string; 
     <main className="mx-auto flex min-h-svh max-w-5xl flex-col gap-2 p-6">
       <h1 className="text-2xl font-semibold">{title}</h1>
       <p className="text-sm text-muted-foreground">
-        Halaman belum diimplementasikan — menunggu task {task}.
+        Halaman belum diimplementasikan, menunggu task {task}.
       </p>
     </main>
   )

@@ -78,31 +78,31 @@ export function CompetencyReviewTable({
   return (
     <div className="flex min-h-0 flex-1 flex-col gap-3 sm:flex-none sm:gap-6">
       {/* Review Summary Cards & Filters */}
-      <div className="flex flex-col gap-3 rounded-2xl border border-border-warm bg-white p-3 sm:p-5 md:flex-row md:items-center md:justify-between">
+      <div className="flex flex-col gap-3 rounded-xl border border-border-warm bg-white p-3 sm:p-5 md:flex-row md:items-center md:justify-between">
         <div className="grid grid-cols-3 gap-2 md:gap-3">
-          <div className="flex flex-col rounded-xl bg-brand-soft px-3 py-2">
+          <div className="flex flex-col rounded-lg bg-brand-soft px-3 py-2">
             <span className="font-display text-xl font-bold text-text-primary md:text-3xl">
               {totalCount}
             </span>
-            <span className="text-[11px] font-medium leading-tight text-text-primary md:text-xs">
+            <span className="text-xs font-medium leading-tight text-text-primary md:text-xs">
               {copy.rpsDetail.review.totalCompetencies}
             </span>
           </div>
 
-          <div className="flex flex-col rounded-xl bg-warning-soft px-3 py-2">
+          <div className="flex flex-col rounded-lg bg-warning-soft px-3 py-2">
             <span className="font-display text-xl font-bold text-warning md:text-3xl">
               {unverifiedCount}
             </span>
-            <span className="text-[11px] font-medium leading-tight text-text-primary md:text-xs">
+            <span className="text-xs font-medium leading-tight text-text-primary md:text-xs">
               {copy.rpsDetail.review.unverified}
             </span>
           </div>
 
-          <div className="flex flex-col rounded-xl bg-brand-soft px-3 py-2">
+          <div className="flex flex-col rounded-lg bg-brand-soft px-3 py-2">
             <span className="font-display text-xl font-bold text-brand-strong md:text-3xl">
               {pendingCount}
             </span>
-            <span className="text-[11px] font-medium leading-tight text-text-primary md:text-xs">
+            <span className="text-xs font-medium leading-tight text-text-primary md:text-xs">
               {copy.rpsDetail.review.pendingReview}
             </span>
           </div>
@@ -131,7 +131,7 @@ export function CompetencyReviewTable({
       {isAddOpen ? (
         <form
           onSubmit={handleAddSubmit}
-          className="flex flex-col gap-4 rounded-xl border border-border-warm bg-white p-5 shadow-xs"
+          className="flex flex-col gap-4 rounded-lg border border-border-warm bg-white p-5 shadow-xs"
         >
           <span className="text-sm font-bold text-text-primary">
             Tambah Kompetensi Baru
@@ -187,8 +187,8 @@ export function CompetencyReviewTable({
       )}
 
       {/* Desktop Table View (md+) */}
-      <div className="hidden overflow-hidden rounded-2xl border border-border-warm bg-white md:block">
-        <table className="w-full text-left text-xs">
+      <div className="hidden overflow-hidden rounded-xl border border-border-warm bg-white md:block">
+        <table className="w-full text-left text-sm">
           <thead className="border-b border-border-warm bg-surface-subtle font-semibold text-text-secondary">
             <tr>
               <th className="px-4 py-3.5">{copy.rpsDetail.review.colCompetency}</th>
@@ -231,14 +231,14 @@ export function CompetencyReviewTable({
                             <button
                               type="button"
                               onClick={() => saveEdit(c.id)}
-                              className="rounded bg-brand px-2 py-0.5 text-[11px] font-bold text-white"
+                              className="rounded bg-brand px-2 py-0.5 text-xs font-bold text-white"
                             >
                               Simpan
                             </button>
                             <button
                               type="button"
                               onClick={() => setEditingId(null)}
-                              className="rounded border border-border-warm px-2 py-0.5 text-[11px]"
+                              className="rounded border border-border-warm px-2 py-0.5 text-xs"
                             >
                               Batal
                             </button>
@@ -247,10 +247,10 @@ export function CompetencyReviewTable({
                       ) : (
                         <div className="flex flex-col gap-0.5">
                           <span className="font-bold text-text-primary">{c.skill}</span>
-                          <span className="text-[11px] text-text-secondary">
+                          <span className="text-xs text-text-secondary">
                             {c.category || 'Kompetensi Umum'}
                           </span>
-                          <p className="mt-1 text-xs text-text-primary leading-relaxed">
+                          <p className="mt-1 text-sm text-text-primary leading-relaxed">
                             {c.competency}
                           </p>
                         </div>
@@ -271,7 +271,7 @@ export function CompetencyReviewTable({
                     {/* Sumber */}
                     <td className="px-4 py-3.5 align-top text-text-secondary">
                       {c.origin === 'user' ? (
-                        <span className="rounded bg-brand-soft px-2 py-0.5 text-[11px] font-semibold text-brand-strong">
+                        <span className="rounded bg-brand-soft px-2 py-0.5 text-xs font-semibold text-brand-strong">
                           Pengguna
                         </span>
                       ) : (
@@ -286,12 +286,12 @@ export function CompetencyReviewTable({
                     {/* Verifikasi */}
                     <td className="px-4 py-3.5 align-top">
                       {c.verification_status === 'verified' ? (
-                        <span className="inline-flex items-center gap-1 rounded-md bg-success-soft px-2 py-0.5 text-[11px] font-semibold text-success">
+                        <span className="inline-flex items-center gap-1 whitespace-nowrap rounded-md bg-success-soft px-2 py-0.5 text-xs font-semibold text-success">
                           <Check className="size-3" />
                           {copy.rpsDetail.review.verifiedChip}
                         </span>
                       ) : (
-                        <span className="inline-flex items-center gap-1 rounded-md bg-danger-soft px-2 py-0.5 text-[11px] font-semibold text-danger">
+                        <span className="inline-flex items-center gap-1 whitespace-nowrap rounded-md bg-danger-soft px-2 py-0.5 text-xs font-semibold text-danger">
                           <Minus className="size-3" />
                           {copy.rpsDetail.review.unverifiedChip}
                         </span>
@@ -301,17 +301,17 @@ export function CompetencyReviewTable({
                     {/* Tinjauan Status */}
                     <td className="px-4 py-3.5 align-top">
                       {c.review_status === 'confirmed' ? (
-                        <span className="inline-flex items-center gap-1 rounded-md bg-success-soft px-2 py-0.5 text-[11px] font-semibold text-success">
+                        <span className="inline-flex items-center gap-1 whitespace-nowrap rounded-md bg-success-soft px-2 py-0.5 text-xs font-semibold text-success">
                           <Check className="size-3" />
                           {copy.rpsDetail.review.confirmedChip}
                         </span>
                       ) : c.review_status === 'rejected' ? (
-                        <span className="inline-flex items-center gap-1 rounded-md bg-danger-soft px-2 py-0.5 text-[11px] font-semibold text-danger">
+                        <span className="inline-flex items-center gap-1 whitespace-nowrap rounded-md bg-danger-soft px-2 py-0.5 text-xs font-semibold text-danger">
                           <X className="size-3" />
                           {copy.rpsDetail.review.rejectedChip}
                         </span>
                       ) : (
-                        <span className="inline-flex items-center gap-1 rounded-md bg-warning-soft px-2 py-0.5 text-[11px] font-semibold text-warning">
+                        <span className="inline-flex items-center gap-1 whitespace-nowrap rounded-md bg-warning-soft px-2 py-0.5 text-xs font-semibold text-warning">
                           <CircleDashed className="size-3" />
                           {copy.rpsDetail.review.pendingChip}
                         </span>
@@ -377,40 +377,40 @@ export function CompetencyReviewTable({
         {filtered.map((c) => (
           <div
             key={c.id}
-            className="flex flex-col gap-3 rounded-xl border border-border-warm bg-white p-4"
+            className="flex flex-col gap-3 rounded-lg border border-border-warm bg-white p-4"
           >
             <div className="flex items-start justify-between gap-2">
               <div className="flex flex-col">
                 <span className="font-bold text-text-primary">{c.skill}</span>
-                <span className="text-[11px] text-text-secondary">
+                <span className="text-xs text-text-secondary">
                   {c.category || 'Kompetensi Umum'}
                 </span>
               </div>
 
               {c.verification_status === 'verified' ? (
-                <span className="inline-flex items-center gap-1 rounded-md bg-success-soft px-2 py-0.5 text-[11px] font-semibold text-success">
+                <span className="inline-flex items-center gap-1 whitespace-nowrap rounded-md bg-success-soft px-2 py-0.5 text-xs font-semibold text-success">
                   <Check className="size-3" />
                   {copy.rpsDetail.review.verifiedChip}
                 </span>
               ) : (
-                <span className="inline-flex items-center gap-1 rounded-md bg-danger-soft px-2 py-0.5 text-[11px] font-semibold text-danger">
+                <span className="inline-flex items-center gap-1 whitespace-nowrap rounded-md bg-danger-soft px-2 py-0.5 text-xs font-semibold text-danger">
                   <Minus className="size-3" />
                   {copy.rpsDetail.review.unverifiedChip}
                 </span>
               )}
             </div>
 
-            <p className="text-xs text-text-primary leading-relaxed">{c.competency}</p>
+            <p className="text-sm text-text-primary leading-relaxed">{c.competency}</p>
 
             {c.evidence && (
-              <div className="flex items-start gap-2 rounded-lg bg-surface-subtle p-2.5 text-xs italic text-text-secondary">
+              <div className="flex items-start gap-2 rounded-lg bg-surface-subtle p-2.5 text-sm italic text-text-secondary">
                 <Quote className="size-3.5 shrink-0 text-brand-accent mt-0.5" />
                 <p>“{c.evidence}”</p>
               </div>
             )}
 
             <div className="flex items-center justify-between pt-2 border-t border-border-warm/60">
-              <span className="text-[11px] text-text-secondary">
+              <span className="text-xs text-text-secondary">
                 {c.origin === 'user' ? 'Kompetensi Pengguna' : c.source_reference || c.source_type}
               </span>
 
@@ -454,14 +454,14 @@ export function CompetencyReviewTable({
       </div>
 
       {/* Confirmation Bottom Bar */}
-      <div className="flex shrink-0 flex-col gap-2 rounded-2xl border border-border-warm bg-white p-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] sm:gap-3 sm:p-5 md:flex-row md:items-center md:justify-between">
+      <div className="flex shrink-0 flex-col gap-2 rounded-xl border border-border-warm bg-white p-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] sm:gap-3 sm:p-5 md:flex-row md:items-center md:justify-between">
         <div className="flex flex-col gap-0.5">
           <span className="text-sm font-bold text-text-primary">
             {pendingCount > 0
               ? `${pendingCount} ${copy.rpsDetail.review.confirmTitle}`
               : 'Semua kompetensi telah ditinjau'}
           </span>
-          <p className="text-[11px] leading-snug text-text-secondary sm:text-xs">
+          <p className="text-xs leading-snug text-text-secondary sm:text-xs">
             {copy.rpsDetail.review.confirmNote}
           </p>
         </div>
@@ -470,7 +470,7 @@ export function CompetencyReviewTable({
           {isConfirmedAll ? (
             <Link
               to={`/analyses/new?rps=${documentId}`}
-              className="flex h-11 items-center justify-center rounded-xl bg-brand px-6 text-sm font-bold text-white shadow hover:bg-brand-hover transition-colors"
+              className="flex h-11 items-center justify-center rounded-lg bg-brand px-6 text-sm font-bold text-white shadow hover:bg-brand-hover transition-colors"
             >
               {copy.rpsDetail.review.goToMapping}
             </Link>

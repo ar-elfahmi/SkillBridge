@@ -67,7 +67,7 @@ export function SkillGapTable({ matches, isLoading }: SkillGapTableProps) {
   return (
     <div className="flex flex-col gap-4">
       {/* Toolbar */}
-      <div className="flex flex-col gap-3 rounded-2xl border border-border-warm bg-white p-4 md:flex-row md:items-center md:justify-between">
+      <div className="flex flex-col gap-3 rounded-xl border border-border-warm bg-white p-4 md:flex-row md:items-center md:justify-between">
         <div className="flex flex-1 max-w-sm items-center gap-2 rounded-full border border-field bg-surface-subtle px-3 py-1.5 text-xs focus-within:ring-2 focus-within:ring-brand-accent/40">
           <Search className="size-3.5 text-text-secondary" />
           <input
@@ -93,7 +93,7 @@ export function SkillGapTable({ matches, isLoading }: SkillGapTableProps) {
               key={key}
               type="button"
               onClick={() => setFilter(key as 'all' | Classification)}
-              className={`inline-flex min-h-11 items-center rounded-md px-3 font-semibold transition-colors active:bg-white/70 sm:min-h-8 sm:px-2.5 ${
+              className={`inline-flex min-h-11 items-center rounded-md px-3 text-sm font-semibold transition-colors active:bg-white/70 sm:min-h-9 sm:px-3 ${
                 filter === key ? 'bg-white text-brand-strong shadow-xs' : 'text-text-secondary'
               }`}
             >
@@ -104,7 +104,7 @@ export function SkillGapTable({ matches, isLoading }: SkillGapTableProps) {
       </div>
 
       {/* Toggle */}
-      <label className="flex min-h-11 w-fit cursor-pointer items-center gap-2.5 text-xs text-text-secondary sm:min-h-0 sm:gap-2">
+      <label className="flex min-h-11 w-fit cursor-pointer items-center gap-2.5 text-sm text-text-secondary sm:min-h-0 sm:gap-2">
         <input
           type="checkbox"
           checked={hideReported}
@@ -115,25 +115,25 @@ export function SkillGapTable({ matches, isLoading }: SkillGapTableProps) {
       </label>
 
       {isLoading ? (
-        <div className="rounded-2xl border border-border-warm bg-white p-8 text-center text-xs text-text-secondary">
+        <div className="rounded-xl border border-border-warm bg-white p-8 text-center text-sm text-text-secondary">
           Memuat data skill gap…
         </div>
       ) : filtered.length === 0 ? (
-        <div className="rounded-2xl border border-dashed border-border-warm bg-white p-8 text-center text-xs text-text-secondary">
+        <div className="rounded-xl border border-dashed border-border-warm bg-white p-8 text-center text-sm text-text-secondary">
           {copy.analysesResult.emptyGap}
         </div>
       ) : (
         <>
           {/* Desktop Table */}
-          <div className="hidden overflow-hidden rounded-2xl border border-border-warm bg-white md:block">
-            <table className="w-full text-left text-xs">
+          <div className="hidden overflow-hidden rounded-xl border border-border-warm bg-white md:block">
+            <table className="w-full text-left text-sm">
               <thead className="border-b border-border-warm bg-surface-subtle font-semibold text-text-secondary">
                 <tr>
-                  <th className="px-4 py-3.5">{copy.analysesResult.colSkill}</th>
-                  <th className="px-4 py-3.5">{copy.analysesResult.colStatus}</th>
-                  <th className="px-4 py-3.5">{copy.analysesResult.colDemand}</th>
-                  <th className="px-4 py-3.5">{copy.analysesResult.colCompetency}</th>
-                  <th className="px-4 py-3.5">{copy.analysesResult.colFlag}</th>
+                  <th className="px-4 py-4">{copy.analysesResult.colSkill}</th>
+                  <th className="px-4 py-4">{copy.analysesResult.colStatus}</th>
+                  <th className="px-4 py-4">{copy.analysesResult.colDemand}</th>
+                  <th className="px-4 py-4">{copy.analysesResult.colCompetency}</th>
+                  <th className="px-4 py-4">{copy.analysesResult.colFlag}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-border-warm">
@@ -145,7 +145,7 @@ export function SkillGapTable({ matches, isLoading }: SkillGapTableProps) {
                       onClick={() => openDrawer(m)}
                       className="cursor-pointer transition-colors hover:bg-surface-subtle/50"
                     >
-                      <td className="px-4 py-3.5 font-bold text-text-primary">
+                      <td className="px-4 py-4 font-bold text-text-primary">
                         <button
                           type="button"
                           onClick={(e) => {
@@ -157,9 +157,9 @@ export function SkillGapTable({ matches, isLoading }: SkillGapTableProps) {
                           {m.skill}
                         </button>
                       </td>
-                      <td className="px-4 py-3.5">
+                      <td className="px-4 py-4">
                         <span
-                          className={`inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-[11px] font-semibold ${
+                          className={`inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-xs font-semibold ${
                             CLASSIFICATION_STYLE[m.classification]
                           }`}
                         >
@@ -167,17 +167,17 @@ export function SkillGapTable({ matches, isLoading }: SkillGapTableProps) {
                           {copy.status[m.classification]}
                         </span>
                       </td>
-                      <td className="px-4 py-3.5 text-text-secondary">
+                      <td className="px-4 py-4 text-text-secondary">
                         {m.demand_count > 0
                           ? `${m.demand_count} lowongan`
                           : copy.analysesResult.notInDemand}
                       </td>
-                      <td className="px-4 py-3.5 text-text-secondary">
+                      <td className="px-4 py-4 text-text-secondary">
                         {m.matched_competency ? (
                           <span>
                             {m.matched_competency.competency}
                             {m.matched_competency.source_reference && (
-                              <span className="block text-[11px] text-text-secondary/80">
+                              <span className="block text-xs text-text-secondary/80">
                                 {m.matched_competency.source_reference}
                                 {m.matched_competency.page
                                   ? `, Hal. ${m.matched_competency.page}`
@@ -186,12 +186,12 @@ export function SkillGapTable({ matches, isLoading }: SkillGapTableProps) {
                             )}
                           </span>
                         ) : (
-                          '—'
+                          '-'
                         )}
                       </td>
-                      <td className="px-4 py-3.5">
+                      <td className="px-4 py-4">
                         {m.self_declared && (
-                          <span className="rounded bg-brand-soft px-2 py-0.5 text-[11px] font-semibold text-brand-strong">
+                          <span className="rounded bg-brand-soft px-2 py-0.5 text-xs font-semibold text-brand-strong">
                             {copy.analysesResult.reportedFlag}
                           </span>
                         )}
@@ -212,12 +212,12 @@ export function SkillGapTable({ matches, isLoading }: SkillGapTableProps) {
                   key={m.skill}
                   type="button"
                   onClick={() => openDrawer(m)}
-                  className="flex flex-col gap-2 rounded-xl border border-border-warm bg-white p-4 text-left"
+                  className="flex flex-col gap-2 rounded-lg border border-border-warm bg-white p-4 text-left"
                 >
                   <div className="flex items-start justify-between gap-2">
                     <span className="text-sm font-bold text-text-primary">{m.skill}</span>
                     <span
-                      className={`inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-[11px] font-semibold ${
+                      className={`inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-xs font-semibold ${
                         CLASSIFICATION_STYLE[m.classification]
                       }`}
                     >
@@ -225,18 +225,18 @@ export function SkillGapTable({ matches, isLoading }: SkillGapTableProps) {
                       {copy.status[m.classification]}
                     </span>
                   </div>
-                  <span className="text-[11px] text-text-secondary">
+                  <span className="text-xs text-text-secondary">
                     {m.demand_count > 0
                       ? `Diminta di ${m.demand_count} lowongan`
                       : copy.analysesResult.notInDemand}
                   </span>
                   {m.matched_competency && (
-                    <span className="text-[11px] text-text-secondary">
+                    <span className="text-xs text-text-secondary">
                       {m.matched_competency.competency}
                     </span>
                   )}
                   {m.self_declared && (
-                    <span className="w-fit rounded bg-brand-soft px-2 py-0.5 text-[11px] font-semibold text-brand-strong">
+                    <span className="w-fit rounded bg-brand-soft px-2 py-0.5 text-xs font-semibold text-brand-strong">
                       {copy.analysesResult.reportedFlag}
                     </span>
                   )}
@@ -279,7 +279,7 @@ export function SkillGapTable({ matches, isLoading }: SkillGapTableProps) {
             </div>
 
             <span
-              className={`w-fit rounded-md px-2.5 py-1 text-[11px] font-semibold ${
+              className={`w-fit rounded-md px-2.5 py-1 text-xs font-semibold ${
                 CLASSIFICATION_STYLE[drawerMatch.classification]
               }`}
             >
@@ -287,15 +287,15 @@ export function SkillGapTable({ matches, isLoading }: SkillGapTableProps) {
             </span>
 
             {drawerMatch.matched_competency && (
-              <div className="flex flex-col gap-1.5 rounded-xl bg-surface-subtle p-3.5">
-                <span className="text-[11px] font-bold text-text-secondary">
+              <div className="flex flex-col gap-1.5 rounded-lg bg-surface-subtle p-3.5">
+                <span className="text-xs font-bold text-text-secondary">
                   {copy.analysesResult.evidenceRps}
                 </span>
-                <p className="text-xs italic text-text-primary">
+                <p className="text-sm italic text-text-primary">
                   “{drawerMatch.matched_competency.evidence || drawerMatch.matched_competency.competency}”
                 </p>
-                <span className="text-[11px] text-text-secondary">
-                  {drawerMatch.matched_competency.source_reference || '—'}
+                <span className="text-xs text-text-secondary">
+                  {drawerMatch.matched_competency.source_reference || '-'}
                   {drawerMatch.matched_competency.page
                     ? ` · Hal. ${drawerMatch.matched_competency.page}`
                     : ''}
@@ -305,7 +305,7 @@ export function SkillGapTable({ matches, isLoading }: SkillGapTableProps) {
 
             {drawerMatch.job_evidence.length > 0 && (
               <div className="flex flex-col gap-2">
-                <span className="text-[11px] font-bold text-text-secondary">
+                <span className="text-xs font-bold text-text-secondary">
                   {copy.analysesResult.evidenceJob}
                 </span>
                 {drawerMatch.job_evidence.map((je) => (
@@ -314,7 +314,7 @@ export function SkillGapTable({ matches, isLoading }: SkillGapTableProps) {
                     className="flex flex-col gap-1 rounded-lg border border-border-warm p-3"
                   >
                     <span className="text-xs font-semibold text-brand-strong">{je.company}</span>
-                    <p className="text-xs italic text-text-secondary">“{je.evidence}”</p>
+                    <p className="text-sm italic text-text-secondary">“{je.evidence}”</p>
                   </div>
                 ))}
               </div>
@@ -322,15 +322,15 @@ export function SkillGapTable({ matches, isLoading }: SkillGapTableProps) {
 
             {drawerMatch.reason && (
               <div className="flex flex-col gap-1.5">
-                <span className="text-[11px] font-bold text-text-secondary">
+                <span className="text-xs font-bold text-text-secondary">
                   {copy.analysesResult.evidenceReason}
                 </span>
-                <p className="text-xs leading-relaxed text-text-primary">{drawerMatch.reason}</p>
+                <p className="text-sm leading-relaxed text-text-primary">{drawerMatch.reason}</p>
               </div>
             )}
 
             {drawerMatch.similarity_score !== null && (
-              <div className="flex items-center justify-between rounded-lg bg-surface-subtle px-3 py-2 text-[11px]">
+              <div className="flex items-center justify-between rounded-lg bg-surface-subtle px-3 py-2 text-xs">
                 <span className="text-text-secondary">{copy.similarityLabel}</span>
                 <span className="font-semibold text-text-primary">
                   {drawerMatch.similarity_score.toFixed(2)}

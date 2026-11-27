@@ -18,7 +18,7 @@ function loginErrorMessage(error: unknown): string {
   return copy.auth.genericError
 }
 
-/** Halaman `/login`. Desain: docs/dihsain.pen frame "01 Login — Desktop/Mobile". */
+/** Halaman `/login`. Desain: docs/dihsain.pen frame "01 Login Desktop/Mobile". */
 export function LoginPage() {
   usePageTitle('Masuk')
   const navigate = useNavigate()
@@ -39,7 +39,7 @@ export function LoginPage() {
       </header>
 
       <main className="flex flex-1 flex-col md:flex-row md:items-start md:gap-12 md:px-16 md:py-12 justify-center">
-        <section className="hidden flex-col gap-6 rounded-2xl bg-brand p-10 text-white md:flex md:h-[544px] md:w-[664px]">
+        <section className="hidden flex-col gap-6 rounded-xl bg-brand p-10 text-white md:flex md:h-[544px] md:w-[664px]">
           <p className="font-display text-[34px] leading-tight font-normal">
             {copy.auth.loginInfoTitle}
           </p>
@@ -59,7 +59,7 @@ export function LoginPage() {
           </ul>
         </section>
 
-        <div className="mx-auto flex w-full max-w-[327px] flex-col gap-6 px-6 py-8 md:mx-0 md:h-[544px] md:w-[440px] md:max-w-none md:gap-5 md:rounded-2xl md:border md:border-border-warm md:bg-background md:px-8 md:py-8">
+        <div className="mx-auto flex w-full max-w-[327px] flex-col gap-6 px-6 py-8 md:mx-0 md:h-[544px] md:w-[440px] md:max-w-none md:gap-5 md:rounded-xl md:border md:border-border-warm md:bg-background md:px-8 md:py-8">
           <h1 className="font-display text-2xl font-normal text-text-primary">{copy.auth.loginTitle}</h1>
           <p className="text-[13px] text-text-secondary">{copy.auth.loginSubtitle}</p>
 
@@ -139,7 +139,7 @@ export function LoginPage() {
       </main>
 
       <footer className="flex h-16 shrink-0 items-center justify-center px-6 md:h-[88px] md:justify-start md:px-16">
-        <p className="text-[11px] font-medium text-text-secondary">{copy.footerBrand}</p>
+        <p className="text-xs font-medium text-text-secondary">{copy.footerBrand}</p>
       </footer>
     </div>
   )
