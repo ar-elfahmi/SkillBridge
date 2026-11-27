@@ -83,11 +83,11 @@ export function UploadRpsHero({ onFileSelect, isPending, error, errorAction }: U
             <Upload className="size-6" aria-hidden="true" />
           </div>
           <p className="text-sm font-semibold">{copy.dashboard.uploadDropTitle}</p>
-          <p className="text-xs text-white/80">{copy.dashboard.uploadNote}</p>
+          <p className="text-sm text-white/80">{copy.dashboard.uploadNote}</p>
 
           <button
             type="button"
-            className="mt-1 rounded-lg bg-white px-4 py-1.5 text-xs font-bold text-brand-strong shadow hover:bg-white/90 transition-colors"
+            className="mt-1 rounded-lg bg-white px-4 py-1.5 text-sm font-bold text-brand-strong shadow hover:bg-white/90 transition-colors"
           >
             {isPending ? copy.dashboard.uploading : copy.dashboard.chooseFile}
           </button>
@@ -98,7 +98,7 @@ export function UploadRpsHero({ onFileSelect, isPending, error, errorAction }: U
       <div className="flex flex-col gap-3 p-4 sm:p-5 md:hidden">
         <div className="flex flex-col gap-2">
           <h2 className="font-display text-xl font-normal sm:text-2xl">{copy.dashboard.uploadTitle}</h2>
-          <p className="text-xs text-white/90">{copy.dashboard.uploadDescMobile}</p>
+          <p className="text-sm text-white/90">{copy.dashboard.uploadDescMobile}</p>
         </div>
 
         <button
@@ -111,7 +111,7 @@ export function UploadRpsHero({ onFileSelect, isPending, error, errorAction }: U
           <span>{isPending ? copy.dashboard.uploading : copy.dashboard.chooseFile}</span>
         </button>
 
-        <p className="text-center text-xs text-white/90">{copy.dashboard.uploadNote}</p>
+        <p className="text-center text-sm text-white/90">{copy.dashboard.uploadNote}</p>
       </div>
 
       {shownError && (

@@ -190,8 +190,15 @@ describe('AnalysesResultPage', () => {
     await screen.findByText('Pemrograman Web')
     fireEvent.click(screen.getByRole('tab', { name: 'Rekomendasi' }))
 
-    expect(await screen.findByText('Terapkan tipe generik pada API client')).toBeInTheDocument()
+    expect(await screen.findByText('Prioritas tinggi (1)')).toBeInTheDocument()
+    const card = await screen.findByRole('button', { name: /Terapkan tipe generik pada API client/ })
+    expect(card).toHaveAttribute('aria-expanded', 'false')
+    expect(screen.queryByText('Tipe generik')).not.toBeInTheDocument()
+
+    fireEvent.click(card)
+    expect(card).toHaveAttribute('aria-expanded', 'true')
     expect(screen.getByText('Tipe generik')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Tandai sudah dipelajari' })).toBeInTheDocument()
   })
 
   it('menampilkan spinner loading saat rekomendasi belajar sedang dimuat', async () => {

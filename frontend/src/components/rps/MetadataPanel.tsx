@@ -82,7 +82,7 @@ export function MetadataPanel({
           <h2 className="font-display text-lg font-normal text-text-primary sm:text-xl md:text-2xl">
             {copy.rpsDetail.metadata.title}
           </h2>
-          <p className="text-xs leading-snug text-text-secondary sm:text-xs md:text-sm">
+          <p className="text-sm leading-snug text-text-secondary sm:text-sm md:text-sm">
             {copy.rpsDetail.metadata.note}
           </p>
         </div>
@@ -95,7 +95,7 @@ export function MetadataPanel({
               className="flex items-center gap-2.5 rounded-lg bg-brand-soft/40 px-4 py-3"
             >
               <Loader2 className="size-4 shrink-0 animate-spin text-brand-accent" aria-hidden="true" />
-              <p className="text-xs font-semibold text-text-primary">
+              <p className="text-sm font-semibold text-text-primary">
                 {copy.rpsDetail.metadata.preparing}
               </p>
             </div>
@@ -170,13 +170,13 @@ export function MetadataPanel({
           </div>
 
           {errorMsg && (
-            <p className="rounded-lg bg-danger/10 px-3 py-2 text-xs font-semibold text-danger">
+            <p className="rounded-lg bg-danger/10 px-3 py-2 text-sm font-semibold text-danger">
               {errorMsg}
             </p>
           )}
 
           {saveSuccess && (
-            <p className="rounded-lg bg-success/10 px-3 py-2 text-xs font-semibold text-success">
+            <p className="rounded-lg bg-success/10 px-3 py-2 text-sm font-semibold text-success">
               Perubahan metadata berhasil disimpan.
             </p>
           )}
@@ -205,7 +205,7 @@ export function MetadataPanel({
       </div>
 
       {/* Derivation Note Panel */}
-      <div className="flex items-center gap-3 rounded-lg border border-border-warm bg-surface-subtle p-3 text-xs sm:p-4 sm:text-xs text-text-secondary">
+      <div className="flex items-center gap-3 rounded-lg border border-border-warm bg-surface-subtle p-3 text-sm sm:p-4 sm:text-sm text-text-secondary">
         <Info className="size-4 shrink-0 text-brand-accent" aria-hidden="true" />
         <p>{copy.rpsDetail.metadata.derivationNote}</p>
       </div>

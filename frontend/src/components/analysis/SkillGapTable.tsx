@@ -72,7 +72,7 @@ export function SkillGapTable({ matches, isLoading }: SkillGapTableProps) {
     <div className="flex flex-col gap-4">
       {/* Toolbar */}
       <div className="flex flex-col gap-3 rounded-xl border border-border-warm bg-white p-4 md:flex-row md:items-center md:justify-between">
-        <div className="flex flex-1 max-w-sm items-center gap-2 rounded-full border border-field bg-surface-subtle px-3 py-1.5 text-xs focus-within:ring-2 focus-within:ring-brand-accent/40">
+        <div className="flex flex-1 max-w-sm items-center gap-2 rounded-lg border border-field bg-surface-subtle px-3 py-1.5 text-sm focus-within:ring-2 focus-within:ring-brand-accent/40">
           <Search className="size-3.5 text-text-secondary" />
           <input
             type="text"
@@ -80,14 +80,18 @@ export function SkillGapTable({ matches, isLoading }: SkillGapTableProps) {
             aria-label={copy.analysesResult.skillGapSearch}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="h-11 w-full bg-transparent outline-none placeholder:text-text-secondary sm:h-auto"
+            className="h-11 w-full bg-transparent outline-none placeholder:text-text-secondary"
           />
         </div>
 
-        <div className="flex flex-wrap items-center gap-1 rounded-lg bg-surface-subtle p-1 text-xs">
+        <div
+          role="group"
+          aria-label={copy.analysesResult.colStatus}
+          className="-mx-1 flex snap-x items-center gap-1 overflow-x-auto rounded-lg bg-surface-subtle p-1 text-sm"
+        >
           {(
             [
-              ['all', copy.analysesResult.tabs.summary ? 'Semua' : 'Semua', counts.all],
+              ['all', 'Semua', counts.all],
               ['covered', copy.status.covered, counts.covered],
               ['partial', copy.status.partial, counts.partial],
               ['missing', copy.status.missingShort, counts.missing],
@@ -97,10 +101,12 @@ export function SkillGapTable({ matches, isLoading }: SkillGapTableProps) {
               key={key}
               type="button"
               onClick={() => setFilter(key as 'all' | Classification)}
-              className={`inline-flex min-h-11 items-center rounded-md px-3 text-sm font-semibold transition-colors active:bg-white/70 sm:min-h-9 sm:px-3 ${
+              aria-pressed={filter === key}
+              className={`inline-flex min-h-11 shrink-0 snap-start items-center gap-1.5 whitespace-nowrap rounded-md px-3 text-sm font-semibold transition-colors active:bg-white/70 ${
                 filter === key ? 'bg-white text-brand-strong shadow-xs' : 'text-text-secondary'
               }`}
             >
+              {filter === key && <Check className="size-3.5" aria-hidden="true" />}
               {label} ({count})
             </button>
           ))}
@@ -163,7 +169,7 @@ export function SkillGapTable({ matches, isLoading }: SkillGapTableProps) {
                       </td>
                       <td className="px-4 py-4">
                         <span
-                          className={`inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-xs font-semibold ${
+                          className={`inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-sm font-semibold ${
                             CLASSIFICATION_STYLE[m.classification]
                           }`}
                         >
@@ -181,7 +187,7 @@ export function SkillGapTable({ matches, isLoading }: SkillGapTableProps) {
                           <span>
                             {m.matched_competency.competency}
                             {m.matched_competency.source_reference && (
-                              <span className="block text-xs text-text-secondary/80">
+                              <span className="block text-sm text-text-secondary/80">
                                 {sourceReferenceLabel(m.matched_competency.source_reference, '')}
                                 {m.matched_competency.page
                                   ? `, Hal. ${m.matched_competency.page}`
@@ -195,7 +201,7 @@ export function SkillGapTable({ matches, isLoading }: SkillGapTableProps) {
                       </td>
                       <td className="px-4 py-4">
                         {m.self_declared && (
-                          <span className="rounded bg-brand-soft px-2 py-0.5 text-xs font-semibold text-brand-strong">
+                          <span className="rounded bg-brand-soft px-2 py-0.5 text-sm font-semibold text-brand-strong">
                             {copy.analysesResult.reportedFlag}
                           </span>
                         )}
@@ -221,7 +227,7 @@ export function SkillGapTable({ matches, isLoading }: SkillGapTableProps) {
                   <div className="flex items-start justify-between gap-2">
                     <span className="text-sm font-bold text-text-primary">{m.skill}</span>
                     <span
-                      className={`inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-xs font-semibold ${
+                      className={`inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-sm font-semibold ${
                         CLASSIFICATION_STYLE[m.classification]
                       }`}
                     >
@@ -229,18 +235,18 @@ export function SkillGapTable({ matches, isLoading }: SkillGapTableProps) {
                       {copy.status[m.classification]}
                     </span>
                   </div>
-                  <span className="text-xs text-text-secondary">
+                  <span className="text-sm text-text-secondary">
                     {m.demand_count > 0
                       ? `Diminta di ${m.demand_count} lowongan`
                       : copy.analysesResult.notInDemand}
                   </span>
                   {m.matched_competency && (
-                    <span className="text-xs text-text-secondary">
+                    <span className="text-sm text-text-secondary">
                       {m.matched_competency.competency}
                     </span>
                   )}
                   {m.self_declared && (
-                    <span className="w-fit rounded bg-brand-soft px-2 py-0.5 text-xs font-semibold text-brand-strong">
+                    <span className="w-fit rounded bg-brand-soft px-2 py-0.5 text-sm font-semibold text-brand-strong">
                       {copy.analysesResult.reportedFlag}
                     </span>
                   )}
@@ -267,7 +273,7 @@ export function SkillGapTable({ matches, isLoading }: SkillGapTableProps) {
           >
             <div className="flex items-start justify-between gap-3">
               <div className="flex flex-col">
-                <span className="text-xs font-semibold text-text-secondary">
+                <span className="text-sm font-semibold text-text-secondary">
                   {copy.analysesResult.evidenceTitle}
                 </span>
                 <h2 id="skill-drawer-title" className="text-lg font-bold text-text-primary">{drawerMatch.skill}</h2>
@@ -284,7 +290,7 @@ export function SkillGapTable({ matches, isLoading }: SkillGapTableProps) {
             </div>
 
             <span
-              className={`w-fit rounded-md px-2.5 py-1 text-xs font-semibold ${
+              className={`w-fit rounded-md px-2.5 py-1 text-sm font-semibold ${
                 CLASSIFICATION_STYLE[drawerMatch.classification]
               }`}
             >
@@ -293,7 +299,7 @@ export function SkillGapTable({ matches, isLoading }: SkillGapTableProps) {
 
             {drawerMatch.matched_competency && (
               <div className="flex flex-col gap-1.5 rounded-lg bg-surface-subtle p-3.5">
-                <span className="text-xs font-bold text-text-secondary">
+                <span className="text-sm font-bold text-text-secondary">
                   {copy.analysesResult.evidenceRps}
                 </span>
                 <p className="text-sm italic text-text-primary">
@@ -318,7 +324,7 @@ export function SkillGapTable({ matches, isLoading }: SkillGapTableProps) {
 
             {drawerMatch.job_evidence.length > 0 && (
               <div className="flex flex-col gap-2">
-                <span className="text-xs font-bold text-text-secondary">
+                <span className="text-sm font-bold text-text-secondary">
                   {copy.analysesResult.evidenceJob}
                 </span>
                 {drawerMatch.job_evidence.map((je) => (
@@ -329,7 +335,7 @@ export function SkillGapTable({ matches, isLoading }: SkillGapTableProps) {
                     {je.title && (
                       <span className="text-sm font-semibold text-text-primary">{je.title}</span>
                     )}
-                    <span className="text-xs font-semibold text-brand-strong">{je.company}</span>
+                    <span className="text-sm font-semibold text-brand-strong">{je.company}</span>
                     {je.evidence && (
                       <p className="text-sm italic text-text-secondary">“{je.evidence}”</p>
                     )}
@@ -338,7 +344,7 @@ export function SkillGapTable({ matches, isLoading }: SkillGapTableProps) {
                         href={je.source_url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex min-h-11 w-fit items-center gap-1 text-xs font-semibold text-brand-strong underline"
+                        className="inline-flex min-h-11 w-fit items-center gap-1 text-sm font-semibold text-brand-strong underline"
                       >
                         {copy.analysesResult.evidenceJobOpen}
                         {je.source_name ? ` (${je.source_name})` : ''}
@@ -349,7 +355,7 @@ export function SkillGapTable({ matches, isLoading }: SkillGapTableProps) {
                   </div>
                 ))}
                 {drawerMatch.job_evidence_total > drawerMatch.job_evidence.length && (
-                  <span className="text-xs text-text-secondary">
+                  <span className="text-sm text-text-secondary">
                     {copy.analysesResult.evidenceJobMore(
                       drawerMatch.job_evidence_total - drawerMatch.job_evidence.length
                     )}
@@ -360,7 +366,7 @@ export function SkillGapTable({ matches, isLoading }: SkillGapTableProps) {
 
             {drawerMatch.reason && (
               <div className="flex flex-col gap-1.5">
-                <span className="text-xs font-bold text-text-secondary">
+                <span className="text-sm font-bold text-text-secondary">
                   {copy.analysesResult.evidenceReason}
                 </span>
                 <p className="text-sm leading-relaxed text-text-primary">{drawerMatch.reason}</p>
@@ -368,7 +374,7 @@ export function SkillGapTable({ matches, isLoading }: SkillGapTableProps) {
             )}
 
             {drawerMatch.similarity_score !== null && (
-              <div className="flex items-center justify-between rounded-lg bg-surface-subtle px-3 py-2 text-xs">
+              <div className="flex items-center justify-between rounded-lg bg-surface-subtle px-3 py-2 text-sm">
                 <span className="text-text-secondary">{copy.similarityLabel}</span>
                 <span className="font-semibold text-text-primary">
                   {formatScore(drawerMatch.similarity_score)}

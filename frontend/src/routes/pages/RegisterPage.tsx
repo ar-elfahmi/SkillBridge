@@ -90,7 +90,7 @@ export function RegisterPage() {
             })}
           </ul>
 
-          <p className="text-xs font-medium text-white/90">
+          <p className="text-sm font-medium text-white/90">
             {copy.auth.registerInfoNote}
           </p>
         </section>
@@ -100,7 +100,7 @@ export function RegisterPage() {
             <h1 className="font-display text-2xl font-normal text-text-primary">
               {copy.auth.registerTitle}
             </h1>
-            <p className="text-[13px] text-text-secondary">{copy.auth.registerSubtitle}</p>
+            <p className="text-sm text-text-secondary">{copy.auth.registerSubtitle}</p>
           </div>
 
           <form className="flex flex-col gap-5 md:gap-4" onSubmit={handleSubmit} noValidate>
@@ -194,7 +194,7 @@ export function RegisterPage() {
             {errorMessage && (
               <div role="alert" className="flex items-center gap-2 rounded-lg bg-danger-soft px-3 py-3">
                 <CircleAlert className="size-4 shrink-0 text-danger" aria-hidden="true" />
-                <p className="text-[13px] font-medium text-danger">{errorMessage}</p>
+                <p className="text-sm font-medium text-danger">{errorMessage}</p>
               </div>
             )}
 
@@ -208,7 +208,7 @@ export function RegisterPage() {
             </Button>
           </form>
 
-          <p className="text-center text-[13px]">
+          <p className="text-center text-sm">
             <span className="text-text-secondary">{copy.auth.haveAccount} </span>
             <Link to="/login" className="inline-flex min-h-11 items-center px-1 font-bold text-brand-strong hover:underline">
               {copy.auth.submitLogin}

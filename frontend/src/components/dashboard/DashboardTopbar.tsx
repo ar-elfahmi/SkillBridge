@@ -52,7 +52,7 @@ export function DashboardTopbar({ user, onLogout, onSearch }: DashboardTopbarPro
       </div>
 
       {/* Desktop Search Bar */}
-      <div className="hidden max-w-md flex-1 items-center gap-2.5 rounded-full border border-field bg-surface-canvas px-4 py-2 text-sm text-text-primary focus-within:ring-2 focus-within:ring-brand-accent/40 lg:flex">
+      <div className="hidden max-w-md flex-1 items-center gap-2.5 rounded-lg border border-field bg-surface-canvas px-4 py-2 text-sm text-text-primary focus-within:ring-2 focus-within:ring-brand-accent/40 lg:flex">
         <Search className="size-4 shrink-0 text-brand-accent" aria-hidden="true" />
         <input
           type="text"
@@ -91,14 +91,14 @@ export function DashboardTopbar({ user, onLogout, onSearch }: DashboardTopbarPro
             aria-label={copy.dashboard.profileMenuLabel}
             className="flex shrink-0 items-center gap-2.5 rounded-full bg-white p-1 transition-colors hover:bg-surface-subtle md:pr-3.5"
           >
-            <span className="flex size-11 shrink-0 items-center justify-center rounded-full bg-brand sm:size-10 text-xs font-bold text-white shadow-sm ring-brand-accent/30 transition-shadow hover:ring-2">
+            <span className="flex size-11 shrink-0 items-center justify-center rounded-full bg-brand sm:size-10 text-sm font-bold text-white shadow-sm ring-brand-accent/30 transition-shadow hover:ring-2">
               {initials}
             </span>
             <span className="hidden min-w-0 flex-col items-start leading-tight md:flex">
-              <span className="max-w-[150px] truncate text-xs font-bold text-text-primary">
+              <span className="max-w-[150px] truncate text-sm font-bold text-text-primary">
                 {user?.name}
               </span>
-              <span className="max-w-[150px] truncate text-xs font-medium text-text-secondary">
+              <span className="max-w-[150px] truncate text-sm font-medium text-text-secondary">
                 {user?.email}
               </span>
             </span>
@@ -113,7 +113,7 @@ export function DashboardTopbar({ user, onLogout, onSearch }: DashboardTopbarPro
                 to="/profile"
                 role="menuitem"
                 onClick={() => setMenuOpen(false)}
-                className="flex min-h-11 items-center gap-2.5 rounded-lg px-3 py-2 text-xs font-semibold text-text-primary transition-colors hover:bg-surface-subtle active:bg-surface-subtle"
+                className="flex min-h-11 items-center gap-2.5 rounded-lg px-3 py-2 text-sm font-semibold text-text-primary transition-colors hover:bg-surface-subtle active:bg-surface-subtle"
               >
                 <UserRound className="size-3.5 text-text-secondary" aria-hidden="true" />
                 {copy.dashboard.profileMenuLabel}
@@ -126,7 +126,7 @@ export function DashboardTopbar({ user, onLogout, onSearch }: DashboardTopbarPro
                   setMenuOpen(false)
                   onLogout()
                 }}
-                className="flex min-h-11 items-center gap-2.5 rounded-lg px-3 py-2 text-xs font-semibold text-danger transition-colors hover:bg-danger/10 active:bg-danger/10"
+                className="flex min-h-11 items-center gap-2.5 rounded-lg px-3 py-2 text-sm font-semibold text-danger transition-colors hover:bg-danger/10 active:bg-danger/10"
               >
                 <LogOut className="size-3.5" aria-hidden="true" />
                 {copy.dashboard.logoutLabel}
@@ -139,7 +139,7 @@ export function DashboardTopbar({ user, onLogout, onSearch }: DashboardTopbarPro
 
     {onSearch && searchOpen && (
       <div className="shrink-0 border-b border-border-warm bg-white px-4 py-2 lg:hidden">
-        <div className="flex min-h-11 items-center gap-2.5 rounded-full border border-field bg-surface-canvas px-4 focus-within:ring-2 focus-within:ring-brand-accent/40">
+        <div className="flex min-h-11 items-center gap-2.5 rounded-lg border border-field bg-surface-canvas px-4 focus-within:ring-2 focus-within:ring-brand-accent/40">
           <Search className="size-4 shrink-0 text-brand-accent" aria-hidden="true" />
           <input
             type="search"

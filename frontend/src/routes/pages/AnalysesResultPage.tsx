@@ -173,7 +173,7 @@ export function AnalysesResultPage() {
 
           <div className="flex items-center gap-2">
             <span
-              className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold ${statusClass}`}
+              className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-sm font-semibold ${statusClass}`}
             >
               <StatusIcon className="size-3.5" />
               {statusLabel}
@@ -182,7 +182,10 @@ export function AnalysesResultPage() {
         </div>
 
         {/* Tabs */}
-        <div role="tablist" className="flex items-center gap-1 border-b border-border-warm">
+        <div
+          role="tablist"
+          className="sticky top-0 z-20 -mx-4 flex items-center gap-1 border-b border-border-warm bg-background px-4 md:mx-0 md:px-0"
+        >
           {tabs.map(([key, label]) => (
             <button
               key={key}
@@ -203,14 +206,14 @@ export function AnalysesResultPage() {
         </div>
 
         {analysis.status === 'failed' && analysis.error_message && (
-          <div className="rounded-lg bg-danger/15 p-3 text-xs font-semibold text-danger">
+          <div className="rounded-lg bg-danger/15 p-3 text-sm font-semibold text-danger">
             {analysis.error_message}
           </div>
         )}
 
         {/* Tab Content */}
         {analysis.status !== 'completed' ? (
-          <div className="rounded-xl border border-dashed border-border-warm bg-white p-8 text-center text-xs text-text-secondary">
+          <div className="rounded-xl border border-dashed border-border-warm bg-white p-8 text-center text-sm text-text-secondary">
             Analisis masih diproses. Halaman ini akan memperbarui otomatis.
           </div>
         ) : tab === 'summary' ? (
@@ -231,7 +234,7 @@ export function AnalysesResultPage() {
                     refreshReco.mutate(analysisId, { onSuccess: () => setRecoStale(false) })
                   }
                   disabled={refreshReco.isPending}
-                  className="w-fit rounded-lg bg-brand px-3 py-1.5 text-xs font-bold text-white hover:bg-brand-hover disabled:opacity-50"
+                  className="w-fit rounded-lg bg-brand px-3 py-1.5 text-sm font-bold text-white hover:bg-brand-hover disabled:opacity-50"
                 >
                   {refreshReco.isPending
                     ? copy.analysesResult.recoRefreshPending

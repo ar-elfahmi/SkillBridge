@@ -32,13 +32,13 @@ export function AnalyzedRpsSection({
   }
 
   return (
-    <div className="flex min-h-0 flex-1 flex-col gap-2 sm:flex-none sm:gap-4">
+    <div className="flex flex-col gap-2 sm:gap-4">
       <div className="flex shrink-0 items-center justify-between">
         <h2 className="text-base font-semibold text-text-primary md:text-lg">
           {copy.dashboard.analyzedRpsTitle}
         </h2>
         {documents.length > 0 && (
-          <span className="text-xs font-semibold text-brand-strong">
+          <span className="text-sm font-semibold text-brand-strong">
             {documents.length} dokumen
           </span>
         )}
@@ -65,7 +65,7 @@ export function AnalyzedRpsSection({
           )}
         </div>
       ) : (
-        <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain pb-1 pr-1 sm:flex-none sm:overflow-visible sm:p-0"><div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
+        <div><div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
           {documents.map((doc) => {
             const analysis = analysisMap.get(doc.id)
             const courseName =
@@ -97,10 +97,10 @@ export function AnalyzedRpsSection({
                     <FileText className="size-5" aria-hidden="true" />
                   </div>
                   <div className="flex flex-col overflow-hidden">
-                    <span className="truncate text-xs font-bold text-brand-strong">
+                    <span className="truncate text-sm font-bold text-brand-strong">
                       {courseName}
                     </span>
-                    <span className="truncate text-xs text-text-primary">
+                    <span className="truncate text-sm text-text-primary">
                       {doc.original_name}
                     </span>
                   </div>
@@ -109,17 +109,17 @@ export function AnalyzedRpsSection({
                 {/* Status Chip */}
                 <div>
                   {isCompleted ? (
-                    <span className="inline-flex items-center gap-1.5 rounded-md bg-success-soft px-2.5 py-1 text-xs font-semibold text-success">
+                    <span className="inline-flex items-center gap-1.5 rounded-md bg-success-soft px-2.5 py-1 text-sm font-semibold text-success">
                       <Check className="size-3.5" aria-hidden="true" />
                       Analisis selesai
                     </span>
                   ) : isNeedReview ? (
-                    <span className="inline-flex items-center gap-1.5 rounded-md bg-warning-soft px-2.5 py-1 text-xs font-semibold text-warning">
+                    <span className="inline-flex items-center gap-1.5 rounded-md bg-warning-soft px-2.5 py-1 text-sm font-semibold text-warning">
                       <Clock3 className="size-3.5" aria-hidden="true" />
                       Perlu ditinjau
                     </span>
                   ) : (
-                    <span className="inline-flex items-center gap-1.5 rounded-md bg-danger-soft px-2.5 py-1 text-xs font-semibold text-danger">
+                    <span className="inline-flex items-center gap-1.5 rounded-md bg-danger-soft px-2.5 py-1 text-sm font-semibold text-danger">
                       <AlertCircle className="size-3.5" aria-hidden="true" />
                       Perlu diperbarui
                     </span>
@@ -129,7 +129,7 @@ export function AnalyzedRpsSection({
                 {/* Coverage Bar (hanya ditampilkan jika ada riwayat analisis nyata) */}
                 {analysis?.summary ? (
                   <div className="flex flex-col gap-1.5">
-                    <span className="text-xs text-text-secondary">
+                    <span className="text-sm text-text-secondary">
                       {copy.coverageLabel} {formatPercent(analysis.summary.coverage_percentage)}%
                     </span>
                     <div className="h-1.5 w-full overflow-hidden rounded-full bg-progress-track">
@@ -138,12 +138,12 @@ export function AnalyzedRpsSection({
                         style={{ width: `${Math.min(100, Math.max(0, analysis.summary.coverage_percentage))}%` }}
                       />
                     </div>
-                    <span className="text-xs text-text-secondary">
+                    <span className="text-sm text-text-secondary">
                       {analysis.summary.missing} skill belum tercakup
                     </span>
                   </div>
                 ) : (
-                  <div className="text-xs text-text-secondary">
+                  <div className="text-sm text-text-secondary">
                     {doc.page_count ? `${doc.page_count} halaman` : 'Dokumen RPS'}
                   </div>
                 )}

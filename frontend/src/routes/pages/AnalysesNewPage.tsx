@@ -48,7 +48,7 @@ function CareerCard({ career, isSelected, reason, onSelect }: CareerCardProps) {
       <span className="flex items-start justify-between gap-2">
         <span className="text-base font-bold text-text-primary">{career.name}</span>
         {isSelected && (
-          <span className="inline-flex shrink-0 items-center gap-1 rounded-md bg-brand px-2 py-0.5 text-xs font-semibold text-white">
+          <span className="inline-flex shrink-0 items-center gap-1 rounded-md bg-brand px-2 py-0.5 text-sm font-semibold text-white">
             <Check className="size-3" aria-hidden="true" />
             {copy.analysesNew.selectedBadge}
           </span>
