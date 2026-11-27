@@ -35,6 +35,13 @@ class SkillNormalizerTest extends TestCase
         $this->assertSame(SkillCategory::Framework, $skill->category);
     }
 
+    public function test_combined_name_with_slash_resolves_to_known_skill(): void
+    {
+        $this->assertSame('Agile', $this->normalizer->normalize('Agile/Scrum')?->canonical_name);
+        $this->assertSame('Agile', $this->normalizer->normalize('Kanban/Scrum')?->canonical_name);
+        $this->assertSame('CI/CD', $this->normalizer->normalize('CI/CD')?->canonical_name);
+    }
+
     public function test_matches_canonical_name_case_insensitively(): void
     {
         $skillLower = $this->normalizer->normalize('laravel framework');

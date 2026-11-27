@@ -37,18 +37,20 @@ class SkillNormalizer
             return $this->cache[$lookupKey];
         }
 
-        // 1. Direct match on canonical_name (case-insensitive)
-        $skill = Skill::whereRaw('LOWER(canonical_name) = LOWER(?)', [$cleaned])->first();
+        // 1-2. Match on canonical_name, then on aliases (case-insensitive)
+        $skill = $this->findExisting($cleaned);
 
-        // 2. Match against aliases (case-insensitive JSONB array lookup)
-        if ($skill === null) {
-            $skill = Skill::whereRaw(
-                'EXISTS (SELECT 1 FROM jsonb_array_elements_text(aliases) AS a WHERE LOWER(a) = LOWER(?))',
-                [$cleaned]
-            )->first();
+        // 3. Combined names such as "Agile/Scrum": use the first part that is a known skill or alias.
+        if ($skill === null && str_contains($cleaned, '/')) {
+            foreach (array_map('trim', explode('/', $cleaned)) as $part) {
+                if ($part !== '' && ($known = $this->findExisting($part)) !== null) {
+                    $skill = $known;
+                    break;
+                }
+            }
         }
 
-        // 3. Not found in dictionary -> create new Skill entry
+        // 4. Not found in dictionary -> create new Skill entry
         if ($skill === null) {
             $resolvedCategory = $this->resolveCategory($category);
 
@@ -88,6 +90,15 @@ class SkillNormalizer
     public function clearCache(): void
     {
         $this->cache = [];
+    }
+
+    private function findExisting(string $name): ?Skill
+    {
+        return Skill::whereRaw('LOWER(canonical_name) = LOWER(?)', [$name])->first()
+            ?? Skill::whereRaw(
+                'EXISTS (SELECT 1 FROM jsonb_array_elements_text(aliases) AS a WHERE LOWER(a) = LOWER(?))',
+                [$name]
+            )->first();
     }
 
     private function cleanName(string $rawName): string
