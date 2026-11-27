@@ -33,8 +33,8 @@ Modern, minimalis, responsif, **mobile-first**.
 | `/login`, `/register` | Auth | form (tanpa pilihan role; semua pengguna mahasiswa) |
 | `/` → `/dashboard` | Beranda | Hero Dropzone unggah PDF RPS, kartu metrik, daftar RPS **milik pengguna** + progress cakupan, sidebar ringkasan portofolio |
 | `/rps/:id` | Detail RPS | Stepper 3 tahap. **Tahap 0:** panel koreksi metadata MK (nama, kode, SKS, semester, prodi) + tombol konfirmasi & mulai ekstraksi. **Tahap 1:** counter status, filter, tabel kompetensi + bukti + badge verifikasi, **CompetencyReviewTable** (setujui / edit / tolak / tambah) dan tombol konfirmasi hasil ekstraksi |
-| `/analyses/new?rps={id}` | 3. Pemetaan Industri | kartu profesi (nama, ringkasan, jumlah lowongan siap pakai, saran AI di urutan atas dengan alasan singkat dari `GET /api/rps/{id}/career-suggestions`, polling 2,5 dtk maks. 40 kali; profesi tanpa lowongan siap dinonaktifkan), catatan batas 20 skill, tombol "Mulai Analisis" |
-| `/analyses/:id` | 4. Hasil Analisis | tab: Ringkasan (CoverageSummary), Skill Gap (SkillGapTable + EvidenceDrawer), Rekomendasi Belajar |
+| `/analyses/new?rps={id}` | 3. Pemetaan Industri | kartu profesi (nama, ringkasan, jumlah lowongan siap pakai, saran AI di urutan atas dengan alasan singkat dari `GET /api/rps/{id}/career-suggestions`, polling 2,5 dtk maks. 40 kali; profesi tanpa lowongan siap dinonaktifkan), catatan batas 20 skill, tombol "Mulai analisis" (profesi disarankan AI dikelompokkan di atas, profesi lain dilipat; tautan "Lihat skill yang dipakai"; tanpa `?rps=` diarahkan ke beranda) |
+| `/analyses/:id` | 4. Hasil Analisis | tab: Ringkasan (CoverageSummary), Skill (SkillGapTable + EvidenceDrawer), Rekomendasi (dikelompokkan per prioritas, kartu akordeon) |
 
 **Catatan implementasi:** unggah RPS tidak punya route sendiri — dropzone berada di hero `/dashboard` dan langsung mengarah ke `/rps/:id` setelah 202. Route `/rps/upload` dihapus.
 

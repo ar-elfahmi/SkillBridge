@@ -67,6 +67,13 @@ Breaking change: tidak.
 
 Breaking change: tidak.
 
+#### HO-C-004 · 2026-11-28 · Perbaikan audit UI/UX (PR #53 sampai #56 dan PR ini) · untuk: A, B
+1. **Selesai di `frontend/`:** halaman 404 dan error route berbahasa Indonesia, galat unggah inline (tanpa `alert()`/`confirm()`), focus trap drawer bukti, target sentuh 44px, validasi per-field login/register, kamus label (`lib/labels.ts`: kategori, sumber, level, angka `id-ID`), pemetaan industri dikelompokkan (saran AI vs profesi lain, dialog "Lihat skill yang dipakai"), redirect ke beranda tanpa `?rps=`, rekomendasi dikelompokkan per prioritas dengan akordeon, gulir halaman tunggal di mobile (tanpa gulir bersarang), tab dan bilah aksi lengket, font minimal 14px dan input 16px di mobile.
+2. **Istilah baku berubah:** tab "Skill" dan "Rekomendasi"; level "Pemula/Menengah/Mahir"; "Skill belum tercakup", "Lowongan tersedia", "Profesi tersedia"; tombol "Tandai sudah dipelajari" dan "Mulai analisis".
+3. **Verifikasi:** `npm test` (48 lulus), `npm run typecheck`, `npm run lint` (0 error), `npm run build`, serta cek ego-browser di 393x852, 360x640, 320x568 memakai mock API lokal (tanpa overflow horizontal, tanpa gulir bersarang).
+4. **Belum dikerjakan / butuh pihak lain:** verifikasi data skill lowongan Glints di pipeline (F-10, area B); uji papan ketik virtual di perangkat nyata (M-10); penggantian pustaka ikon (F-19) menunggu keputusan; pemasangan skill `ui-taste` dari uizze.sh dilakukan secara global di mesin pengguna, bukan di repo.
+
+Breaking change: tidak.
 #### HO-C-003 · 2026-11-13 · T1.2 & Desain Audit · untuk: A, B
 1. **Halaman Auth (T1.2) Selesai:**
    - `/login` dan `/register` diimplementasikan sesuai frame `01 Login` dan `02 Register` di `docs/dihsain.pen` (Desktop 1280 & Mobile 375).
