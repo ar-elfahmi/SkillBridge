@@ -185,6 +185,73 @@ class RunAnalysisJobTest extends TestCase
         $this->assertNull($dockerMatch->evidence);
     }
 
+    public function test_keeps_only_the_most_requested_skills_with_deterministic_ties(): void
+    {
+        Config::set('skillbridge.matching.max_skills', 2);
+        Http::preventStrayRequests();
+
+        $user = User::factory()->create();
+        $career = Career::factory()->create();
+        $rps = RpsDocument::factory()->create([
+            'user_id' => $user->id,
+            'extraction_status' => ExtractionStatus::Completed,
+            'review_status' => ReviewStatus::Confirmed,
+        ]);
+        CourseSkill::factory()->create([
+            'rps_document_id' => $rps->id,
+            'skill_id' => Skill::factory()->create()->id,
+            'review_status' => CompetencyReviewStatus::Pending,
+            'embedding' => [1.0, 0.0, 0.0],
+        ]);
+
+        // Created in this order, so ids ascend: rare1 < rare2 < popular.
+        $rare1 = Skill::factory()->create(['canonical_name' => 'Rare One']);
+        $rare2 = Skill::factory()->create(['canonical_name' => 'Rare Two']);
+        $popular = Skill::factory()->create(['canonical_name' => 'Popular']);
+
+        $postings = JobPosting::factory()->count(2)->create([
+            'career_id' => $career->id,
+            'extraction_status' => ExtractionStatus::Completed,
+        ]);
+
+        foreach ($postings as $posting) {
+            JobSkill::factory()->create([
+                'job_posting_id' => $posting->id,
+                'skill_id' => $popular->id,
+                'embedding' => [0.0, 1.0, 0.0],
+            ]);
+        }
+        foreach ([$rare1, $rare2] as $skill) {
+            JobSkill::factory()->create([
+                'job_posting_id' => $postings[0]->id,
+                'skill_id' => $skill->id,
+                'embedding' => [0.0, 1.0, 0.0],
+            ]);
+        }
+
+        $analysis = Analysis::factory()->create([
+            'user_id' => $user->id,
+            'rps_document_id' => $rps->id,
+            'career_id' => $career->id,
+            'status' => AnalysisStatus::Queued,
+        ]);
+        $analysis->jobPostings()->sync($postings->pluck('id')->all());
+
+        app(RunAnalysisJob::class, ['analysisId' => $analysis->id])->handle(
+            app(CandidateFinder::class),
+            app(MatchJudge::class)
+        );
+
+        $analysis->refresh();
+        $this->assertSame(AnalysisStatus::Completed, $analysis->status);
+        $this->assertSame(2, $analysis->summary['total_skills']);
+        $this->assertSame(2, $analysis->model_versions['max_skills']);
+        $this->assertEqualsCanonicalizing(
+            [$popular->id, $rare1->id],
+            $analysis->skillMatches()->pluck('skill_id')->all(),
+        );
+    }
+
     public function test_fails_when_prerequisites_are_not_met(): void
     {
         $user = User::factory()->create();

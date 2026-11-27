@@ -142,6 +142,11 @@ class RunAnalysisJob implements ShouldQueue
                 }
             }
 
+            // Keep only the skills most requested across the career's postings (ties: lower skill id first).
+            uasort($aggregatedSkills, fn (array $a, array $b): int => [$b['demand_count'], $a['skill']->id] <=> [$a['demand_count'], $b['skill']->id]);
+            $maxSkills = max(1, (int) config('skillbridge.matching.max_skills', 20));
+            $aggregatedSkills = array_slice($aggregatedSkills, 0, $maxSkills, true);
+
             // 2. Candidate RPS Competencies (with embeddings, excluding rejected)
             $candidates = $rpsDocument->courseSkills
                 ->filter(function (CourseSkill $cs): bool {
@@ -229,6 +234,7 @@ class RunAnalysisJob implements ShouldQueue
                 'sim_floor' => (float) config('skillbridge.matching.sim_floor', 0.50),
                 'sim_high' => (float) config('skillbridge.matching.sim_high', 0.80),
                 'top_k' => (int) config('skillbridge.matching.top_k', 3),
+                'max_skills' => $maxSkills,
             ];
 
             $analysis->update([

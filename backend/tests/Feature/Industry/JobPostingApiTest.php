@@ -43,9 +43,29 @@ class JobPostingApiTest extends TestCase
 
         $response->assertJsonStructure([
             'data' => [
-                '*' => ['id', 'name', 'slug', 'description'],
+                '*' => ['id', 'name', 'slug', 'description', 'eligible_job_count'],
             ],
         ]);
+    }
+
+    public function test_careers_count_only_ready_postings_the_user_can_read(): void
+    {
+        $user = User::factory()->create(['role' => 'student']);
+        $career = Career::factory()->create();
+
+        $make = fn (ExtractionStatus $status, ?int $owner) => JobPosting::factory()->create([
+            'career_id' => $career->id,
+            'extraction_status' => $status,
+            'created_by' => $owner,
+        ]);
+        $make(ExtractionStatus::Completed, null);
+        $make(ExtractionStatus::Completed, $user->id);
+        $make(ExtractionStatus::Pending, null);
+        $make(ExtractionStatus::Completed, User::factory()->create()->id);
+
+        $this->actingAs($user)->getJson('/api/careers')
+            ->assertOk()
+            ->assertJsonPath('data.0.eligible_job_count', 2);
     }
 
     public function test_get_jobs_returns_paginated_visible_jobs(): void

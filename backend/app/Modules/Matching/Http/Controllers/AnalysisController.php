@@ -48,31 +48,18 @@ class AnalysisController extends Controller
             ], 422);
         }
 
-        // Check Job Postings prerequisites
-        $jobPostings = JobPosting::visibleTo($user)
-            ->whereIn('id', $data['job_posting_ids'])
-            ->get();
+        // All completed postings of the chosen career that this user may read are used; the user does not pick them.
+        $jobPostingIds = JobPosting::visibleTo($user)
+            ->where('career_id', (int) $data['career_id'])
+            ->where('extraction_status', ExtractionStatus::Completed)
+            ->pluck('id')
+            ->all();
 
-        if ($jobPostings->count() !== count($data['job_posting_ids'])) {
+        if ($jobPostingIds === []) {
             return response()->json([
-                'message' => 'Satu atau lebih lowongan kerja tidak valid atau tidak memiliki akses.',
+                'message' => 'Belum ada lowongan yang siap dipakai untuk profesi ini.',
             ], 422);
         }
-
-        foreach ($jobPostings as $posting) {
-            if ($posting->career_id !== (int) $data['career_id']) {
-                return response()->json([
-                    'message' => 'Semua lowongan kerja harus sesuai dengan profesi yang dipilih.',
-                ], 422);
-            }
-
-            if ($posting->extraction_status !== ExtractionStatus::Completed) {
-                return response()->json([
-                    'message' => 'Satu atau lebih lowongan kerja belum selesai diekstrak skill-nya.',
-                ], 422);
-            }
-        }
-
         if (($denied = $quotaGuard->denial()) !== null) {
             return $denied;
         }
@@ -84,7 +71,7 @@ class AnalysisController extends Controller
             'status' => AnalysisStatus::Queued,
         ]);
 
-        $analysis->jobPostings()->sync($data['job_posting_ids']);
+        $analysis->jobPostings()->sync($jobPostingIds);
 
         RunAnalysisJob::dispatch($analysis->id);
 

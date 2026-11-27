@@ -4,17 +4,13 @@ import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { AnalysesNewPage } from '@/routes/pages/AnalysesNewPage'
 import { aiApi, analysisApi, authApi, industryApi, rpsApi } from '@/lib/api/endpoints'
-import type { Career, JobPosting, RpsDocument, User } from '@/types/api'
+import type { Career, RpsDocument, User } from '@/types/api'
 
 vi.mock('@/lib/api/endpoints', () => ({
   aiApi: { quota: vi.fn() },
   authApi: { me: vi.fn(), logout: vi.fn() },
   rpsApi: { show: vi.fn() },
-  industryApi: {
-    careers: vi.fn(),
-    jobs: vi.fn(),
-    createJob: vi.fn(),
-  },
+  industryApi: { careers: vi.fn() },
   analysisApi: { create: vi.fn() },
 }))
 
@@ -46,31 +42,9 @@ const mockDoc: RpsDocument = {
 }
 
 const mockCareers: Career[] = [
-  { id: 1, name: 'Frontend Developer', slug: 'frontend-developer', description: 'Membangun UI web' },
-  { id: 2, name: 'Backend Developer', slug: 'backend-developer', description: 'Membangun API server' },
-]
-
-const mockJobs: JobPosting[] = [
-  {
-    id: 10,
-    career_id: 1,
-    career: mockCareers[0]!,
-    created_by: null,
-    is_curated: true,
-    title: 'Frontend Developer',
-    company: 'PT Contoh',
-    description: 'Membangun web React',
-    qualifications: 'React, TypeScript',
-    source_name: 'JobStreet',
-    source_url: 'https://...',
-    collected_at: '2026-11-12',
-    dataset_version: 'v1.4',
-    extraction_status: 'completed',
-    skills: [
-      { id: 1, skill: 'React', canonical_skill: 'React', category: 'framework', requirement_text: '', evidence: '' },
-      { id: 2, skill: 'TypeScript', canonical_skill: 'TypeScript', category: 'language', requirement_text: '', evidence: '' },
-    ],
-  },
+  { id: 1, name: 'Data Analyst', slug: 'data-analyst', description: 'Mengolah data', eligible_job_count: 0 },
+  { id: 2, name: 'Frontend Developer', slug: 'frontend-developer', description: 'Membangun UI web', eligible_job_count: 5 },
+  { id: 3, name: 'Backend Developer', slug: 'backend-developer', description: 'Membangun API server', eligible_job_count: 8 },
 ]
 
 function renderAnalysesNew(rpsId = 2) {
@@ -100,28 +74,35 @@ describe('AnalysesNewPage', () => {
     vi.mocked(authApi.me).mockResolvedValue({ data: mockUser })
     vi.mocked(rpsApi.show).mockResolvedValue({ data: mockDoc })
     vi.mocked(industryApi.careers).mockResolvedValue({ data: mockCareers })
-    vi.mocked(industryApi.jobs).mockResolvedValue({ data: mockJobs })
+    vi.mocked(analysisApi.create).mockReset()
   })
 
-  it('merender tahapan pemetaan industri: pilih profesi, pilih lowongan, dan pratinjau', async () => {
+  it('menampilkan profesi dengan ringkasan, tanpa pilihan lowongan', async () => {
     renderAnalysesNew()
 
-    expect(await screen.findByText('Pemetaan industri')).toBeInTheDocument()
-    expect(screen.getByText('Pilih profesi')).toBeInTheDocument()
-    expect(screen.getByText('Pilih lowongan')).toBeInTheDocument()
-    expect(screen.getByText('Pratinjau pemetaan awal')).toBeInTheDocument()
-
-    // Cek lowongan muncul
-    expect(await screen.findByText('PT Contoh')).toBeInTheDocument()
+    expect(await screen.findByText('Frontend Developer')).toBeInTheDocument()
     expect(screen.getByText('Membangun UI web')).toBeInTheDocument()
+    expect(screen.getByText('5 lowongan siap dipakai')).toBeInTheDocument()
+    expect(screen.queryByText('Pilih lowongan')).not.toBeInTheDocument()
+    expect(screen.queryByText(/Tambah lowongan/)).not.toBeInTheDocument()
+    expect(screen.getByText(/hingga 20 skill/)).toBeInTheDocument()
   })
 
-  it('memilih lowongan, menampilkan pratinjau skill, dan memicu mulai analisis', async () => {
+  it('memilih profesi pertama yang siap sebagai default dan menonaktifkan yang belum siap', async () => {
+    renderAnalysesNew()
+
+    await screen.findByText('Frontend Developer')
+    expect(screen.getByRole('radio', { name: /Frontend Developer/ })).toBeChecked()
+    expect(screen.getByRole('radio', { name: /Data Analyst/ })).toBeDisabled()
+    expect(screen.getByText('Belum ada lowongan siap dipakai')).toBeInTheDocument()
+  })
+
+  it('memulai analisis hanya dengan RPS dan profesi pilihan', async () => {
     vi.mocked(analysisApi.create).mockResolvedValue({
       data: {
         analysis_id: 101,
-        status: 'completed',
-        career: 'Frontend Developer',
+        status: 'queued',
+        career: 'Backend Developer',
         course: 'Pemrograman Web',
         summary: null,
         model_versions: null,
@@ -132,28 +113,28 @@ describe('AnalysesNewPage', () => {
 
     renderAnalysesNew()
 
-    await screen.findByText('PT Contoh')
-
-    // Klik checkbox pilih lowongan
-    const checkbox = screen.getByRole('button', { name: /^Pilih lowongan / })
-    fireEvent.click(checkbox)
-
-    // Skill React dan TypeScript harus muncul di list dan Step 3 Pratinjau
-    expect((await screen.findAllByText('React'))[0]).toBeInTheDocument()
-    expect(screen.getAllByText('TypeScript')[0]).toBeInTheDocument()
-
-    // Klik Mulai Analisis
-    const submitBtn = screen.getByRole('button', { name: 'Mulai Analisis' })
-    fireEvent.click(submitBtn)
+    await screen.findByText('Backend Developer')
+    fireEvent.click(screen.getByRole('radio', { name: /Backend Developer/ }))
+    fireEvent.click(screen.getByRole('button', { name: 'Mulai Analisis' }))
 
     await waitFor(() => {
-      expect(analysisApi.create).toHaveBeenCalledWith({
-        rps_document_id: 2,
-        career_id: 1,
-        job_posting_ids: [10],
-      })
+      expect(analysisApi.create).toHaveBeenCalledWith({ rps_document_id: 2, career_id: 3 })
+    })
+    expect(await screen.findByText('Hasil Analisis Halaman')).toBeInTheDocument()
+  })
+
+  it('menampilkan pesan error dari server saat analisis ditolak', async () => {
+    vi.mocked(analysisApi.create).mockRejectedValue({
+      body: { message: 'Belum ada lowongan yang siap dipakai untuk profesi ini.' },
     })
 
-    expect(await screen.findByText('Hasil Analisis Halaman')).toBeInTheDocument()
+    renderAnalysesNew()
+
+    await screen.findByText('Frontend Developer')
+    fireEvent.click(screen.getByRole('button', { name: 'Mulai Analisis' }))
+
+    expect(
+      await screen.findByText('Belum ada lowongan yang siap dipakai untuk profesi ini.')
+    ).toBeInTheDocument()
   })
 })

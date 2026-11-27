@@ -126,7 +126,7 @@ Validasi: skema → bukti (substring teks lowongan) → normalisasi ke `skills` 
 ## 6. Matching & klasifikasi
 
 ### Persiapan
-- Kumpulan skill industri = gabungan `job_skills` dari lowongan terpilih, dikelompokkan per `skill_id`. `demand_count` = jumlah lowongan yang memintanya. Wakil untuk embedding = `job_skill` dengan `requirement_text` paling informatif (terpanjang).
+- Kumpulan skill industri = gabungan `job_skills` dari semua lowongan siap pakai profesi (dipilih server), dikelompokkan per `skill_id`, lalu dipangkas ke `config('skillbridge.matching.max_skills')` (default 20) skill `demand_count` tertinggi (seri: `skill_id` naik). `demand_count` = jumlah lowongan yang memintanya. Wakil untuk embedding = `job_skill` dengan `requirement_text` paling informatif (terpanjang).
 - Kumpulan kandidat = semua `course_skills` dari RPS terpilih yang punya embedding, **kecuali** `review_status = rejected`. Kompetensi `origin = user` ikut, tetapi berstatus `unverified` sehingga hasilnya maksimal `partial` (aturan guardrail yang sudah ada). `user_skills` **tidak** menjadi kandidat dan tidak memengaruhi klasifikasi.
 
 ### Langkah per skill industri

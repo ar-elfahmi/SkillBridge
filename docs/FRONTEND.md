@@ -33,7 +33,7 @@ Modern, minimalis, responsif, **mobile-first**.
 | `/login`, `/register` | Auth | form (tanpa pilihan role; semua pengguna mahasiswa) |
 | `/` → `/dashboard` | Beranda | Hero Dropzone unggah PDF RPS, kartu metrik, daftar RPS **milik pengguna** + progress cakupan, sidebar ringkasan portofolio |
 | `/rps/:id` | Detail RPS | Stepper 3 tahap. **Tahap 0:** panel koreksi metadata MK (nama, kode, SKS, semester, prodi) + tombol konfirmasi & mulai ekstraksi. **Tahap 1:** counter status, filter, tabel kompetensi + bukti + badge verifikasi, **CompetencyReviewTable** (setujui / edit / tolak / tambah) dan tombol konfirmasi hasil ekstraksi |
-| `/analyses/new?rps={id}` | 3. Pemetaan Industri | pilih profesi, daftar lowongan (perusahaan, posisi, skill, sumber), panel detail lowongan, form tambah lowongan manual, pratinjau pemetaan awal, tombol "Mulai Analisis" |
+| `/analyses/new?rps={id}` | 3. Pemetaan Industri | kartu profesi (nama, ringkasan, jumlah lowongan siap pakai; profesi tanpa lowongan siap dinonaktifkan), catatan batas 20 skill, tombol "Mulai Analisis" |
 | `/analyses/:id` | 4. Hasil Analisis | tab: Ringkasan (CoverageSummary), Skill Gap (SkillGapTable + EvidenceDrawer), Rekomendasi Belajar |
 
 **Catatan implementasi:** unggah RPS tidak punya route sendiri — dropzone berada di hero `/dashboard` dan langsung mengarah ke `/rps/:id` setelah 202. Route `/rps/upload` dihapus.

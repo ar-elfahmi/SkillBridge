@@ -67,7 +67,6 @@ class AnalysisApiTest extends TestCase
         $response = $this->actingAs($this->user)->postJson('/api/analyses', [
             'rps_document_id' => $this->rpsDocument->id,
             'career_id' => $this->career->id,
-            'job_posting_ids' => [$this->jobPosting->id],
         ]);
 
         $response->assertStatus(202)
@@ -111,7 +110,6 @@ class AnalysisApiTest extends TestCase
         $response = $this->actingAs($this->user)->postJson('/api/analyses', [
             'rps_document_id' => $unconfirmedRps->id,
             'career_id' => $this->career->id,
-            'job_posting_ids' => [$this->jobPosting->id],
         ]);
 
         $response->assertStatus(422)
@@ -120,25 +118,68 @@ class AnalysisApiTest extends TestCase
             ]);
     }
 
-    public function test_rejects_with_422_when_job_posting_career_mismatches(): void
+    public function test_uses_every_ready_posting_of_the_career_and_ignores_client_ids(): void
     {
+        Queue::fake();
+
         $otherCareer = Career::factory()->create(['name' => 'Data Analyst']);
-        $mismatchedJob = JobPosting::factory()->create([
+        $otherCareerJob = JobPosting::factory()->create([
             'career_id' => $otherCareer->id,
             'extraction_status' => ExtractionStatus::Completed,
             'created_by' => null,
+        ]);
+        $second = JobPosting::factory()->create([
+            'career_id' => $this->career->id,
+            'extraction_status' => ExtractionStatus::Completed,
+            'created_by' => $this->user->id,
+        ]);
+        $pending = JobPosting::factory()->create([
+            'career_id' => $this->career->id,
+            'extraction_status' => ExtractionStatus::Pending,
+            'created_by' => null,
+        ]);
+        $foreign = JobPosting::factory()->create([
+            'career_id' => $this->career->id,
+            'extraction_status' => ExtractionStatus::Completed,
+            'created_by' => User::factory()->create()->id,
         ]);
 
         $response = $this->actingAs($this->user)->postJson('/api/analyses', [
             'rps_document_id' => $this->rpsDocument->id,
             'career_id' => $this->career->id,
-            'job_posting_ids' => [$mismatchedJob->id],
+            'job_posting_ids' => [$otherCareerJob->id],
         ]);
 
-        $response->assertStatus(422)
-            ->assertJsonFragment([
-                'message' => 'Semua lowongan kerja harus sesuai dengan profesi yang dipilih.',
-            ]);
+        $response->assertStatus(202);
+        $analysis = Analysis::findOrFail($response->json('data.analysis_id'));
+
+        $this->assertEqualsCanonicalizing(
+            [$this->jobPosting->id, $second->id],
+            $analysis->jobPostings()->pluck('job_postings.id')->all(),
+        );
+        $this->assertNotContains($pending->id, $analysis->jobPostings()->pluck('job_postings.id')->all());
+        $this->assertNotContains($foreign->id, $analysis->jobPostings()->pluck('job_postings.id')->all());
+    }
+
+    public function test_rejects_with_422_when_career_has_no_ready_posting(): void
+    {
+        Queue::fake();
+
+        $emptyCareer = Career::factory()->create(['name' => 'Data Analyst']);
+        JobPosting::factory()->create([
+            'career_id' => $emptyCareer->id,
+            'extraction_status' => ExtractionStatus::Pending,
+            'created_by' => null,
+        ]);
+
+        $this->actingAs($this->user)->postJson('/api/analyses', [
+            'rps_document_id' => $this->rpsDocument->id,
+            'career_id' => $emptyCareer->id,
+        ])->assertStatus(422)
+            ->assertJsonFragment(['message' => 'Belum ada lowongan yang siap dipakai untuk profesi ini.']);
+
+        Queue::assertNothingPushed();
+        $this->assertSame(0, Analysis::count());
     }
 
     public function test_rejects_with_404_when_rps_belongs_to_another_user(): void
@@ -153,7 +194,6 @@ class AnalysisApiTest extends TestCase
         $response = $this->actingAs($this->user)->postJson('/api/analyses', [
             'rps_document_id' => $otherRps->id,
             'career_id' => $this->career->id,
-            'job_posting_ids' => [$this->jobPosting->id],
         ]);
 
         $response->assertStatus(404);
