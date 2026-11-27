@@ -491,7 +491,7 @@ final class OfflineAiEngine
     }
 
     /**
-     * Batched prompts (reco-v2) carry an "items" list and get one answer per item (same "id").
+     * Batched prompts (reco-v3) carry an "items" list and get one answer per item (same "id").
      * A single skill object still gets a single answer.
      *
      * @return array<string, mixed>|list<array<string, mixed>>

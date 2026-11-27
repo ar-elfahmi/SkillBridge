@@ -31,7 +31,7 @@ class GenerateRecommendationsJob implements ShouldQueue
 {
     use Dispatchable, HasGeminiJobSettings, InteractsWithQueue, Queueable, SerializesModels;
 
-    public const PROMPT_VERSION = 'reco-v2';
+    public const PROMPT_VERSION = 'reco-v3';
 
     // Legacy upper bound: retryUntil() (see HasGeminiJobSettings) takes precedence while it is defined.
     public int $tries = 3;
