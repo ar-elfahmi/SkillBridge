@@ -10,7 +10,7 @@ vi.mock('@/lib/api/endpoints', () => ({
   aiApi: { quota: vi.fn() },
   authApi: { me: vi.fn(), logout: vi.fn() },
   rpsApi: { show: vi.fn(), careerSuggestions: vi.fn() },
-  industryApi: { careers: vi.fn() },
+  industryApi: { careers: vi.fn(), jobs: vi.fn() },
   analysisApi: { create: vi.fn() },
 }))
 
@@ -47,7 +47,7 @@ const mockCareers: Career[] = [
   { id: 3, name: 'Backend Developer', slug: 'backend-developer', description: 'Membangun API server', eligible_job_count: 8 },
 ]
 
-function renderAnalysesNew(rpsId = 2) {
+function renderAnalysesNew(rpsId: number | string = 2, path = `/analyses/new?rps=${rpsId}`) {
   const queryClient = new QueryClient({
     defaultOptions: {
       queries: { retry: false },
@@ -56,10 +56,11 @@ function renderAnalysesNew(rpsId = 2) {
   })
   return render(
     <QueryClientProvider client={queryClient}>
-      <MemoryRouter initialEntries={[`/analyses/new?rps=${rpsId}`]}>
+      <MemoryRouter initialEntries={[path]}>
         <Routes>
           <Route path="/analyses/new" element={<AnalysesNewPage />} />
           <Route path="/analyses/:id" element={<p>Hasil Analisis Halaman</p>} />
+          <Route path="/dashboard" element={<p>Beranda Halaman</p>} />
         </Routes>
       </MemoryRouter>
     </QueryClientProvider>
@@ -87,6 +88,8 @@ describe('AnalysesNewPage', () => {
     expect(screen.queryByText('Pilih lowongan')).not.toBeInTheDocument()
     expect(screen.queryByText(/Tambah lowongan/)).not.toBeInTheDocument()
     expect(screen.getByText(/hingga 20 skill/)).toBeInTheDocument()
+    expect(screen.getByText('Frontend Developer, 5 lowongan')).toBeInTheDocument()
+    expect(screen.queryByText('Pilih satu profesi untuk memulai analisis.')).not.toBeInTheDocument()
   })
 
   it('memilih profesi pertama yang siap sebagai default dan menonaktifkan yang belum siap', async () => {
@@ -117,7 +120,8 @@ describe('AnalysesNewPage', () => {
     expect(radios[0]).toBeChecked()
     // Saran untuk profesi tanpa lowongan siap tetap tampil, tetapi tidak bisa dipilih.
     expect(screen.getByRole('radio', { name: /Data Analyst/ })).toBeDisabled()
-    expect(screen.getAllByText('Saran AI untuk RPS ini')).toHaveLength(2)
+    expect(screen.getByRole('heading', { name: 'Disarankan AI untuk RPS ini' })).toBeInTheDocument()
+    expect(screen.getByText('Profesi lain (1)')).toBeInTheDocument()
   })
 
   it('menampilkan status menyiapkan saran saat masih diproses', async () => {
@@ -147,7 +151,7 @@ describe('AnalysesNewPage', () => {
 
     await screen.findByText('Backend Developer')
     fireEvent.click(screen.getByRole('radio', { name: /Backend Developer/ }))
-    fireEvent.click(screen.getByRole('button', { name: 'Mulai Analisis' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Mulai analisis' }))
 
     await waitFor(() => {
       expect(analysisApi.create).toHaveBeenCalledWith({ rps_document_id: 2, career_id: 3 })
@@ -163,10 +167,66 @@ describe('AnalysesNewPage', () => {
     renderAnalysesNew()
 
     await screen.findByText('Frontend Developer')
-    fireEvent.click(screen.getByRole('button', { name: 'Mulai Analisis' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Mulai analisis' }))
 
     expect(
       await screen.findByText('Belum ada lowongan yang siap dipakai untuk profesi ini.')
     ).toBeInTheDocument()
   })
-})
+
+  it('mengalihkan ke beranda bila parameter rps kosong', async () => {
+    renderAnalysesNew(0, '/analyses/new')
+
+    expect(await screen.findByText('Beranda Halaman')).toBeInTheDocument()
+    expect(analysisApi.create).not.toHaveBeenCalled()
+  })
+
+  it('melipat profesi lain saat ada saran AI dan dapat dibuka', async () => {
+    vi.mocked(rpsApi.careerSuggestions).mockResolvedValue({
+      data: {
+        status: 'completed',
+        items: [{ career_id: 3, name: 'Backend Developer', reason: 'RPS membahas API.' }],
+      },
+    })
+
+    renderAnalysesNew()
+
+    await screen.findByText('RPS membahas API.')
+    expect(screen.queryByRole('radio', { name: /Frontend Developer/ })).not.toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: /Profesi lain/ }))
+    expect(await screen.findByRole('radio', { name: /Frontend Developer/ })).toBeInTheDocument()
+  })
+
+  it('menampilkan skill yang dipakai dari lowongan profesi terpilih', async () => {
+    vi.mocked(industryApi.jobs).mockResolvedValue({
+      data: [
+        {
+          id: 1,
+          career_id: 2,
+          career: null,
+          created_by: null,
+          is_curated: true,
+          title: 'FE',
+          company: 'X',
+          description: '',
+          qualifications: null,
+          source_name: null,
+          source_url: null,
+          collected_at: null,
+          dataset_version: null,
+          extraction_status: 'completed',
+          skills: [
+            { id: 1, skill: 'React', canonical_skill: 'React', category: 'framework', requirement_text: null, evidence: null },
+          ],
+        },
+      ],
+    })
+
+    renderAnalysesNew()
+
+    await screen.findByText('Frontend Developer')
+    fireEvent.click(screen.getByRole('button', { name: 'Lihat skill yang dipakai' }))
+    const dialog = await screen.findByRole('dialog')
+    await waitFor(() => expect(dialog).toHaveTextContent('React'))
+    expect(dialog).toHaveTextContent('1 lowongan')
+  })})
