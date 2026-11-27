@@ -80,7 +80,7 @@ describe('DashboardPage', () => {
   it('merender elemen utama dashboard (hero unggah, stats, daftar RPS)', async () => {
     renderDashboard()
 
-    expect(screen.getAllByText('UNGGAH RPS')[0]).toBeInTheDocument()
+    expect(screen.getAllByText('Unggah RPS')[0]).toBeInTheDocument()
     expect(screen.getByText('Pilih atau tarik PDF RPS')).toBeInTheDocument()
     expect(screen.getByText('Skill yang kurang')).toBeInTheDocument()
 

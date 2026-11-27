@@ -74,7 +74,7 @@ export function RpsHeader({ document, currentStep }: RpsHeaderProps) {
       </div>
 
       {/* Stage Stepper */}
-      <ol className="grid grid-cols-[auto_1fr_auto_1fr_auto] items-center gap-2 rounded-xl bg-white p-3 shadow-sm sm:gap-3 sm:p-4 md:gap-5 md:px-6">
+      <ol className="grid grid-cols-[auto_1fr_auto_1fr_auto] items-center gap-2 rounded-xl border border-border-warm bg-white p-3 sm:gap-3 sm:p-4 md:gap-5 md:px-6">
         {steps.map((step, i) => {
           const done = currentStep > step.index
           const active = currentStep === step.index

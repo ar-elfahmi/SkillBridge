@@ -6,6 +6,7 @@ import { BrandLogo } from '@/components/common/BrandLogo'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { usePageTitle } from '@/lib/usePageTitle'
 import { copy } from '@/lib/copy'
 import { useRegister } from '@/lib/query/hooks'
 import { ApiRequestError } from '@/lib/api/client'
@@ -29,6 +30,7 @@ function registerErrorMessage(error: unknown): string {
 
 /** Halaman `/register`. Desain: docs/dihsain.pen frame "02 Register — Desktop/Mobile". */
 export function RegisterPage() {
+  usePageTitle('Daftar')
   const navigate = useNavigate()
   const register = useRegister()
   const [name, setName] = useState('')
@@ -61,15 +63,11 @@ export function RegisterPage() {
         <BrandLogo />
       </header>
 
-      <div className="flex flex-1 flex-col md:flex-row md:items-start md:gap-12 md:px-16 md:py-12 justify-center">
+      <main className="flex flex-1 flex-col md:flex-row md:items-start md:gap-12 md:px-16 md:py-12 justify-center">
         <section className="hidden flex-col gap-6 rounded-2xl bg-brand p-10 text-white md:flex md:h-[704px] md:w-[664px]">
-          <span className="w-fit rounded-full bg-white/15 px-3 py-1 text-[11px] font-bold tracking-wide uppercase">
-            {copy.auth.registerEyebrow}
-          </span>
-
-          <h1 className="font-display text-[34px] leading-tight font-normal">
+          <p className="font-display text-[34px] leading-tight font-normal">
             {copy.auth.registerInfoTitle}
-          </h1>
+          </p>
 
           <ul className="flex flex-col gap-3">
             {copy.auth.loginInfoPoints.map((label, index) => {
@@ -92,9 +90,9 @@ export function RegisterPage() {
 
         <div className="mx-auto flex w-full max-w-[327px] flex-col gap-6 px-6 py-8 md:mx-0 md:h-[704px] md:w-[440px] md:max-w-none md:gap-5 md:rounded-2xl md:border md:border-border-warm md:bg-background md:px-8 md:py-8">
           <div className="flex flex-col gap-1">
-            <h2 className="font-display text-2xl font-normal text-text-primary">
+            <h1 className="font-display text-2xl font-normal text-text-primary">
               {copy.auth.registerTitle}
-            </h2>
+            </h1>
             <p className="text-[13px] text-text-secondary">{copy.auth.registerSubtitle}</p>
           </div>
 
@@ -193,12 +191,12 @@ export function RegisterPage() {
 
           <p className="text-center text-[13px]">
             <span className="text-text-secondary">{copy.auth.haveAccount} </span>
-            <Link to="/login" className="font-bold text-brand-strong hover:underline">
+            <Link to="/login" className="inline-flex min-h-11 items-center px-1 font-bold text-brand-strong hover:underline">
               {copy.auth.submitLogin}
             </Link>
           </p>
         </div>
-      </div>
+      </main>
 
       <footer className="flex h-16 shrink-0 items-center justify-center px-6 md:h-[88px] md:justify-start md:px-16">
         <p className="text-[11px] font-medium text-text-secondary">{copy.footerBrand}</p>

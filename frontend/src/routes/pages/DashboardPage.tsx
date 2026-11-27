@@ -17,9 +17,11 @@ import {
   useUploadRps,
 } from '@/lib/query/hooks'
 import { ApiRequestError } from '@/lib/api/client'
+import { usePageTitle } from '@/lib/usePageTitle'
 import { copy } from '@/lib/copy'
 
 export function DashboardPage() {
+  usePageTitle('Beranda')
   const navigate = useNavigate()
   const { data: user } = useMe()
   const logout = useLogout()
@@ -103,6 +105,7 @@ export function DashboardPage() {
       />
 
       <main className="mx-auto flex min-h-0 w-full max-w-7xl flex-1 items-start gap-8 px-4 py-3 sm:py-6 md:px-8 md:py-8">
+        <h1 className="sr-only">Beranda</h1>
         <div className="flex h-full min-h-0 flex-1 flex-col gap-3 sm:h-auto sm:gap-6">
           <AiQuotaBanner />
           <UploadRpsHero

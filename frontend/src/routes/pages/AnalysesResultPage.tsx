@@ -19,11 +19,13 @@ import {
   useRefreshRecommendations,
   useRemoveMySkill,
 } from '@/lib/query/hooks'
+import { usePageTitle } from '@/lib/usePageTitle'
 import { copy } from '@/lib/copy'
 
 type Tab = 'summary' | 'skillGap' | 'recommendations'
 
 export function AnalysesResultPage() {
+  usePageTitle('Hasil analisis')
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
   const analysisId = id ? parseInt(id, 10) : 0
@@ -129,13 +131,15 @@ export function AnalysesResultPage() {
 
       <main className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-6 px-4 py-6 md:px-8 md:py-8">
         {/* Tabs */}
-        <div className="flex items-center gap-1 border-b border-border-warm">
+        <div role="tablist" className="flex items-center gap-1 border-b border-border-warm">
           {tabs.map(([key, label]) => (
             <button
               key={key}
               type="button"
+              role="tab"
+              aria-selected={tab === key}
               onClick={() => setTab(key)}
-              className={`relative px-4 py-2.5 text-xs font-semibold transition-colors md:text-sm ${
+              className={`relative min-h-11 flex-1 px-2 text-center text-xs font-semibold leading-tight transition-colors active:bg-surface-subtle sm:flex-none sm:px-4 md:text-sm ${
                 tab === key ? 'text-brand-strong' : 'text-text-secondary hover:text-text-primary'
               }`}
             >
@@ -153,7 +157,7 @@ export function AnalysesResultPage() {
             <Link
               to="/dashboard"
               aria-label={copy.analysesResult.backToDashboard}
-              className="flex size-10 shrink-0 items-center justify-center rounded-full border border-border-warm bg-white text-text-primary transition-colors hover:bg-surface-subtle"
+              className="flex size-11 shrink-0 items-center justify-center rounded-full border border-border-warm bg-white text-text-primary transition-colors hover:bg-surface-subtle active:bg-surface-subtle sm:size-10"
             >
               <ArrowLeft className="size-4" aria-hidden="true" />
             </Link>

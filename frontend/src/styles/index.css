@@ -29,6 +29,7 @@
     --color-warning-solid: var(--warning-solid);
     --color-warning-soft: var(--warning-soft);
     --color-danger-soft: var(--danger-soft);
+    --color-field: var(--field-border);
     --font-display: "DM Serif Display", Georgia, serif;
     --font-sans: "Plus Jakarta Sans Variable", sans-serif;
     --font-heading: var(--font-sans);
@@ -87,10 +88,11 @@
     --success-solid: #1E7A4F;
     --success-soft: #DDF3E4;
     --warning: #A94A00;
-    --warning-solid: #F59E0B;
+    --warning-solid: #D97706;
     --warning-soft: #FFEFD0;
     --danger: #b3261e;
     --danger-soft: #FBE4E1;
+    --field-border: #74879F;
     --info: #004C99;
     --brand-strong: #004C99;
     --brand-accent: #0085FF;
@@ -164,6 +166,21 @@
 }
 
 @layer base {
+  button:not(:disabled),
+  [role='button']:not([aria-disabled='true']),
+  [role='tab'],
+  summary,
+  select:not(:disabled),
+  label[for],
+  input[type='checkbox']:not(:disabled),
+  input[type='file']:not(:disabled) {
+    cursor: pointer;
+  }
+  button:disabled,
+  select:disabled,
+  input:disabled {
+    cursor: not-allowed;
+  }
   * {
     @apply border-border outline-ring/50;
     }

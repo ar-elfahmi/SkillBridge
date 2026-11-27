@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { fireEvent, render, screen } from '@testing-library/react'
+import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { AnalysesResultPage } from '@/routes/pages/AnalysesResultPage'
@@ -124,18 +124,33 @@ describe('AnalysesResultPage', () => {
     renderPage()
 
     await screen.findByText('Pemrograman Web')
-    const tabBtn = screen.getByRole('button', { name: 'Skill Gap' })
+    const tabBtn = screen.getByRole('tab', { name: 'Skill Gap' })
     fireEvent.click(tabBtn)
 
     expect((await screen.findAllByText('React'))[0]).toBeInTheDocument()
     expect(screen.getAllByText('Docker')[0]).toBeInTheDocument()
   })
 
+  it('membuka panel bukti sebagai dialog dan menutupnya dengan Escape', async () => {
+    renderPage()
+
+    await screen.findByText('Pemrograman Web')
+    fireEvent.click(screen.getByRole('tab', { name: 'Skill Gap' }))
+
+    const skillButtons = await screen.findAllByRole('button', { name: 'React' })
+    fireEvent.click(skillButtons[0]!)
+
+    expect(await screen.findByRole('dialog')).toBeInTheDocument()
+
+    fireEvent.keyDown(document, { key: 'Escape' })
+    await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument())
+  })
+
   it('berpindah ke tab Rekomendasi Belajar', async () => {
     renderPage()
 
     await screen.findByText('Pemrograman Web')
-    fireEvent.click(screen.getByRole('button', { name: 'Rekomendasi Belajar' }))
+    fireEvent.click(screen.getByRole('tab', { name: 'Rekomendasi Belajar' }))
 
     expect(await screen.findByText('Terapkan tipe generik pada API client')).toBeInTheDocument()
     expect(screen.getByText('Tipe generik')).toBeInTheDocument()
@@ -148,7 +163,7 @@ describe('AnalysesResultPage', () => {
     renderPage()
 
     await screen.findByText('Pemrograman Web')
-    fireEvent.click(screen.getByRole('button', { name: 'Rekomendasi Belajar' }))
+    fireEvent.click(screen.getByRole('tab', { name: 'Rekomendasi Belajar' }))
 
     expect(screen.getByText('Menyiapkan rekomendasi belajar…')).toBeInTheDocument()
     expect(screen.queryByText('Terapkan tipe generik pada API client')).not.toBeInTheDocument()
@@ -161,7 +176,7 @@ describe('AnalysesResultPage', () => {
     renderPage()
 
     await screen.findByText('Pemrograman Web')
-    fireEvent.click(screen.getByRole('button', { name: 'Rekomendasi Belajar' }))
+    fireEvent.click(screen.getByRole('tab', { name: 'Rekomendasi Belajar' }))
 
     expect(await screen.findByText('Menyiapkan rekomendasi belajar…')).toBeInTheDocument()
     expect(

@@ -33,7 +33,7 @@ export function SelfDeclaredSkillsPanel({
   }
 
   return (
-    <div className="flex flex-col gap-3 rounded-2xl border border-border-warm bg-surface-subtle p-5">
+    <div className="flex flex-col gap-3 rounded-2xl border border-border-warm bg-surface-subtle p-4 sm:p-5">
       <span className="text-xs font-bold text-text-primary">
         {copy.analysesResult.selfDeclaredTitle}
       </span>
@@ -62,7 +62,7 @@ export function SelfDeclaredSkillsPanel({
                   type="button"
                   onClick={() => onRemove(s.id)}
                   aria-label={`Hapus ${s.skill}`}
-                  className="flex size-6 items-center justify-center rounded-md text-text-secondary transition-colors hover:bg-danger/10 hover:text-danger"
+                  className="flex size-11 items-center justify-center rounded-md text-text-secondary transition-colors hover:bg-danger/10 hover:text-danger active:bg-danger/10 sm:size-8"
                 >
                   <X className="size-3.5" aria-hidden="true" />
                 </button>
@@ -78,7 +78,7 @@ export function SelfDeclaredSkillsPanel({
               className="flex items-center justify-between rounded-lg bg-white px-3 py-2 text-xs"
             >
               <span className="font-semibold text-text-primary">{s.skill}</span>
-              <span className="text-[10px] text-text-secondary">{copy.status[s.classification]}</span>
+              <span className="text-[11px] text-text-secondary">{copy.status[s.classification]}</span>
             </li>
           ))}
         </ul>
@@ -91,7 +91,7 @@ export function SelfDeclaredSkillsPanel({
           value={value}
           onChange={(e) => setValue(e.target.value)}
           placeholder={copy.analysesResult.selfDeclaredPlaceholder}
-          className="h-10 text-sm"
+          className="h-11 text-sm sm:h-10"
           aria-label={copy.analysesResult.selfDeclaredPlaceholder}
         />
         <div className="flex gap-2">
@@ -99,7 +99,7 @@ export function SelfDeclaredSkillsPanel({
             aria-label={copy.analysesResult.levelLabel}
             value={level}
             onChange={(e) => setLevel(e.target.value as SkillLevel)}
-            className="h-10 rounded-lg border border-border-warm bg-white px-2 text-xs font-semibold text-text-primary outline-none focus:border-brand-accent"
+            className="h-11 rounded-lg border border-field bg-white px-2 text-xs sm:h-10 font-semibold text-text-primary outline-none focus-visible:border-brand-accent focus-visible:ring-2 focus-visible:ring-brand-accent/40"
           >
             {(['beginner', 'intermediate', 'advanced'] as const).map((l) => (
               <option key={l} value={l}>
@@ -110,7 +110,7 @@ export function SelfDeclaredSkillsPanel({
           <Button
             type="submit"
             disabled={isAdding || !value.trim()}
-            className="h-10 shrink-0 gap-1.5 bg-brand px-3 text-xs font-bold text-white hover:bg-brand-hover"
+            className="h-11 shrink-0 gap-1.5 bg-brand sm:h-10 px-3 text-xs font-bold text-white hover:bg-brand-hover"
           >
             <Plus className="size-3.5" aria-hidden="true" />
             {copy.analysesResult.addSkillBtn}
@@ -122,7 +122,7 @@ export function SelfDeclaredSkillsPanel({
         {copy.analysesResult.selfDeclaredNote}
       </p>
 
-      <Link to="/profile" className="w-fit text-[11px] font-bold text-brand-strong hover:underline">
+      <Link to="/profile" className="inline-flex min-h-11 w-fit items-center text-xs font-bold text-brand-strong hover:underline sm:min-h-0">
         {copy.analysesResult.selfDeclaredProfileLink}
       </Link>
     </div>

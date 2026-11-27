@@ -31,21 +31,21 @@ export function DashboardSidebar({
       </h3>
 
       {/* User Profile Card */}
-      <div className="flex flex-col items-center gap-3 rounded-2xl border border-border-warm bg-white p-5 text-center shadow-sm">
+      <div className="flex flex-col items-center gap-3 rounded-2xl border border-border-warm bg-white p-5 text-center">
         <div className="flex size-14 items-center justify-center rounded-full bg-brand text-lg font-bold text-white shadow-sm">
           {initials}
         </div>
         <div className="flex flex-col">
           <span className="text-sm font-bold text-text-primary">{user?.name || 'Mahasiswa'}</span>
           <span className="text-xs text-text-secondary">{user?.email || ''}</span>
-          <span className="mt-1 inline-block rounded-full bg-surface-subtle px-2.5 py-0.5 text-[10px] font-semibold text-text-secondary">
+          <span className="mt-1 inline-block rounded-full bg-surface-subtle px-2.5 py-0.5 text-[11px] font-semibold text-text-secondary">
             Mahasiswa
           </span>
         </div>
       </div>
 
       {/* Owned Skills Card — sesuai frame "Owned Skills Card" dihsain.pen */}
-      <div className="flex flex-col gap-3 rounded-2xl border border-border-warm bg-white p-4 shadow-sm">
+      <div className="flex flex-col gap-3 rounded-2xl border border-border-warm bg-white p-4">
         <div className="flex flex-col">
           <span className="text-xs font-bold text-text-primary">
             {copy.dashboard.sidebar.ownedSkillsTitle}
@@ -75,14 +75,14 @@ export function DashboardSidebar({
 
         <Link
           to="/profile"
-          className="w-fit text-xs font-bold text-brand-strong hover:underline"
+          className="inline-flex min-h-9 w-fit items-center text-xs font-bold text-brand-strong hover:underline"
         >
           {copy.dashboard.sidebar.viewAllSkills}
         </Link>
       </div>
 
       {/* Ringkasan Akun & Status */}
-      <div className="flex flex-col gap-3 rounded-2xl border border-border-warm bg-white p-4 shadow-sm">
+      <div className="flex flex-col gap-3 rounded-2xl border border-border-warm bg-white p-4">
         <span className="text-xs font-bold text-text-primary">Status</span>
         <div className="flex flex-col gap-2">
           <div className="flex items-center justify-between rounded-lg bg-surface-subtle px-3 py-2 text-xs">

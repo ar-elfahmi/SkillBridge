@@ -78,7 +78,7 @@ export function CompetencyReviewTable({
   return (
     <div className="flex min-h-0 flex-1 flex-col gap-3 sm:flex-none sm:gap-6">
       {/* Review Summary Cards & Filters */}
-      <div className="flex flex-col gap-3 rounded-2xl border border-border-warm bg-white p-3 shadow-sm sm:p-5 md:flex-row md:items-center md:justify-between">
+      <div className="flex flex-col gap-3 rounded-2xl border border-border-warm bg-white p-3 sm:p-5 md:flex-row md:items-center md:justify-between">
         <div className="grid grid-cols-3 gap-2 md:gap-3">
           <div className="flex flex-col rounded-xl bg-brand-soft px-3 py-2">
             <span className="font-display text-xl font-bold text-text-primary md:text-3xl">
@@ -114,7 +114,7 @@ export function CompetencyReviewTable({
             aria-label="Filter kompetensi"
             value={filter}
             onChange={(e) => setFilter(e.target.value as 'all' | 'unverified' | 'pending' | 'rejected')}
-            className="w-full appearance-none h-11 rounded-lg border border-border-warm bg-white px-3 pr-9 text-xs font-semibold text-text-primary shadow-xs outline-none focus:border-brand-accent"
+            className="w-full appearance-none h-11 rounded-lg border border-field bg-white px-3 pr-9 text-xs font-semibold text-text-primary outline-none focus-visible:border-brand-accent focus-visible:ring-2 focus-visible:ring-brand-accent/40"
           >
             <option value="all">{copy.rpsDetail.review.filterAll} ({totalCount})</option>
             <option value="unverified">
@@ -138,8 +138,9 @@ export function CompetencyReviewTable({
           </span>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div className="flex flex-col gap-1">
-              <label className="text-xs font-semibold text-text-secondary">Nama Skill</label>
+              <label htmlFor="newSkill" className="text-xs font-semibold text-text-secondary">Nama Skill</label>
               <Input
+                id="newSkill"
                 value={newSkill}
                 onChange={(e) => setNewSkill(e.target.value)}
                 placeholder="Contoh: Version control"
@@ -147,8 +148,9 @@ export function CompetencyReviewTable({
               />
             </div>
             <div className="flex flex-col gap-1">
-              <label className="text-xs font-semibold text-text-secondary">Deskripsi Kompetensi</label>
+              <label htmlFor="newCompetency" className="text-xs font-semibold text-text-secondary">Deskripsi Kompetensi</label>
               <Input
+                id="newCompetency"
                 value={newCompetency}
                 onChange={(e) => setNewCompetency(e.target.value)}
                 placeholder="Contoh: Mampu mengoperasikan git dan workflow kolaborasi"
@@ -185,7 +187,7 @@ export function CompetencyReviewTable({
       )}
 
       {/* Desktop Table View (md+) */}
-      <div className="hidden overflow-hidden rounded-2xl border border-border-warm bg-white shadow-sm md:block">
+      <div className="hidden overflow-hidden rounded-2xl border border-border-warm bg-white md:block">
         <table className="w-full text-left text-xs">
           <thead className="border-b border-border-warm bg-surface-subtle font-semibold text-text-secondary">
             <tr>
@@ -215,11 +217,13 @@ export function CompetencyReviewTable({
                         <div className="flex flex-col gap-1.5">
                           <Input
                             value={editSkill}
+                            aria-label="Nama skill"
                             onChange={(e) => setEditSkill(e.target.value)}
                             className="h-8 text-xs"
                           />
                           <Input
                             value={editCompetencyText}
+                            aria-label="Deskripsi kompetensi"
                             onChange={(e) => setEditCompetencyText(e.target.value)}
                             className="h-8 text-xs"
                           />
@@ -227,14 +231,14 @@ export function CompetencyReviewTable({
                             <button
                               type="button"
                               onClick={() => saveEdit(c.id)}
-                              className="rounded bg-brand px-2 py-0.5 text-[10px] font-bold text-white"
+                              className="rounded bg-brand px-2 py-0.5 text-[11px] font-bold text-white"
                             >
                               Simpan
                             </button>
                             <button
                               type="button"
                               onClick={() => setEditingId(null)}
-                              className="rounded border border-border-warm px-2 py-0.5 text-[10px]"
+                              className="rounded border border-border-warm px-2 py-0.5 text-[11px]"
                             >
                               Batal
                             </button>
@@ -267,7 +271,7 @@ export function CompetencyReviewTable({
                     {/* Sumber */}
                     <td className="px-4 py-3.5 align-top text-text-secondary">
                       {c.origin === 'user' ? (
-                        <span className="rounded bg-brand-soft px-2 py-0.5 text-[10px] font-semibold text-brand-strong">
+                        <span className="rounded bg-brand-soft px-2 py-0.5 text-[11px] font-semibold text-brand-strong">
                           Pengguna
                         </span>
                       ) : (
@@ -282,12 +286,12 @@ export function CompetencyReviewTable({
                     {/* Verifikasi */}
                     <td className="px-4 py-3.5 align-top">
                       {c.verification_status === 'verified' ? (
-                        <span className="inline-flex items-center gap-1 rounded-md bg-success-soft px-2 py-0.5 text-[10px] font-semibold text-success">
+                        <span className="inline-flex items-center gap-1 rounded-md bg-success-soft px-2 py-0.5 text-[11px] font-semibold text-success">
                           <Check className="size-3" />
                           {copy.rpsDetail.review.verifiedChip}
                         </span>
                       ) : (
-                        <span className="inline-flex items-center gap-1 rounded-md bg-danger-soft px-2 py-0.5 text-[10px] font-semibold text-danger">
+                        <span className="inline-flex items-center gap-1 rounded-md bg-danger-soft px-2 py-0.5 text-[11px] font-semibold text-danger">
                           <Minus className="size-3" />
                           {copy.rpsDetail.review.unverifiedChip}
                         </span>
@@ -297,17 +301,17 @@ export function CompetencyReviewTable({
                     {/* Tinjauan Status */}
                     <td className="px-4 py-3.5 align-top">
                       {c.review_status === 'confirmed' ? (
-                        <span className="inline-flex items-center gap-1 rounded-md bg-success-soft px-2 py-0.5 text-[10px] font-semibold text-success">
+                        <span className="inline-flex items-center gap-1 rounded-md bg-success-soft px-2 py-0.5 text-[11px] font-semibold text-success">
                           <Check className="size-3" />
                           {copy.rpsDetail.review.confirmedChip}
                         </span>
                       ) : c.review_status === 'rejected' ? (
-                        <span className="inline-flex items-center gap-1 rounded-md bg-danger-soft px-2 py-0.5 text-[10px] font-semibold text-danger">
+                        <span className="inline-flex items-center gap-1 rounded-md bg-danger-soft px-2 py-0.5 text-[11px] font-semibold text-danger">
                           <X className="size-3" />
                           {copy.rpsDetail.review.rejectedChip}
                         </span>
                       ) : (
-                        <span className="inline-flex items-center gap-1 rounded-md bg-warning-soft px-2 py-0.5 text-[10px] font-semibold text-warning">
+                        <span className="inline-flex items-center gap-1 rounded-md bg-warning-soft px-2 py-0.5 text-[11px] font-semibold text-warning">
                           <CircleDashed className="size-3" />
                           {copy.rpsDetail.review.pendingChip}
                         </span>
@@ -320,6 +324,7 @@ export function CompetencyReviewTable({
                         <button
                           type="button"
                           title="Setujui"
+                          aria-label={`Setujui ${c.skill}`}
                           onClick={() => onApprove(c.id)}
                           className="flex size-7 items-center justify-center rounded-lg border border-border-warm text-success hover:bg-success-soft transition-colors"
                         >
@@ -329,6 +334,7 @@ export function CompetencyReviewTable({
                         <button
                           type="button"
                           title="Edit"
+                          aria-label={`Edit ${c.skill}`}
                           onClick={() => startEdit(c)}
                           className="flex size-7 items-center justify-center rounded-lg border border-border-warm text-text-secondary hover:bg-surface-subtle transition-colors"
                         >
@@ -339,6 +345,7 @@ export function CompetencyReviewTable({
                           <button
                             type="button"
                             title="Hapus"
+                          aria-label={`Hapus ${c.skill}`}
                             onClick={() => onDelete(c.id)}
                             className="flex size-7 items-center justify-center rounded-lg border border-border-warm text-danger hover:bg-danger/10 transition-colors"
                           >
@@ -348,6 +355,7 @@ export function CompetencyReviewTable({
                           <button
                             type="button"
                             title="Tolak"
+                          aria-label={`Tolak ${c.skill}`}
                             onClick={() => onReject(c.id)}
                             className="flex size-7 items-center justify-center rounded-lg border border-border-warm text-danger hover:bg-danger/10 transition-colors"
                           >
@@ -369,7 +377,7 @@ export function CompetencyReviewTable({
         {filtered.map((c) => (
           <div
             key={c.id}
-            className="flex flex-col gap-3 rounded-xl border border-border-warm bg-white p-4 shadow-sm"
+            className="flex flex-col gap-3 rounded-xl border border-border-warm bg-white p-4"
           >
             <div className="flex items-start justify-between gap-2">
               <div className="flex flex-col">
@@ -380,12 +388,12 @@ export function CompetencyReviewTable({
               </div>
 
               {c.verification_status === 'verified' ? (
-                <span className="inline-flex items-center gap-1 rounded-md bg-success-soft px-2 py-0.5 text-[10px] font-semibold text-success">
+                <span className="inline-flex items-center gap-1 rounded-md bg-success-soft px-2 py-0.5 text-[11px] font-semibold text-success">
                   <Check className="size-3" />
                   {copy.rpsDetail.review.verifiedChip}
                 </span>
               ) : (
-                <span className="inline-flex items-center gap-1 rounded-md bg-danger-soft px-2 py-0.5 text-[10px] font-semibold text-danger">
+                <span className="inline-flex items-center gap-1 rounded-md bg-danger-soft px-2 py-0.5 text-[11px] font-semibold text-danger">
                   <Minus className="size-3" />
                   {copy.rpsDetail.review.unverifiedChip}
                 </span>
@@ -446,7 +454,7 @@ export function CompetencyReviewTable({
       </div>
 
       {/* Confirmation Bottom Bar */}
-      <div className="flex shrink-0 flex-col gap-2 rounded-2xl border border-border-warm bg-white p-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] shadow-sm sm:gap-3 sm:p-5 md:flex-row md:items-center md:justify-between">
+      <div className="flex shrink-0 flex-col gap-2 rounded-2xl border border-border-warm bg-white p-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] sm:gap-3 sm:p-5 md:flex-row md:items-center md:justify-between">
         <div className="flex flex-col gap-0.5">
           <span className="text-sm font-bold text-text-primary">
             {pendingCount > 0
