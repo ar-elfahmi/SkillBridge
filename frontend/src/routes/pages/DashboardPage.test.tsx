@@ -94,6 +94,8 @@ describe('DashboardPage', () => {
       data: [
         {
           analysis_id: 101,
+          rps_document_id: 1,
+          job_count: 2,
           status: 'completed',
           career: 'Frontend Developer',
           course: 'Pemrograman Web',
@@ -229,6 +231,8 @@ describe('DashboardPage', () => {
       data: [
         {
           analysis_id: 5,
+          rps_document_id: 1,
+          job_count: 2,
           status: 'completed',
           career: 'Frontend Developer',
           course: 'Pemrograman Web',
@@ -249,6 +253,27 @@ describe('DashboardPage', () => {
     expect(note.className).not.toContain('hidden')
   })
 
+  it('menghitung hanya analisis terbaru per dokumen RPS pada kartu statistik', async () => {
+    const base = {
+      job_count: 2,
+      status: 'completed' as const,
+      career: 'Frontend Developer',
+      course: 'Pemrograman Web',
+      model_versions: null,
+      error_message: null,
+      created_at: '',
+    }
+    vi.mocked(analysisApi.list).mockResolvedValue({
+      data: [
+        { ...base, analysis_id: 7, rps_document_id: 1, summary: { total_skills: 5, covered: 2, partial: 0, missing: 3, coverage_percentage: 40 } },
+        { ...base, analysis_id: 3, rps_document_id: 1, summary: { total_skills: 5, covered: 0, partial: 0, missing: 5, coverage_percentage: 0 } },
+      ],
+    })
+    renderDashboard()
+
+    expect(await screen.findByText('dari 1 analisis')).toBeInTheDocument()
+    expect(screen.getByText('3', { selector: 'span.font-display' })).toBeInTheDocument()
+  })
   describe('hapus dokumen', () => {
     beforeEach(() => {
       rpsApi.remove = vi.fn()

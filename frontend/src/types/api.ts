@@ -169,6 +169,8 @@ export interface AnalysisModelVersions {
 
 export interface Analysis {
   analysis_id: number
+  rps_document_id: number
+  job_count: number
   status: AnalysisStatus
   career: string
   course: string

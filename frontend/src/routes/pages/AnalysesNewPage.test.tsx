@@ -137,6 +137,8 @@ describe('AnalysesNewPage', () => {
     vi.mocked(analysisApi.create).mockResolvedValue({
       data: {
         analysis_id: 101,
+        rps_document_id: 1,
+        job_count: 2,
         status: 'queued',
         career: 'Backend Developer',
         course: 'Pemrograman Web',
