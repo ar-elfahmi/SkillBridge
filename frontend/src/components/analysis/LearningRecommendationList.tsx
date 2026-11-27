@@ -10,9 +10,9 @@ interface LearningRecommendationListProps {
 }
 
 const PRIORITY_STYLE = {
-  high: 'bg-[#F8E4E1] text-danger',
-  medium: 'bg-[#FBF0D9] text-warning',
-  low: 'bg-[#E5F0E8] text-success',
+  high: 'bg-danger-soft text-danger',
+  medium: 'bg-warning-soft text-warning',
+  low: 'bg-success-soft text-success',
 } as const
 
 export function LearningRecommendationList({

@@ -112,10 +112,10 @@ export function AnalysesResultPage() {
         : Clock3
   const statusClass =
     analysis.status === 'completed'
-      ? 'bg-[#E5F0E8] text-success'
+      ? 'bg-success-soft text-success'
       : analysis.status === 'failed'
-        ? 'bg-[#F8E4E1] text-danger'
-        : 'bg-[#FBF0D9] text-warning'
+        ? 'bg-danger-soft text-danger'
+        : 'bg-warning-soft text-warning'
 
   const tabs: Array<[Tab, string]> = [
     ['summary', copy.analysesResult.tabs.summary],
@@ -202,7 +202,7 @@ export function AnalysesResultPage() {
         ) : (
           <div className="flex flex-col gap-4">
             {recoStale && (
-              <div className="flex flex-col gap-2 rounded-xl border border-border-warm bg-[#FBF0D9]/60 p-3 text-xs text-warning sm:flex-row sm:items-center sm:justify-between">
+              <div className="flex flex-col gap-2 rounded-xl border border-border-warm bg-warning-soft/60 p-3 text-xs text-warning sm:flex-row sm:items-center sm:justify-between">
                 <span className="flex items-center gap-2">
                   <Info className="size-4 shrink-0" aria-hidden="true" />
                   {copy.analysesResult.recoStaleBanner}

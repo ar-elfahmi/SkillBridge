@@ -14,24 +14,24 @@ export function RpsHeader({ document, currentStep }: RpsHeaderProps) {
 
   let statusLabel: string = copy.rpsDetail.status.metadataDetected
   let statusIcon = Check
-  let chipClass = 'bg-[#E5F0E8] text-success'
+  let chipClass = 'bg-success-soft text-success'
 
   if (document.parse_status === 'parsing') {
     statusLabel = copy.rpsDetail.status.parsing
     statusIcon = Clock3
-    chipClass = 'bg-[#FBF0D9] text-warning'
+    chipClass = 'bg-warning-soft text-warning'
   } else if (document.parse_status === 'needs_ocr') {
     statusLabel = copy.rpsDetail.status.needsOcr
     statusIcon = AlertCircle
-    chipClass = 'bg-[#F8E4E1] text-danger'
+    chipClass = 'bg-danger-soft text-danger'
   } else if (isExtracting) {
     statusLabel = copy.rpsDetail.status.extracting
     statusIcon = Clock3
-    chipClass = 'bg-[#FBF0D9] text-warning'
+    chipClass = 'bg-warning-soft text-warning'
   } else if (isExtracted) {
     statusLabel = copy.rpsDetail.status.extractionCompleted
     statusIcon = Check
-    chipClass = 'bg-[#E5F0E8] text-success'
+    chipClass = 'bg-success-soft text-success'
   }
 
   const StatusIcon = statusIcon
@@ -43,20 +43,20 @@ export function RpsHeader({ document, currentStep }: RpsHeaderProps) {
   ]
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-3 sm:gap-6">
       {/* Top Document Meta Bar */}
-      <div className="flex flex-col gap-4 border-b border-border-warm pb-6 md:flex-row md:items-center md:justify-between">
-        <div className="flex items-center gap-3">
+      <div className="flex flex-col gap-2 border-b border-border-warm pb-3 sm:gap-4 sm:pb-6 md:flex-row md:items-center md:justify-between">
+        <div className="flex min-w-0 items-center gap-3">
           <Link
             to="/dashboard"
             aria-label="Kembali"
-            className="flex size-10 items-center justify-center rounded-full border border-border-warm bg-white text-text-primary transition-colors hover:bg-surface-subtle"
+            className="flex size-11 shrink-0 items-center justify-center rounded-full border border-border-warm bg-white text-text-primary transition-colors hover:bg-surface-subtle active:bg-surface-subtle sm:size-10"
           >
             <ArrowLeft className="size-4" aria-hidden="true" />
           </Link>
 
-          <div className="flex flex-col">
-            <h1 className="font-display text-xl font-normal text-text-primary md:text-3xl">
+          <div className="flex min-w-0 flex-col">
+            <h1 className="truncate font-display text-lg font-normal text-text-primary sm:text-xl md:text-3xl">
               {document.original_name}
             </h1>
             <span className="text-xs text-text-secondary">
@@ -74,11 +74,11 @@ export function RpsHeader({ document, currentStep }: RpsHeaderProps) {
       </div>
 
       {/* Stage Stepper */}
-      <ol className="grid grid-cols-[auto_1fr_auto_1fr_auto] items-center gap-3 rounded-xl bg-white p-4 shadow-sm md:gap-5 md:px-6">
+      <ol className="grid grid-cols-[auto_1fr_auto_1fr_auto] items-center gap-2 rounded-xl bg-white p-3 shadow-sm sm:gap-3 sm:p-4 md:gap-5 md:px-6">
         {steps.map((step, i) => {
           const done = currentStep > step.index
           const active = currentStep === step.index
-          const marker = done ? 'bg-success text-white' : active ? 'bg-brand text-white shadow-sm' : 'bg-surface-canvas text-text-secondary'
+          const marker = done ? 'bg-success-solid text-white' : active ? 'bg-brand text-white shadow-sm' : 'bg-surface-canvas text-text-secondary'
 
           return (
             <li key={step.index} className="contents">
@@ -94,7 +94,7 @@ export function RpsHeader({ document, currentStep }: RpsHeaderProps) {
                   {done ? <Check className="size-4" aria-hidden="true" /> : step.index}
                 </span>
                 <span
-                  className={`hidden whitespace-nowrap text-sm font-semibold leading-none sm:inline ${
+                  className={`${active ? 'inline' : 'hidden sm:inline'} whitespace-nowrap text-sm font-semibold leading-none ${
                     active ? 'text-brand-strong' : done ? 'text-text-primary' : 'text-text-secondary'
                   }`}
                 >

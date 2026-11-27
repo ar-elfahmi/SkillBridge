@@ -24,6 +24,11 @@
     --color-warning: var(--warning);
     --color-danger: var(--danger);
     --color-info: var(--info);
+    --color-success-solid: var(--success-solid);
+    --color-success-soft: var(--success-soft);
+    --color-warning-solid: var(--warning-solid);
+    --color-warning-soft: var(--warning-soft);
+    --color-danger-soft: var(--danger-soft);
     --font-display: "DM Serif Display", Georgia, serif;
     --font-sans: "Plus Jakarta Sans Variable", sans-serif;
     --font-heading: var(--font-sans);
@@ -78,9 +83,14 @@
     --text-primary: #18212F;
     --text-secondary: #566579;
     --border-warm: #CBD5E1;
-    --success: #426251;
-    --warning: #8a5300;
+    --success: #14532D;
+    --success-solid: #1E7A4F;
+    --success-soft: #DDF3E4;
+    --warning: #A94A00;
+    --warning-solid: #F59E0B;
+    --warning-soft: #FFEFD0;
     --danger: #b3261e;
+    --danger-soft: #FBE4E1;
     --info: #004C99;
     --brand-strong: #004C99;
     --brand-accent: #0085FF;

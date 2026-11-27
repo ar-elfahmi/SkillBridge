@@ -27,8 +27,8 @@ export function AnalyzedRpsSection({
   }
 
   return (
-    <div className="flex flex-col gap-4">
-      <div className="flex items-center justify-between">
+    <div className="flex min-h-0 flex-1 flex-col gap-2 sm:flex-none sm:gap-4">
+      <div className="flex shrink-0 items-center justify-between">
         <h3 className="text-base font-semibold text-text-primary md:text-lg">
           {copy.dashboard.analyzedRpsTitle}
         </h3>
@@ -51,7 +51,7 @@ export function AnalyzedRpsSection({
           </p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3">
+        <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain pb-1 pr-1 sm:flex-none sm:overflow-visible sm:p-0"><div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {documents.map((doc) => {
             const analysis = analysisMap.get(doc.id)
             const courseName =
@@ -72,7 +72,7 @@ export function AnalyzedRpsSection({
               <Link
                 key={doc.id}
                 to={target}
-                className="group flex flex-col gap-3 rounded-2xl border border-border-warm bg-white p-4.5 shadow-sm transition-all hover:border-brand hover:shadow-md"
+                className="group flex flex-col gap-3 rounded-2xl border border-border-warm bg-white p-3 shadow-sm active:border-brand sm:p-4.5 transition-all hover:border-brand hover:shadow-md"
               >
                 <div className="flex items-center gap-3">
                   <div
@@ -95,17 +95,17 @@ export function AnalyzedRpsSection({
                 {/* Status Chip */}
                 <div>
                   {isCompleted ? (
-                    <span className="inline-flex items-center gap-1.5 rounded-md bg-[#E5F0E8] px-2.5 py-1 text-[11px] font-semibold text-success">
+                    <span className="inline-flex items-center gap-1.5 rounded-md bg-success-soft px-2.5 py-1 text-[11px] font-semibold text-success">
                       <Check className="size-3.5" aria-hidden="true" />
                       Analisis selesai
                     </span>
                   ) : isNeedReview ? (
-                    <span className="inline-flex items-center gap-1.5 rounded-md bg-[#FBF0D9] px-2.5 py-1 text-[11px] font-semibold text-warning">
+                    <span className="inline-flex items-center gap-1.5 rounded-md bg-warning-soft px-2.5 py-1 text-[11px] font-semibold text-warning">
                       <Clock3 className="size-3.5" aria-hidden="true" />
                       Perlu review
                     </span>
                   ) : (
-                    <span className="inline-flex items-center gap-1.5 rounded-md bg-[#F8E4E1] px-2.5 py-1 text-[11px] font-semibold text-danger">
+                    <span className="inline-flex items-center gap-1.5 rounded-md bg-danger-soft px-2.5 py-1 text-[11px] font-semibold text-danger">
                       <AlertCircle className="size-3.5" aria-hidden="true" />
                       Perlu diperbarui
                     </span>
@@ -136,6 +136,7 @@ export function AnalyzedRpsSection({
               </Link>
             )
           })}
+        </div>
         </div>
       )}
     </div>

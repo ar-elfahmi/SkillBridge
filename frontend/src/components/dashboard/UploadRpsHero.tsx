@@ -92,12 +92,12 @@ export function UploadRpsHero({ onFileSelect, isPending, error }: UploadRpsHeroP
       </div>
 
       {/* Mobile Layout (< md) */}
-      <div className="flex flex-col gap-4 p-5 md:hidden">
+      <div className="flex flex-col gap-3 p-4 sm:p-5 md:hidden">
         <div className="flex flex-col gap-2">
-          <span className="w-fit rounded-full bg-white/15 px-3 py-0.5 text-[10px] font-bold tracking-wide uppercase">
+          <span className="hidden w-fit rounded-full bg-white/15 px-3 py-0.5 text-[10px] font-bold tracking-wide uppercase sm:inline">
             {copy.dashboard.uploadEyebrow}
           </span>
-          <h2 className="font-display text-2xl font-normal">{copy.dashboard.uploadTitle}</h2>
+          <h2 className="font-display text-xl font-normal sm:text-2xl">{copy.dashboard.uploadTitle}</h2>
           <p className="text-xs text-white/90">{copy.dashboard.uploadDescMobile}</p>
         </div>
 
@@ -105,13 +105,13 @@ export function UploadRpsHero({ onFileSelect, isPending, error }: UploadRpsHeroP
           type="button"
           onClick={() => fileInputRef.current?.click()}
           disabled={isPending}
-          className="flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-white text-sm font-bold text-brand-strong shadow hover:bg-white/90 disabled:opacity-50"
+          className="flex h-11 w-full items-center justify-center gap-2 rounded-xl bg-white text-sm font-bold text-brand-strong shadow hover:bg-white/90 active:bg-white/80 disabled:opacity-50"
         >
           <FileUp className="size-4" aria-hidden="true" />
           <span>{isPending ? copy.dashboard.uploading : copy.dashboard.chooseFile}</span>
         </button>
 
-        <p className="text-center text-[11px] text-white/80">{copy.dashboard.uploadNote}</p>
+        <p className="text-center text-[11px] text-white/90">{copy.dashboard.uploadNote}</p>
       </div>
 
       {error && (

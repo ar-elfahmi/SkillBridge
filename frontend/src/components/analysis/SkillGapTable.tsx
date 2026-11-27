@@ -15,9 +15,9 @@ const CLASSIFICATION_ICON = {
 } as const
 
 const CLASSIFICATION_STYLE = {
-  covered: 'bg-[#E5F0E8] text-success',
-  partial: 'bg-[#FBF0D9] text-warning',
-  missing: 'bg-[#F8E4E1] text-danger',
+  covered: 'bg-success-soft text-success',
+  partial: 'bg-warning-soft text-warning',
+  missing: 'bg-danger-soft text-danger',
 } as const
 
 export function SkillGapTable({ matches, isLoading }: SkillGapTableProps) {

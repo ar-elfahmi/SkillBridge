@@ -175,7 +175,7 @@ export function RegisterPage() {
             </div>
 
             {errorMessage && (
-              <div role="alert" className="flex items-center gap-2 rounded-lg bg-[#F8E4E1] px-3 py-3">
+              <div role="alert" className="flex items-center gap-2 rounded-lg bg-danger-soft px-3 py-3">
                 <CircleAlert className="size-4 shrink-0 text-danger" aria-hidden="true" />
                 <p className="text-[13px] font-medium text-danger">{errorMessage}</p>
               </div>
