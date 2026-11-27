@@ -65,3 +65,62 @@ export function formatScore(value: number): string {
 export function formatPercent(value: number): string {
   return percent.format(value)
 }
+
+/** "Rencana mingguan, minggu 1, hal. 1". Minggu tidak diulang bila sudah ada pada referensi. */
+export function formatSource(
+  reference: string | null | undefined,
+  type: string,
+  week?: number | null,
+  page?: number | null
+): string {
+  let label = sourceReferenceLabel(reference, type)
+  if (week && !/minggu\s*\d+/i.test(label)) label += `, minggu ${week}`
+  if (page) label += `, hal. ${page}`
+  return label
+}
+
+const LOWERCASE_WORDS = new Set(['dan', 'di', 'ke', 'dari', 'untuk', 'yang', 'pada', 'dengan', 'atau', 'serta'])
+
+/**
+ * Nama mata kuliah dari PDF sering HURUF BESAR semua. Nama seperti itu ditampilkan sebagai Title Case.
+ * Nama yang sudah bercampur huruf dibiarkan agar singkatan seperti "AWS re/Start" tidak rusak.
+ */
+export function toDisplayTitle(name: string): string {
+  const letters = name.replace(/[^\p{L}]/gu, '')
+  if (letters.length === 0 || letters !== letters.toUpperCase()) return name
+  let first = true
+  return name
+    .toLowerCase()
+    .replace(/[\p{L}\p{N}]+/gu, (word, offset: number) => {
+      const original = name.slice(offset, offset + word.length)
+      const isFirst = first
+      first = false
+      if (/^[IVX]+$/.test(original) && original.length <= 4) return original
+      if (/\d/.test(word)) return original
+      if (!isFirst && LOWERCASE_WORDS.has(word)) return word
+      return word.charAt(0).toUpperCase() + word.slice(1)
+    })
+}
+
+/** Kode mata kuliah unik dan tidak peka huruf besar: dirapikan menjadi huruf besar tanpa spasi tepi. */
+export function normalizeCourseCode(code: string | null | undefined): string {
+  return (code ?? '').trim().toUpperCase()
+}
+
+const RECENT_WINDOW_MS = 2 * 60 * 60 * 1000
+
+/** True bila `createdAt` jatuh dalam 2 jam terakhir. */
+export function isRecent(createdAt: string | null | undefined, now: number = Date.now()): boolean {
+  if (!createdAt) return false
+  const time = new Date(createdAt).getTime()
+  return Number.isFinite(time) && now - time >= 0 && now - time < RECENT_WINDOW_MS
+}
+
+const dateFormatter = new Intl.DateTimeFormat('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })
+
+/** "28 Nov 2026"; string kosong bila tanggal tidak valid. */
+export function formatDate(value: string | null | undefined): string {
+  if (!value) return ''
+  const time = new Date(value)
+  return Number.isNaN(time.getTime()) ? '' : dateFormatter.format(time)
+}
