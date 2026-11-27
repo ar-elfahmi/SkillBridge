@@ -7,10 +7,10 @@
 ## Prasyarat
 
 - `rps_documents.extraction_status = completed` **dan** `rps_documents.review_status = confirmed` (konfirmasi hasil ekstraksi, T3.6).
-- Semua `job_postings` terpilih: `extraction_status = completed`.
-- Semua `job_posting_ids` pada request punya `career_id` yang sama dengan `career_id` pada request.
+- Lowongan dipilih otomatis oleh server: semua `job_postings` dengan `career_id` request, `extraction_status = completed`, dan terbaca oleh pengguna (terkurasi + miliknya). Pengguna tidak memilih lowongan.
+- Minimal satu lowongan memenuhi syarat di atas.
 - Melanggar salah satu → **422**.
-- Endpoint: `POST /api/analyses` body `{ "rps_document_id", "career_id", "job_posting_ids": [...] }` → **202** + resource. Status dibaca lewat `GET /api/analyses/{id}` (polling 2–3 detik).
+- Endpoint: `POST /api/analyses` body `{ "rps_document_id", "career_id" }` → **202** + resource. Status dibaca lewat `GET /api/analyses/{id}` (polling 2–3 detik).
 
 ## Diagram
 
@@ -27,13 +27,11 @@ sequenceDiagram
     Note over FE,API: Tahap 0 — pilih profesi & lowongan
     FE->>API: GET /api/careers
     API-->>FE: 200 daftar profesi
-    FE->>API: GET /api/jobs?career_id={id}
-    API-->>FE: 200 daftar lowongan (perusahaan, posisi, skill, sumber)
-    M->>FE: pilih profesi + N lowongan
-    FE->>API: POST /api/analyses {rps_document_id, career_id, job_posting_ids[]}
+    M->>FE: pilih profesi
+    FE->>API: POST /api/analyses {rps_document_id, career_id}
 
     Note over API,DB: Tahap 1 — validasi prasyarat (422 bila gagal)
-    API->>DB: load rps_documents, job_postings terpilih
+    API->>DB: load rps_documents; pilih semua job_postings siap pakai untuk profesi
     API->>DB: insert analyses (status=queued) + analysis_job_postings
     API->>QW: dispatch RunAnalysisJob (idempotent, tries=3)
     API-->>FE: 202 resource analysis
@@ -42,6 +40,7 @@ sequenceDiagram
     Note over QW,DB: Tahap 2 — himpun skill industri
     QW->>DB: load job_skills dari lowongan terpilih
     QW->>QW: group by skill_id → demand_count = jumlah lowongan yang meminta
+    QW->>QW: urutkan demand_count desc (seri: skill_id asc), ambil maks. skillbridge.matching.max_skills (20)
     QW->>QW: pilih job_skill mewakil = requirement_text terpanjang
 
     Note over QW,DB: Tahap 3 — kandidat kompetensi RPS
@@ -81,9 +80,10 @@ sequenceDiagram
 
 ## Aturan turunan
 
-1. **Prasyarat 422 persis empat butir**: `rps_documents.extraction_status = completed`; `rps_documents.review_status = confirmed`; semua lowongan terpilih `extraction_status = completed`; semua lowongan terpilih satu `career_id` yang sama dengan request.
-2. **Satu analisis = satu RPS + satu profesi + satu atau lebih lowongan.** Skill yang sama dari beberapa lowongan digabung jadi satu baris `skill_matches` dengan `demand_count` (unique `analysis_id + skill_id`).
-3. **Per aggregasi skill industri**: `demand_count` = jumlah lowongan terpilih yang meminta skill itu; vektor pembanding = `job_skill` dengan `requirement_text` paling informatif (terpanjang).
+1. **Prasyarat 422 persis tiga butir**: `rps_documents.extraction_status = completed`; `rps_documents.review_status = confirmed`; minimal satu lowongan siap pakai (`extraction_status = completed`, `career_id` = request, terbaca oleh pengguna) untuk profesi tersebut. Field `job_posting_ids` pada request diabaikan.
+2. **Satu analisis = satu RPS + satu profesi + semua lowongan siap pakai profesi itu (dipilih server).** Skill yang sama dari beberapa lowongan digabung jadi satu baris `skill_matches` dengan `demand_count` (unique `analysis_id + skill_id`).
+3. **Batas skill:** hanya `skillbridge.matching.max_skills` (default 20) skill dengan `demand_count` tertinggi yang dinilai; kurang dari itu, semua dipakai. Seri diurut `skill_id` naik agar deterministik. `total_skills` dan persentase cakupan dihitung dari skill terpilih.
+   **Per aggregasi skill industri**: `demand_count` = jumlah lowongan terpilih yang meminta skill itu; vektor pembanding = `job_skill` dengan `requirement_text` paling informatif (terpanjang).
 4. **Kandidat** = semua `course_skills` dari RPS terpilih yang punya embedding, **kecuali** `review_status = rejected`. Kompetensi `origin = user` ikut, tetapi `unverified` → hasil maksimal `partial`. `user_skills` **tidak** memengaruhi klasifikasi.
 5. **Top-K dan floor dari config** (`skillbridge.matching.top_k`, `sim_floor`), bukan hardcode. Nilai env saat ini **placeholder, belum dikalibrasi** — jangan diklaim akurat.
 6. **Skor < `sim_floor` → `missing` by rule**, `judged_by = rule`, tanpa panggilan LLM (hemat biaya).

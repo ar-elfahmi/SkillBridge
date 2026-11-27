@@ -147,7 +147,6 @@ class AiQuotaApiTest extends TestCase
         $this->assertQuotaRefusal($this->actingAs($this->user)->postJson('/api/analyses', [
             'rps_document_id' => $rps->id,
             'career_id' => $career->id,
-            'job_posting_ids' => [$posting->id],
         ]));
 
         $this->assertSame(0, Analysis::count());

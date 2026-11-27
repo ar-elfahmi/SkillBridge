@@ -17,6 +17,12 @@
 
 ## Handoff
 
+#### HO-B-015 · 2026-11-28 · Lowongan otomatis + batas skill · untuk: A, C
+- `POST /api/analyses` hanya menerima `{rps_document_id, career_id}`. Server memakai semua lowongan `completed` milik profesi yang terbaca pengguna; `job_posting_ids` diabaikan; tanpa lowongan siap → 422. Breaking change: ya (kontrak request), FE sudah disesuaikan (HO-C-008).
+- `RunAnalysisJob` hanya menilai `SKILLBRIDGE_MAX_SKILLS` (default 20) skill `demand_count` tertinggi (seri: `skill_id` naik); nilainya dicatat di `analyses.model_versions.max_skills`. Env baru ada di akhir `backend/.env.example`; server perlu menyalinnya (A).
+- `GET /api/careers` menambah `eligible_job_count`.
+- Catatan: `PriorityCalculator` memakai rasio `demand_count` / jumlah lowongan analisis (`high_demand_ratio` 0,5). Dengan semua lowongan profesi dipakai, rasio ini perlu ditinjau ulang bila hasil prioritas terasa tidak sesuai; belum diubah.
+
 #### HO-B-014 · 2026-11-28 · Bukti lowongan di detail skill · untuk: C
 `GET /api/analyses/{id}/matches`: `job_evidence[]` kini memuat `title`, `source_name`, `source_url` (`null` bila kosong atau bukan http/https), satu entri per lowongan, dibatasi `SKILLBRIDGE_MAX_JOB_EVIDENCE` (default 10), plus `job_evidence_total`. Kontrak: `docs/API.md` §analyses. Breaking change: tidak (field ditambah).
 

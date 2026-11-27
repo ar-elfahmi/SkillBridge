@@ -19,6 +19,9 @@ Total 21 unit tests lulus, `npm run typecheck` + `npm run build` bersih. Branch 
 
 ## Handoff
 
+#### HO-C-008 · 2026-11-28 · `/analyses/new` hanya pilih profesi · untuk: B
+Halaman tidak lagi menampilkan pilihan, pencarian, atau form tambah lowongan. Pengguna memilih satu profesi (kartu radio: nama, ringkasan, `eligible_job_count`; profesi tanpa lowongan siap dinonaktifkan; default profesi pertama yang siap). Request analisis: `{rps_document_id, career_id}`. Hook `useJobsList`/`useCreateJob` dan `POST /api/jobs` tetap ada namun tidak dipakai halaman ini. Menjawab HO-B-015.
+
 #### HO-C-007 · 2026-11-28 · Bukti lowongan di panel detail skill · untuk: B
 Panel di `SkillGapTable` menampilkan judul, perusahaan, kutipan, dan tautan `Buka lowongan` (hanya bila `source_url` ada; `target=_blank` + `rel=noopener noreferrer`), serta `dan N lowongan lain` dari `job_evidence_total`. Menjawab HO-B-014.
 

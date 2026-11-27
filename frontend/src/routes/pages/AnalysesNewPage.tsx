@@ -1,29 +1,16 @@
 import { useState } from 'react'
 import { useSearchParams, useNavigate, Link } from 'react-router-dom'
-import {
-  ArrowLeft,
-  Check,
-  ChevronDown,
-  ChevronUp,
-  Plus,
-  Search,
-  Briefcase,
-} from 'lucide-react'
+import { ArrowLeft, Check } from 'lucide-react'
 import { AiQuotaBanner } from '@/components/common/AiQuotaBanner'
 import { DashboardTopbar } from '@/components/dashboard/DashboardTopbar'
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import {
   useCareersList,
   useCreateAnalysis,
-  useCreateJob,
-  useJobsList,
   useLogout,
   useMe,
   useRpsDetail,
 } from '@/lib/query/hooks'
-import type { JobPosting } from '@/types/api'
 import { usePageTitle } from '@/lib/usePageTitle'
 import { copy } from '@/lib/copy'
 
@@ -36,32 +23,16 @@ export function AnalysesNewPage() {
   const { data: user } = useMe()
   const logout = useLogout()
   const { data: document } = useRpsDetail(rpsId)
-  const { data: careers = [], isLoading: isCareersLoading } = useCareersList()
+  const { data: careers = [], isLoading: isCareersLoading, isError: isCareersError } =
+    useCareersList()
 
-  // State Step 1: Profesi
   const [selectedCareerId, setSelectedCareerId] = useState<number | null>(null)
 
-  // Default pilih career pertama saat data siap
-  const currentCareerId = selectedCareerId ?? (careers[0]?.id ?? null)
+  // Default: first profession that has job postings ready to use.
+  const defaultCareerId = careers.find((c) => c.eligible_job_count > 0)?.id ?? null
+  const currentCareerId = selectedCareerId ?? defaultCareerId
   const selectedCareer = careers.find((c) => c.id === currentCareerId)
 
-  // Data lowongan sesuai career
-  const { data: jobs = [], isLoading: isJobsLoading } = useJobsList(currentCareerId ?? undefined)
-
-  // State Step 2: Lowongan
-  const [selectedJobIds, setSelectedJobIds] = useState<number[]>([])
-  const [activeJobDetail, setActiveJobDetail] = useState<JobPosting | null>(null)
-  const [jobSearch, setJobSearch] = useState('')
-  const [jobFilter, setJobFilter] = useState<'all' | 'selected'>('all')
-
-  // State Add Job
-  const [isAddJobOpen, setIsAddJobOpen] = useState(false)
-  const [newTitle, setNewTitle] = useState('')
-  const [newCompany, setNewCompany] = useState('')
-  const [newDesc, setNewDesc] = useState('')
-  const [newUrl, setNewUrl] = useState('')
-
-  const createJob = useCreateJob()
   const createAnalysis = useCreateAnalysis()
   const [errorMsg, setErrorMsg] = useState<string | null>(null)
 
@@ -69,65 +40,6 @@ export function AnalysesNewPage() {
     logout.mutate(undefined, {
       onSuccess: () => navigate('/login'),
     })
-  }
-
-  function toggleJobSelection(id: number) {
-    setSelectedJobIds((prev) =>
-      prev.includes(id) ? prev.filter((jId) => jId !== id) : [...prev, id]
-    )
-  }
-
-  // Filter lowongan
-  const filteredJobs = jobs.filter((j) => {
-    if (jobFilter === 'selected' && !selectedJobIds.includes(j.id)) return false
-    if (!jobSearch.trim()) return true
-    const q = jobSearch.toLowerCase()
-    return (
-      j.title.toLowerCase().includes(q) ||
-      j.company.toLowerCase().includes(q) ||
-      j.skills?.some((s) => s.skill.toLowerCase().includes(q))
-    )
-  })
-
-  // Agregasi Step 3: Pratinjau pemetaan awal (skill frekuensi dari lowongan yang dipilih)
-  const selectedJobs = jobs.filter((j) => selectedJobIds.includes(j.id))
-  const skillFrequencyMap = new Map<string, number>()
-  for (const j of selectedJobs) {
-    if (j.skills && j.skills.length > 0) {
-      for (const s of j.skills) {
-        const name = s.canonical_skill || s.skill
-        skillFrequencyMap.set(name, (skillFrequencyMap.get(name) || 0) + 1)
-      }
-    }
-  }
-  const previewSkills = Array.from(skillFrequencyMap.entries())
-    .map(([skill, count]) => ({ skill, count }))
-    .sort((a, b) => b.count - a.count)
-
-  function handleAddJob(e: React.FormEvent) {
-    e.preventDefault()
-    if (!currentCareerId || !newTitle.trim() || !newCompany.trim() || !newDesc.trim()) return
-    createJob.mutate(
-      {
-        career_id: currentCareerId,
-        title: newTitle.trim(),
-        company: newCompany.trim(),
-        description: newDesc.trim(),
-        source_url: newUrl.trim() || undefined,
-      },
-      {
-        onSuccess: (res) => {
-          if (res?.data?.id) {
-            setSelectedJobIds((prev) => [...prev, res.data.id])
-          }
-          setNewTitle('')
-          setNewCompany('')
-          setNewDesc('')
-          setNewUrl('')
-          setIsAddJobOpen(false)
-        },
-      }
-    )
   }
 
   function handleStartAnalysis() {
@@ -140,17 +52,9 @@ export function AnalysesNewPage() {
       setErrorMsg('Pilih salah satu profesi tujuan.')
       return
     }
-    if (selectedJobIds.length === 0) {
-      setErrorMsg('Pilih minimal 1 lowongan pekerjaan untuk dianalisis.')
-      return
-    }
 
     createAnalysis.mutate(
-      {
-        rps_document_id: rpsId,
-        career_id: currentCareerId,
-        job_posting_ids: selectedJobIds,
-      },
+      { rps_document_id: rpsId, career_id: currentCareerId },
       {
         onSuccess: (res) => {
           if (res?.data?.analysis_id) {
@@ -180,12 +84,12 @@ export function AnalysesNewPage() {
       <DashboardTopbar user={user} onLogout={handleLogout} />
 
       <main className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-6 px-4 py-6 md:px-8 md:py-8">
-        {/* Header Block */}
         <div className="flex flex-col gap-3 border-b border-border-warm pb-5">
           <div className="flex items-center gap-3">
             <Link
               to={rpsId ? `/rps/${rpsId}` : '/dashboard'}
-              className="flex size-11 shrink-0 items-center justify-center rounded-full border border-border-warm bg-white text-text-primary hover:bg-surface-subtle active:bg-surface-subtle sm:size-9" aria-label="Kembali"
+              className="flex size-11 shrink-0 items-center justify-center rounded-full border border-border-warm bg-white text-text-primary hover:bg-surface-subtle active:bg-surface-subtle sm:size-9"
+              aria-label="Kembali"
             >
               <ArrowLeft className="size-4" />
             </Link>
@@ -203,381 +107,103 @@ export function AnalysesNewPage() {
         <AiQuotaBanner />
 
         {errorMsg && (
-          <div className="rounded-lg bg-danger/15 p-3 text-xs font-semibold text-danger">
+          <div role="alert" className="rounded-lg bg-danger/15 p-3 text-xs font-semibold text-danger">
             {errorMsg}
           </div>
         )}
 
-        {/* STEP 1: Pilih Profesi */}
         <section className="flex flex-col gap-4 rounded-xl border border-border-warm bg-white p-4 sm:p-6">
-          <div className="flex items-center gap-3">
-            <div className="flex size-7 items-center justify-center rounded-full bg-brand text-xs font-bold text-white">
-              1
-            </div>
+          <div className="flex flex-col gap-1">
             <h2 className="text-base font-bold text-text-primary md:text-lg">
               {copy.analysesNew.step1Title}
             </h2>
+            <p className="text-xs text-text-secondary md:text-sm">
+              {copy.analysesNew.step1Subtitle}
+            </p>
           </div>
 
-          <div className="flex flex-col gap-3 max-w-md">
-            <div className="relative">
-              <select
-                aria-label={copy.analysesNew.step1Title}
-                value={currentCareerId ?? ''}
-                onChange={(e) => {
-                  setSelectedCareerId(parseInt(e.target.value, 10))
-                  setSelectedJobIds([])
-                  setActiveJobDetail(null)
-                }}
-                disabled={isCareersLoading}
-                className="w-full appearance-none rounded-lg border border-field bg-white px-4 py-3 text-sm font-semibold text-text-primary outline-none focus-visible:border-brand-accent focus-visible:ring-2 focus-visible:ring-brand-accent/40 pr-10"
-              >
-                {careers.map((c) => (
-                  <option key={c.id} value={c.id}>
-                    {c.name}
-                  </option>
-                ))}
-              </select>
-              <ChevronDown className="pointer-events-none absolute right-3.5 top-3.5 size-4 text-text-secondary" />
+          {isCareersLoading ? (
+            <div className="p-8 text-center text-xs text-text-secondary">
+              {copy.analysesNew.careersLoading}
             </div>
-
-            {selectedCareer?.description && (
-              <p className="text-xs text-text-secondary leading-relaxed">
-                {selectedCareer.description}
-              </p>
-            )}
-          </div>
-        </section>
-
-        {/* STEP 2: Pilih Lowongan */}
-        <section className="flex flex-col gap-4 rounded-xl border border-border-warm bg-white p-4 sm:p-6">
-          <div className="flex items-center gap-3">
-            <div className="flex size-7 items-center justify-center rounded-full bg-brand text-xs font-bold text-white">
-              2
+          ) : isCareersError ? (
+            <div role="alert" className="rounded-lg bg-danger/15 p-4 text-xs font-semibold text-danger">
+              {copy.analysesNew.careersError}
             </div>
-            <h2 className="text-base font-bold text-text-primary md:text-lg">
-              {copy.analysesNew.step2Title}
-            </h2>
-          </div>
-
-          {/* Job Toolbar */}
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <div className="flex min-h-11 flex-1 max-w-sm items-center gap-2 rounded-full border border-field bg-surface-subtle px-3 text-xs focus-within:ring-2 focus-within:ring-brand-accent/40 sm:min-h-0 sm:py-1.5 text-text-primary">
-              <Search className="size-3.5 text-text-secondary" />
-              <input
-                type="text"
-                placeholder={copy.analysesNew.searchJobsPlaceholder}
-                aria-label={copy.analysesNew.searchJobsPlaceholder}
-                value={jobSearch}
-                onChange={(e) => setJobSearch(e.target.value)}
-                className="h-11 w-full bg-transparent outline-none placeholder:text-text-secondary sm:h-auto"
-              />
-            </div>
-
-            <div className="flex items-center gap-1 rounded-lg bg-surface-subtle p-1 text-xs">
-              <button
-                type="button"
-                onClick={() => setJobFilter('all')}
-                className={`min-h-11 rounded-md px-3 font-semibold transition-colors active:bg-white/70 sm:min-h-8 ${
-                  jobFilter === 'all'
-                    ? 'bg-white text-brand-strong shadow-xs'
-                    : 'text-text-secondary'
-                }`}
-              >
-                {copy.analysesNew.filterAll} ({jobs.length})
-              </button>
-              <button
-                type="button"
-                onClick={() => setJobFilter('selected')}
-                className={`min-h-11 rounded-md px-3 font-semibold transition-colors active:bg-white/70 sm:min-h-8 ${
-                  jobFilter === 'selected'
-                    ? 'bg-white text-brand-strong shadow-xs'
-                    : 'text-text-secondary'
-                }`}
-              >
-                {copy.analysesNew.filterSelected} ({selectedJobIds.length})
-              </button>
-            </div>
-          </div>
-
-          {/* Jobs List & Drawer side-by-side */}
-          <div className="grid grid-cols-1 gap-5 lg:grid-cols-12">
-            {/* List Lowongan */}
-            <div className="flex flex-col gap-3 lg:col-span-7">
-              {isJobsLoading ? (
-                <div className="p-8 text-center text-xs text-text-secondary">
-                  Memuat data lowongan…
-                </div>
-              ) : filteredJobs.length === 0 ? (
-                <div className="rounded-lg border border-dashed border-border-warm p-6 text-center text-xs text-text-secondary">
-                  Tidak ada lowongan yang sesuai. Tambahkan lowongan manual di bawah.
-                </div>
-              ) : (
-                filteredJobs.map((j) => {
-                  const isChecked = selectedJobIds.includes(j.id)
-                  const isDrawerActive = activeJobDetail?.id === j.id
-                  return (
-                    <div
-                      key={j.id}
-                      onClick={() => setActiveJobDetail(j)}
-                      className={`flex cursor-pointer items-start gap-3 rounded-lg border p-4 transition-all ${
-                        isDrawerActive
-                          ? 'border-brand bg-brand-soft/20'
-                          : 'border-border-warm bg-white hover:border-brand/60'
-                      }`}
-                    >
-                      <button
-                        type="button"
-                        aria-label={`Pilih lowongan ${j.title}`}
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          toggleJobSelection(j.id)
-                        }}
-                        className={`relative mt-0.5 flex size-5 shrink-0 items-center justify-center rounded border transition-colors before:absolute before:-inset-3 before:content-[''] ${
-                          isChecked
-                            ? 'border-brand bg-brand text-white'
-                            : 'border-field bg-white'
-                        }`}
-                      >
-                        {isChecked && <Check className="size-3.5" />}
-                      </button>
-
-                      <div className="flex flex-col gap-1 overflow-hidden">
-                        <button
-                          type="button"
-                          onClick={() => setActiveJobDetail(j)}
-                          aria-expanded={isDrawerActive}
-                          className="inline-flex min-h-11 w-fit items-center text-left text-sm font-bold text-text-primary hover:underline sm:min-h-0"
-                        >
-                          {j.title}
-                        </button>
-                        <span className="text-sm text-brand-strong font-medium">
-                          {j.company}
-                        </span>
-
-                        {j.skills && j.skills.length > 0 && (
-                          <div className="mt-1 flex flex-wrap gap-1">
-                            {j.skills.map((s) => (
-                              <span
-                                key={s.id}
-                                className="rounded bg-surface-subtle px-2 py-0.5 text-xs font-semibold text-text-secondary"
-                              >
-                                {s.canonical_skill || s.skill}
-                              </span>
-                            ))}
-                          </div>
-                        )}
-
-                        {isDrawerActive && (
-                          <div className="mt-2 flex flex-col gap-2 border-t border-border-warm pt-2 text-sm leading-relaxed text-text-primary lg:hidden">
-                            <p className="whitespace-pre-line">{j.description}</p>
-                            {j.qualifications && (
-                              <p className="italic text-text-secondary">{j.qualifications}</p>
-                            )}
-                          </div>
-                        )}
-
-                        <span className="mt-1 text-xs text-text-secondary">
-                          {j.source_name || 'Industri'}
-                          {j.collected_at ? ` · Diambil ${j.collected_at}` : ''}
-                        </span>
-                      </div>
-                    </div>
-                  )
-                })
-              )}
-
-              <p className="text-xs text-text-secondary">
-                {copy.analysesNew.sampleNote}
-              </p>
-            </div>
-
-            {/* Drawer Preview Detail Lowongan */}
-            <div className="hidden flex-col gap-3 rounded-lg border border-border-warm bg-surface-subtle p-5 lg:col-span-5 lg:flex">
-              <span className="text-xs font-bold text-text-secondary">
-                {copy.analysesNew.drawerTitle}
-              </span>
-
-              {activeJobDetail ? (
-                <div className="flex flex-col gap-3">
-                  <div className="flex flex-col">
-                    <h3 className="text-base font-bold text-text-primary">
-                      {activeJobDetail.title}
-                    </h3>
-                    <span className="text-xs font-semibold text-brand-strong">
-                      {activeJobDetail.company}
-                    </span>
-                  </div>
-
-                  <p className="text-sm text-text-primary leading-relaxed whitespace-pre-line">
-                    {activeJobDetail.description}
-                  </p>
-
-                  {activeJobDetail.qualifications && (
-                    <div className="rounded-lg bg-white p-3 text-sm italic text-text-secondary">
-                      “{activeJobDetail.qualifications}”
-                    </div>
-                  )}
-
-                  <span className="text-xs text-text-secondary">
-                    Sumber: {activeJobDetail.source_name || 'Industri'}
-                    {activeJobDetail.source_url ? ` · ${activeJobDetail.source_url}` : ''}
-                    {activeJobDetail.dataset_version
-                      ? ` · dataset ${activeJobDetail.dataset_version}`
-                      : ''}
-                  </span>
-                </div>
-              ) : (
-                <div className="flex h-40 flex-col items-center justify-center gap-2 text-center text-xs text-text-secondary">
-                  <Briefcase className="size-6 text-border-warm" />
-                  <p>{copy.analysesNew.drawerEmpty}</p>
-                </div>
-              )}
-            </div>
-          </div>
-        </section>
-
-        {/* STEP 3: Pratinjau Pemetaan Awal */}
-        <section className="flex flex-col gap-4 rounded-xl border border-border-warm bg-white p-4 sm:p-6">
-          <div className="flex items-center gap-3">
-            <div className="flex size-7 items-center justify-center rounded-full bg-brand text-xs font-bold text-white">
-              3
-            </div>
-            <div className="flex flex-col">
-              <h2 className="text-base font-bold text-text-primary md:text-lg">
-                {copy.analysesNew.step3Title}
-              </h2>
-              <span className="text-xs text-text-secondary">
-                {copy.analysesNew.step3Subtitle}
-              </span>
-            </div>
-          </div>
-
-          {previewSkills.length === 0 ? (
+          ) : careers.length === 0 ? (
             <div className="rounded-lg border border-dashed border-border-warm p-6 text-center text-xs text-text-secondary">
-              Pilih minimal satu lowongan di atas untuk melihat pratinjau skill yang akan dianalisis.
+              {copy.analysesNew.careersEmpty}
             </div>
           ) : (
-            <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2 md:grid-cols-3">
-              {previewSkills.map((ps) => (
-                <div
-                  key={ps.skill}
-                  className="flex items-center justify-between rounded-lg border border-border-warm bg-surface-subtle px-3.5 py-2 text-xs"
-                >
-                  <span className="font-bold text-text-primary">{ps.skill}</span>
-                  <span className="text-xs text-text-secondary">
-                    Diminta di {ps.count} {copy.analysesNew.skillDemandSuffix}
-                  </span>
-                </div>
-              ))}
+            <div
+              role="radiogroup"
+              aria-label={copy.analysesNew.step1Title}
+              className="grid grid-cols-1 gap-3 md:grid-cols-2"
+            >
+              {careers.map((c) => {
+                const isSelected = c.id === currentCareerId
+                const isDisabled = c.eligible_job_count === 0
+                return (
+                  <label
+                    key={c.id}
+                    className={`relative flex min-h-11 flex-col gap-1.5 rounded-lg border p-4 transition-colors ${
+                      isDisabled
+                        ? 'cursor-not-allowed border-border-warm bg-surface-subtle opacity-60'
+                        : isSelected
+                          ? 'cursor-pointer border-brand bg-brand-soft/30'
+                          : 'cursor-pointer border-border-warm bg-white hover:border-brand/60'
+                    } has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-brand-accent/40`}
+                  >
+                    <input
+                      type="radio"
+                      name="career"
+                      value={c.id}
+                      checked={isSelected}
+                      disabled={isDisabled}
+                      onChange={() => setSelectedCareerId(c.id)}
+                      className="sr-only"
+                    />
+                    <span className="flex items-start justify-between gap-2">
+                      <span className="text-sm font-bold text-text-primary">{c.name}</span>
+                      {isSelected && (
+                        <span className="inline-flex shrink-0 items-center gap-1 rounded-md bg-brand px-2 py-0.5 text-xs font-semibold text-white">
+                          <Check className="size-3" aria-hidden="true" />
+                          {copy.analysesNew.selectedBadge}
+                        </span>
+                      )}
+                    </span>
+                    {c.description && (
+                      <span className="text-xs leading-relaxed text-text-secondary">
+                        {c.description}
+                      </span>
+                    )}
+                    <span className="text-xs font-semibold text-text-secondary">
+                      {isDisabled
+                        ? copy.analysesNew.noJobsReady
+                        : copy.analysesNew.jobsReady(c.eligible_job_count)}
+                    </span>
+                  </label>
+                )
+              })}
             </div>
           )}
+
+          {selectedCareer && (
+            <p className="rounded-lg bg-surface-subtle p-3 text-xs leading-relaxed text-text-secondary">
+              {copy.analysesNew.skillLimitNote}
+            </p>
+          )}
+
+          <p className="text-xs text-text-secondary">{copy.analysesNew.sampleNote}</p>
         </section>
 
-        {/* Collapsible: Tambah Lowongan Manual */}
-        <div className="flex flex-col rounded-xl border border-border-warm bg-white overflow-hidden">
-          <button
-            type="button"
-            onClick={() => setIsAddJobOpen((v) => !v)}
-            className="flex min-h-11 items-center justify-between p-4 text-xs font-bold text-text-primary hover:bg-surface-subtle active:bg-surface-subtle transition-colors"
-          >
-            <div className="flex items-center gap-2">
-              <Plus className="size-4 text-brand-accent" />
-              <span>{copy.analysesNew.addJobLabel}</span>
-            </div>
-            {isAddJobOpen ? (
-              <ChevronUp className="size-4 text-text-secondary" />
-            ) : (
-              <ChevronDown className="size-4 text-text-secondary" />
-            )}
-          </button>
-
-          {isAddJobOpen && (
-            <form onSubmit={handleAddJob} className="flex flex-col gap-4 border-t border-border-warm p-4 sm:p-6 bg-surface-subtle/30">
-              <span className="text-sm font-bold text-text-primary">
-                {copy.analysesNew.addJobTitle}
-              </span>
-
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                <div className="flex flex-col gap-1.5">
-                  <Label htmlFor="newJobTitle">{copy.analysesNew.jobTitleLabel}</Label>
-                  <Input
-                    id="newJobTitle"
-                    value={newTitle}
-                    onChange={(e) => setNewTitle(e.target.value)}
-                    placeholder="Contoh: Frontend Developer"
-                    required
-                  />
-                </div>
-                <div className="flex flex-col gap-1.5">
-                  <Label htmlFor="newJobCompany">{copy.analysesNew.companyLabel}</Label>
-                  <Input
-                    id="newJobCompany"
-                    value={newCompany}
-                    onChange={(e) => setNewCompany(e.target.value)}
-                    placeholder="Contoh: PT Teknologi Masa Depan"
-                    required
-                  />
-                </div>
-              </div>
-
-              <div className="flex flex-col gap-1.5">
-                <Label htmlFor="newJobDesc">{copy.analysesNew.jobDescLabel}</Label>
-                <textarea
-                  id="newJobDesc"
-                  rows={3}
-                  value={newDesc}
-                  onChange={(e) => setNewDesc(e.target.value)}
-                  placeholder="Ketik deskripsi pekerjaan dan skill yang dicari..."
-                  required
-                  className="w-full rounded-lg border border-field bg-background p-3 text-xs outline-none focus-visible:border-brand-accent focus-visible:ring-2 focus-visible:ring-brand-accent/40"
-                />
-              </div>
-
-              <div className="flex flex-col gap-1.5">
-                <Label htmlFor="newJobUrl">{copy.analysesNew.sourceUrlLabel}</Label>
-                <Input
-                  id="newJobUrl"
-                  type="url"
-                  value={newUrl}
-                  onChange={(e) => setNewUrl(e.target.value)}
-                  placeholder="https://..."
-                />
-              </div>
-
-              <div className="flex justify-end gap-2">
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  className="h-11 sm:h-7"
-                  onClick={() => setIsAddJobOpen(false)}
-                >
-                  Batal
-                </Button>
-                <Button
-                  type="submit"
-                  size="sm"
-                  disabled={createJob.isPending}
-                  className="h-11 bg-brand text-white sm:h-7"
-                >
-                  {createJob.isPending ? 'Menyimpan…' : 'Simpan & Pilih Lowongan'}
-                </Button>
-              </div>
-            </form>
-          )}
-        </div>
-
-        {/* Action Bar Bawah */}
         <div className="sticky bottom-0 z-10 -mx-4 flex flex-col gap-2 border-t border-border-warm bg-white px-4 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] sm:static sm:mx-0 sm:flex-row sm:items-center sm:justify-between sm:gap-3 sm:rounded-xl sm:border sm:p-5">
-          <p className="text-xs text-text-secondary">
-            {copy.analysesNew.actionRequirement}
-          </p>
+          <p className="text-xs text-text-secondary">{copy.analysesNew.actionRequirement}</p>
 
           <Button
             type="button"
             onClick={handleStartAnalysis}
-            disabled={selectedJobIds.length === 0 || createAnalysis.isPending}
+            disabled={!currentCareerId || createAnalysis.isPending}
             className="h-11 w-full bg-brand px-6 text-sm font-bold text-white hover:bg-brand-hover disabled:opacity-50 sm:w-auto"
           >
             {createAnalysis.isPending

@@ -131,7 +131,7 @@ Kompetensi `rejected` tetap dikembalikan (agar bisa dipulihkan) tetapi tidak dip
 ## 4. Industri
 | Method | Endpoint | Fungsi |
 |---|---|---|
-| GET | `/api/careers` | Daftar profesi |
+| GET | `/api/careers` | Daftar profesi: `id`, `name`, `slug`, `description`, `eligible_job_count` (lowongan siap pakai yang terbaca oleh pengguna). |
 | GET | `/api/jobs?career_id={id}` | Lowongan sesuai profesi (paginate). Sudah menyertakan relasi `career` dan `jobSkills` (array `skills`) agar kartu lowongan dapat menampilkan chip skill tanpa request tambahan. |
 | GET | `/api/jobs/{id}` | Detail lowongan + skill + bukti + sumber |
 | POST | `/api/jobs` | Simpan lowongan manual & ekstrak skill. 202. |
@@ -158,11 +158,11 @@ Body `POST /api/jobs`:
 | GET | `/api/analyses/{id}/recommendations` | Rekomendasi belajar mahasiswa |
 | DELETE | `/api/analyses/{id}` | Hapus analisis |
 
-Prasyarat: `rps_documents.extraction_status = completed`, `rps_documents.review_status = confirmed`, lowongan `extraction_status = completed`, semua lowongan memiliki `career_id` yang sama dengan `career_id` request, selain itu 422.
+Prasyarat: `rps_documents.extraction_status = completed`, `rps_documents.review_status = confirmed`, dan minimal satu lowongan siap pakai untuk profesi tersebut, selain itu 422. Server memakai semua lowongan `extraction_status = completed` milik profesi itu yang terbaca oleh pengguna (terkurasi + miliknya); pengguna tidak memilih lowongan. Hanya `SKILLBRIDGE_MAX_SKILLS` (default 20) skill dengan `demand_count` tertinggi yang dianalisis.
 
 Request `POST /api/analyses`:
 ```json
-{ "rps_document_id": 1, "career_id": 2, "job_posting_ids": [10, 11] }
+{ "rps_document_id": 1, "career_id": 2 }
 ```
 
 Respons `GET /api/analyses/101` (struktur contoh, bukan hasil tervalidasi):

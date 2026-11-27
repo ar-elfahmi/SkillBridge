@@ -111,6 +111,7 @@ export interface Career {
   name: string
   slug: string
   description: string | null
+  eligible_job_count: number
 }
 
 export interface JobSkill {
@@ -125,7 +126,7 @@ export interface JobSkill {
 export interface JobPosting {
   id: number
   career_id: number
-  career: Career | null
+  career: Omit<Career, 'eligible_job_count'> | null
   created_by: number | null
   is_curated: boolean
   title: string
@@ -262,7 +263,6 @@ export interface RecommendationsResponse {
 export interface CreateAnalysisPayload {
   rps_document_id: number
   career_id: number
-  job_posting_ids: number[]
 }
 
 export interface CreateJobPayload {

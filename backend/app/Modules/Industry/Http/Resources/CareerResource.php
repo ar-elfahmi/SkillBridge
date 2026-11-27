@@ -23,6 +23,7 @@ class CareerResource extends JsonResource
             'name' => $this->name,
             'slug' => $this->slug,
             'description' => $this->description,
+            'eligible_job_count' => (int) ($this->eligible_job_count ?? 0),
         ];
     }
 }
