@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { Check, CircleDashed, ExternalLink, Minus, Search, X } from 'lucide-react'
 import type { Classification, SkillMatch } from '@/types/api'
 import { copy } from '@/lib/copy'
+import { useFocusTrap } from '@/lib/useFocusTrap'
 
 interface SkillGapTableProps {
   matches: SkillMatch[]
@@ -27,6 +28,8 @@ export function SkillGapTable({ matches, isLoading }: SkillGapTableProps) {
   const [drawerMatch, setDrawerMatch] = useState<SkillMatch | null>(null)
   const closeRef = useRef<HTMLButtonElement>(null)
   const triggerRef = useRef<HTMLElement | null>(null)
+  const dialogRef = useRef<HTMLDivElement>(null)
+  useFocusTrap(dialogRef, drawerMatch !== null)
 
   function openDrawer(match: SkillMatch) {
     triggerRef.current = document.activeElement as HTMLElement | null
@@ -104,12 +107,12 @@ export function SkillGapTable({ matches, isLoading }: SkillGapTableProps) {
       </div>
 
       {/* Toggle */}
-      <label className="flex min-h-11 w-fit cursor-pointer items-center gap-2.5 text-sm text-text-secondary sm:min-h-0 sm:gap-2">
+      <label className="flex min-h-11 w-fit cursor-pointer items-center gap-2.5 text-sm text-text-secondary">
         <input
           type="checkbox"
           checked={hideReported}
           onChange={(e) => setHideReported(e.target.checked)}
-          className="size-5 accent-brand-accent sm:size-3.5"
+          className="size-5 accent-brand-accent"
         />
         {copy.analysesResult.hideReported}
       </label>
@@ -145,14 +148,14 @@ export function SkillGapTable({ matches, isLoading }: SkillGapTableProps) {
                       onClick={() => openDrawer(m)}
                       className="cursor-pointer transition-colors hover:bg-surface-subtle/50"
                     >
-                      <td className="px-4 py-4 font-bold text-text-primary">
+                      <td className="px-4 py-1 font-bold text-text-primary">
                         <button
                           type="button"
                           onClick={(e) => {
                             e.stopPropagation()
                             openDrawer(m)
                           }}
-                          className="text-left font-bold hover:underline"
+                          className="inline-flex min-h-11 items-center text-left font-bold hover:underline"
                         >
                           {m.skill}
                         </button>
@@ -257,6 +260,7 @@ export function SkillGapTable({ matches, isLoading }: SkillGapTableProps) {
           onClick={closeDrawer}
         >
           <div
+            ref={dialogRef}
             onClick={(e) => e.stopPropagation()}
             className="flex h-[85dvh] w-full flex-col gap-4 overflow-y-auto rounded-t-2xl bg-white p-6 md:h-full md:max-w-md md:rounded-none"
           >
@@ -325,11 +329,12 @@ export function SkillGapTable({ matches, isLoading }: SkillGapTableProps) {
                         href={je.source_url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex min-h-11 w-fit items-center gap-1 text-xs font-semibold text-brand-strong underline sm:min-h-0"
+                        className="inline-flex min-h-11 w-fit items-center gap-1 text-xs font-semibold text-brand-strong underline"
                       >
                         {copy.analysesResult.evidenceJobOpen}
                         {je.source_name ? ` (${je.source_name})` : ''}
                         <ExternalLink className="size-3" aria-hidden="true" />
+                        <span className="sr-only">{copy.analysesResult.newTab}</span>
                       </a>
                     )}
                   </div>

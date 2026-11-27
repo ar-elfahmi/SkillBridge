@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { DashboardTopbar } from '@/components/dashboard/DashboardTopbar'
 import { AiQuotaBanner } from '@/components/common/AiQuotaBanner'
 import { UploadRpsHero } from '@/components/dashboard/UploadRpsHero'
@@ -33,6 +33,7 @@ export function DashboardPage() {
   const uploadRps = useUploadRps()
 
   const [uploadError, setUploadError] = useState<string | null>(null)
+  const [duplicateId, setDuplicateId] = useState<number | null>(null)
   const [searchQuery, setSearchQuery] = useState('')
 
   function handleLogout() {
@@ -43,6 +44,7 @@ export function DashboardPage() {
 
   function handleFileUpload(file: File) {
     setUploadError(null)
+    setDuplicateId(null)
     uploadRps.mutate(file, {
       onSuccess: (res) => {
         // HTTP 202 Accepted -> redirect ke Detail RPS Tahap 0 (konfirmasi metadata)
@@ -54,12 +56,7 @@ export function DashboardPage() {
         if (err instanceof ApiRequestError) {
           if (err.status === 409) {
             const existingId = (err.body as { existing_id?: number }).existing_id
-            if (existingId) {
-              if (confirm(`${copy.dashboard.uploadDuplicate} Buka dokumen sekarang?`)) {
-                navigate(`/rps/${existingId}`)
-                return
-              }
-            }
+            if (existingId) setDuplicateId(existingId)
             setUploadError(copy.dashboard.uploadDuplicate)
             return
           }
@@ -112,6 +109,16 @@ export function DashboardPage() {
             onFileSelect={handleFileUpload}
             isPending={uploadRps.isPending}
             error={uploadError}
+            errorAction={
+              duplicateId ? (
+                <Link
+                  to={`/rps/${duplicateId}`}
+                  className="inline-flex min-h-11 items-center underline"
+                >
+                  {copy.dashboard.openExisting}
+                </Link>
+              ) : undefined
+            }
           />
 
           <DashboardStats
@@ -124,6 +131,8 @@ export function DashboardPage() {
             documents={filteredRps}
             analyses={analysesList}
             isLoading={isRpsLoading}
+            searchQuery={searchQuery.trim()}
+            onClearSearch={() => setSearchQuery('')}
           />
         </div>
 

@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react'
-import type { ChangeEvent, DragEvent } from 'react'
+import type { ChangeEvent, DragEvent, ReactNode } from 'react'
 import { FileUp, Upload } from 'lucide-react'
 import { copy } from '@/lib/copy'
 
@@ -7,21 +7,24 @@ interface UploadRpsHeroProps {
   onFileSelect: (file: File) => void
   isPending: boolean
   error?: string | null
+  errorAction?: ReactNode
 }
 
-export function UploadRpsHero({ onFileSelect, isPending, error }: UploadRpsHeroProps) {
+export function UploadRpsHero({ onFileSelect, isPending, error, errorAction }: UploadRpsHeroProps) {
   const [isDragOver, setIsDragOver] = useState(false)
+  const [fileError, setFileError] = useState<string | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   function handleFile(file: File) {
     if (file.type !== 'application/pdf' && !file.name.toLowerCase().endsWith('.pdf')) {
-      alert(copy.dashboard.invalidFile)
+      setFileError(copy.dashboard.invalidFile)
       return
     }
     if (file.size > 10 * 1024 * 1024) {
-      alert(copy.dashboard.fileTooLarge)
+      setFileError(copy.dashboard.fileTooLarge)
       return
     }
+    setFileError(null)
     onFileSelect(file)
   }
 
@@ -35,7 +38,10 @@ export function UploadRpsHero({ onFileSelect, isPending, error }: UploadRpsHeroP
   function handleChange(e: ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
     if (file) handleFile(file)
+    e.target.value = ''
   }
+
+  const shownError = fileError ?? error ?? null
 
   return (
     <section className="relative overflow-hidden rounded-2xl bg-brand text-white shadow-sm">
@@ -108,9 +114,13 @@ export function UploadRpsHero({ onFileSelect, isPending, error }: UploadRpsHeroP
         <p className="text-center text-xs text-white/90">{copy.dashboard.uploadNote}</p>
       </div>
 
-      {error && (
-        <div className="bg-danger/90 px-5 py-2 text-center text-xs font-semibold text-white">
-          {error}
+      {shownError && (
+        <div
+          role="alert"
+          className="flex flex-wrap items-center justify-center gap-x-3 bg-danger px-5 py-2 text-center text-sm font-semibold text-white"
+        >
+          <span>{shownError}</span>
+          {!fileError && errorAction}
         </div>
       )}
     </section>

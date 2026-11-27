@@ -326,7 +326,7 @@ export function CompetencyReviewTable({
                           title="Setujui"
                           aria-label={`Setujui ${c.skill}`}
                           onClick={() => onApprove(c.id)}
-                          className="flex size-7 items-center justify-center rounded-lg border border-border-warm text-success hover:bg-success-soft transition-colors"
+                          className="flex size-11 items-center justify-center rounded-lg border border-border-warm text-success hover:bg-success-soft transition-colors"
                         >
                           <Check className="size-3.5" />
                         </button>
@@ -336,7 +336,7 @@ export function CompetencyReviewTable({
                           title="Edit"
                           aria-label={`Edit ${c.skill}`}
                           onClick={() => startEdit(c)}
-                          className="flex size-7 items-center justify-center rounded-lg border border-border-warm text-text-secondary hover:bg-surface-subtle transition-colors"
+                          className="flex size-11 items-center justify-center rounded-lg border border-border-warm text-text-secondary hover:bg-surface-subtle transition-colors"
                         >
                           <Pencil className="size-3.5" />
                         </button>
@@ -347,7 +347,7 @@ export function CompetencyReviewTable({
                             title="Hapus"
                           aria-label={`Hapus ${c.skill}`}
                             onClick={() => onDelete(c.id)}
-                            className="flex size-7 items-center justify-center rounded-lg border border-border-warm text-danger hover:bg-danger/10 transition-colors"
+                            className="flex size-11 items-center justify-center rounded-lg border border-border-warm text-danger hover:bg-danger/10 transition-colors"
                           >
                             <Trash2 className="size-3.5" />
                           </button>
@@ -357,7 +357,7 @@ export function CompetencyReviewTable({
                             title="Tolak"
                           aria-label={`Tolak ${c.skill}`}
                             onClick={() => onReject(c.id)}
-                            className="flex size-7 items-center justify-center rounded-lg border border-border-warm text-danger hover:bg-danger/10 transition-colors"
+                            className="flex size-11 items-center justify-center rounded-lg border border-border-warm text-danger hover:bg-danger/10 transition-colors"
                           >
                             <X className="size-3.5" />
                           </button>
