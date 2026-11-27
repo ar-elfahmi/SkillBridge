@@ -173,7 +173,9 @@ Respons `GET /api/analyses/101` (struktur contoh, bukan hasil tervalidasi):
     "analysis_id": 101,
     "status": "completed",
     "career": "Backend Developer",
+    "rps_document_id": 1,
     "course": "Pemrograman Web",
+    "job_count": 3,
     "summary": {
       "total_skills": 12,
       "covered": 5,
