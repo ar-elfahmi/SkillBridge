@@ -138,4 +138,28 @@ describe('DashboardPage', () => {
 
     expect(await screen.findByText('Detail RPS Halaman')).toBeInTheDocument()
   })
+
+  it('menampilkan galat inline (bukan alert) untuk berkas non-PDF', async () => {
+    const alertSpy = vi.spyOn(window, 'alert').mockImplementation(() => {})
+    renderDashboard()
+
+    const file = new File(['x'], 'catatan.txt', { type: 'text/plain' })
+    const input = document.querySelector('input[type="file"]') as HTMLInputElement
+    fireEvent.change(input, { target: { files: [file] } })
+
+    expect(await screen.findByRole('alert')).toHaveTextContent('Berkas harus berupa PDF yang valid')
+    expect(alertSpy).not.toHaveBeenCalled()
+    expect(rpsApi.upload).not.toHaveBeenCalled()
+  })
+
+  it('membedakan hasil pencarian kosong dari daftar kosong', async () => {
+    renderDashboard()
+    await screen.findByText('Pemrograman Web 2025.pdf')
+
+    fireEvent.change(screen.getAllByLabelText('Cari RPS')[0]!, { target: { value: 'zzzzqq' } })
+
+    expect(await screen.findByText('Tidak ada RPS yang cocok dengan "zzzzqq"')).toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: 'Hapus pencarian' }))
+    expect(await screen.findByText('Pemrograman Web 2025.pdf')).toBeInTheDocument()
+  })
 })

@@ -44,6 +44,14 @@ export const copy = {
     haveAccount: 'Sudah punya akun?',
   },
 
+  errorPage: {
+    notFoundTitle: 'Halaman tidak ditemukan',
+    notFoundBody: 'Alamat yang Anda buka tidak ada atau sudah dipindahkan.',
+    unexpectedTitle: 'Terjadi kesalahan',
+    unexpectedBody: 'Halaman tidak dapat ditampilkan. Coba lagi beberapa saat.',
+    backHome: 'Kembali ke beranda',
+  },
+
   footerBrand: 'SkillBridge · 2026',
 
   disclaimer:
@@ -59,7 +67,9 @@ export const copy = {
   },
 
   dashboard: {
-    searchPlaceholder: 'Cari RPS, skill, atau lowongan',
+    searchPlaceholder: 'Cari RPS',
+    searchEmpty: (q: string) => `Tidak ada RPS yang cocok dengan "${q}"`,
+    clearSearch: 'Hapus pencarian',
     uploadTitle: 'Unggah RPS',
     uploadDescDesktop:
       'Unggah PDF RPS. Sistem membaca dokumen dan menyiapkan kompetensi untuk Anda tinjau.',
@@ -72,7 +82,7 @@ export const copy = {
     uploadDuplicate: 'RPS ini sudah pernah Anda unggah.',
     openExisting: 'Buka Dokumen',
     fileTooLarge: 'Ukuran PDF melebihi batas 10 MB.',
-    invalidFile: 'Berkas harus berupa PDF yang valid.',
+    invalidFile: 'Berkas harus berupa PDF yang valid (maksimal 10 MB).',
     stats: {
       missingSkillsLabel: 'Skill yang kurang',
       missingSkillsNote: 'skill · prioritas analisis',
@@ -210,6 +220,7 @@ export const copy = {
     evidenceRps: 'Kutipan RPS',
     evidenceJob: 'Kutipan lowongan',
     evidenceJobOpen: 'Buka lowongan',
+    newTab: '(tab baru)',
     evidenceJobMore: (n: number) => `dan ${n} lowongan lain`,
     evidenceReason: 'Alasan klasifikasi',
     similarity: 'Kemiripan semantik',

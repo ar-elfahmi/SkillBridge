@@ -7,12 +7,16 @@ interface AnalyzedRpsSectionProps {
   documents: RpsDocument[]
   analyses: Analysis[]
   isLoading: boolean
+  searchQuery?: string
+  onClearSearch?: () => void
 }
 
 export function AnalyzedRpsSection({
   documents,
   analyses,
   isLoading,
+  searchQuery = '',
+  onClearSearch,
 }: AnalyzedRpsSectionProps) {
   // Mapping analysis terbaru per document
   const analysisMap = new Map<number, Analysis>()
@@ -46,9 +50,18 @@ export function AnalyzedRpsSection({
       ) : documents.length === 0 ? (
         <div className="flex flex-col items-center justify-center gap-2 rounded-lg border border-dashed border-border-warm bg-white p-8 text-center">
           <FileText className="size-8 text-border-warm" aria-hidden="true" />
-          <p className="max-w-md text-xs text-text-secondary md:text-sm">
-            {copy.dashboard.emptyRps}
+          <p className="max-w-md text-sm text-text-secondary">
+            {searchQuery ? copy.dashboard.searchEmpty(searchQuery) : copy.dashboard.emptyRps}
           </p>
+          {searchQuery && onClearSearch && (
+            <button
+              type="button"
+              onClick={onClearSearch}
+              className="min-h-11 rounded-lg px-4 text-sm font-semibold text-brand-strong underline"
+            >
+              {copy.dashboard.clearSearch}
+            </button>
+          )}
         </div>
       ) : (
         <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain pb-1 pr-1 sm:flex-none sm:overflow-visible sm:p-0"><div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
