@@ -495,7 +495,7 @@ class MatchJudgeTest extends TestCase
         $this->assertSame(MatchClassification::Missing, $results[2]->classification);
         $this->assertNull($results[2]->matchedCourseSkillId);
         $this->assertSame(MatchClassification::Missing, $results[3]->classification);
-        $this->assertSame('match-judge-v2', $this->judge->promptVersion());
+        $this->assertSame('match-judge-v3', $this->judge->promptVersion());
     }
 
     public function test_judge_many_asks_again_only_for_skills_without_a_valid_answer(): void

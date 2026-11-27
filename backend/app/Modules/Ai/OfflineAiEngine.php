@@ -372,7 +372,7 @@ final class OfflineAiEngine
      */
     private function judgeMatch(string $prompt): array
     {
-        // Batched prompt (match-judge-v2): one answer per item, same "id".
+        // Batched prompt (match-judge-v3): one answer per item, same "id".
         $itemsText = $this->extractLastTagBlock($prompt, 'items');
         if ($itemsText !== null) {
             $items = json_decode($itemsText, true);
