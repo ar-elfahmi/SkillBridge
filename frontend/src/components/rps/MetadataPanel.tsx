@@ -76,18 +76,18 @@ export function MetadataPanel({
   }
 
   return (
-    <div className="flex flex-col gap-6">
-      <div className="flex flex-col gap-6 rounded-2xl border border-border-warm bg-white p-6 shadow-sm md:p-8">
+    <div className="flex flex-col gap-3 sm:gap-6">
+      <div className="flex flex-col gap-3 rounded-2xl border border-border-warm bg-white p-4 shadow-sm sm:gap-6 sm:p-6 md:p-8">
         <div className="flex flex-col gap-1">
-          <h2 className="font-display text-xl font-normal text-text-primary md:text-2xl">
+          <h2 className="font-display text-lg font-normal text-text-primary sm:text-xl md:text-2xl">
             {copy.rpsDetail.metadata.title}
           </h2>
-          <p className="text-xs text-text-secondary md:text-sm">
+          <p className="text-[11px] leading-snug text-text-secondary sm:text-xs md:text-sm">
             {copy.rpsDetail.metadata.note}
           </p>
         </div>
 
-        <form onSubmit={handleSave} aria-busy={isPreparing} className="flex flex-col gap-5">
+        <form onSubmit={handleSave} aria-busy={isPreparing} className="flex flex-col gap-3 sm:gap-5">
           {isPreparing && (
             <div
               role="status"
@@ -109,13 +109,13 @@ export function MetadataPanel({
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="Contoh: Pemrograman Web"
-              disabled={isPreparing}
+              disabled={isPreparing} className="h-11 md:h-12"
               required
             />
           </div>
 
           {/* Row 2: Kode MK & SKS */}
-          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+          <div className="grid grid-cols-2 items-end gap-3 sm:gap-5">
             <div className="flex flex-col gap-1.5">
               <Label htmlFor="courseCode">{copy.rpsDetail.metadata.courseCodeLabel}</Label>
               <Input
@@ -123,7 +123,7 @@ export function MetadataPanel({
                 value={code}
                 onChange={(e) => setCode(e.target.value)}
                 placeholder="Contoh: IF2013"
-                disabled={isPreparing}
+                disabled={isPreparing} className="h-11 md:h-12"
                 required
               />
             </div>
@@ -137,13 +137,13 @@ export function MetadataPanel({
                 value={credits}
                 onChange={(e) => setCredits(e.target.value)}
                 placeholder="Contoh: 3"
-                disabled={isPreparing}
+                disabled={isPreparing} className="h-11 md:h-12"
               />
             </div>
           </div>
 
           {/* Row 3: Semester & Program Studi */}
-          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+          <div className="grid grid-cols-2 items-end gap-3 sm:gap-5">
             <div className="flex flex-col gap-1.5">
               <Label htmlFor="semester">{copy.rpsDetail.metadata.semesterLabel}</Label>
               <Input
@@ -154,7 +154,7 @@ export function MetadataPanel({
                 value={semester}
                 onChange={(e) => setSemester(e.target.value)}
                 placeholder="Contoh: 4"
-                disabled={isPreparing}
+                disabled={isPreparing} className="h-11 md:h-12"
               />
             </div>
             <div className="flex flex-col gap-1.5">
@@ -164,7 +164,7 @@ export function MetadataPanel({
                 value={studyProgram}
                 onChange={(e) => setStudyProgram(e.target.value)}
                 placeholder="Contoh: Teknik Informatika"
-                disabled={isPreparing}
+                disabled={isPreparing} className="h-11 md:h-12"
               />
             </div>
           </div>
@@ -182,12 +182,12 @@ export function MetadataPanel({
           )}
 
           {/* Actions */}
-          <div className="mt-2 flex flex-col items-center gap-3 sm:flex-row sm:justify-end">
+          <div className="flex flex-col items-center gap-2 sm:mt-2 sm:flex-row sm:justify-end sm:gap-3">
             <Button
               type="submit"
               variant="outline"
               disabled={isSaving || isExtracting || isPreparing}
-              className="w-full sm:w-auto"
+              className="h-11 w-full sm:h-10 sm:w-auto"
             >
               {isSaving ? 'Menyimpan…' : copy.rpsDetail.metadata.saveChanges}
             </Button>
@@ -196,7 +196,7 @@ export function MetadataPanel({
               type="button"
               onClick={handleStart}
               disabled={isExtracting || isSaving || isPreparing}
-              className="w-full bg-brand text-white hover:bg-brand-hover sm:w-auto"
+              className="h-11 w-full bg-brand text-white hover:bg-brand-hover active:bg-brand-hover sm:h-10 sm:w-auto"
             >
               {isExtracting ? 'Memproses Ekstraksi…' : copy.rpsDetail.metadata.startExtraction}
             </Button>
@@ -205,7 +205,7 @@ export function MetadataPanel({
       </div>
 
       {/* Derivation Note Panel */}
-      <div className="flex items-center gap-3 rounded-xl border border-border-warm bg-surface-subtle p-4 text-xs text-text-secondary">
+      <div className="flex items-center gap-3 rounded-xl border border-border-warm bg-surface-subtle p-3 text-[11px] sm:p-4 sm:text-xs text-text-secondary">
         <Info className="size-4 shrink-0 text-brand-accent" aria-hidden="true" />
         <p>{copy.rpsDetail.metadata.derivationNote}</p>
       </div>

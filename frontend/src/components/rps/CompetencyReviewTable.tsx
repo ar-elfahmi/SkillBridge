@@ -76,37 +76,33 @@ export function CompetencyReviewTable({
   }
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex min-h-0 flex-1 flex-col gap-3 sm:flex-none sm:gap-6">
       {/* Review Summary Cards & Filters */}
-      <div className="flex flex-col gap-4 rounded-2xl border border-border-warm bg-white p-5 shadow-sm md:flex-row md:items-center md:justify-between">
-        <div className="flex items-center gap-6">
-          <div className="flex flex-col">
-            <span className="font-display text-2xl font-bold text-text-primary md:text-3xl">
+      <div className="flex flex-col gap-3 rounded-2xl border border-border-warm bg-white p-3 shadow-sm sm:p-5 md:flex-row md:items-center md:justify-between">
+        <div className="grid grid-cols-3 gap-2 md:gap-3">
+          <div className="flex flex-col rounded-xl bg-brand-soft px-3 py-2">
+            <span className="font-display text-xl font-bold text-text-primary md:text-3xl">
               {totalCount}
             </span>
-            <span className="text-xs text-text-secondary">
+            <span className="text-[11px] font-medium leading-tight text-text-primary md:text-xs">
               {copy.rpsDetail.review.totalCompetencies}
             </span>
           </div>
 
-          <div className="h-10 w-px bg-border-warm" />
-
-          <div className="flex flex-col">
-            <span className="font-display text-2xl font-bold text-warning md:text-3xl">
+          <div className="flex flex-col rounded-xl bg-warning-soft px-3 py-2">
+            <span className="font-display text-xl font-bold text-warning md:text-3xl">
               {unverifiedCount}
             </span>
-            <span className="text-xs text-text-secondary">
+            <span className="text-[11px] font-medium leading-tight text-text-primary md:text-xs">
               {copy.rpsDetail.review.unverified}
             </span>
           </div>
 
-          <div className="h-10 w-px bg-border-warm" />
-
-          <div className="flex flex-col">
-            <span className="font-display text-2xl font-bold text-brand-strong md:text-3xl">
+          <div className="flex flex-col rounded-xl bg-brand-soft px-3 py-2">
+            <span className="font-display text-xl font-bold text-brand-strong md:text-3xl">
               {pendingCount}
             </span>
-            <span className="text-xs text-text-secondary">
+            <span className="text-[11px] font-medium leading-tight text-text-primary md:text-xs">
               {copy.rpsDetail.review.pendingReview}
             </span>
           </div>
@@ -118,7 +114,7 @@ export function CompetencyReviewTable({
             aria-label="Filter kompetensi"
             value={filter}
             onChange={(e) => setFilter(e.target.value as 'all' | 'unverified' | 'pending' | 'rejected')}
-            className="w-full appearance-none rounded-lg border border-border-warm bg-white px-3 py-2 pr-9 text-xs font-semibold text-text-primary shadow-xs outline-none focus:border-brand-accent"
+            className="w-full appearance-none h-11 rounded-lg border border-border-warm bg-white px-3 pr-9 text-xs font-semibold text-text-primary shadow-xs outline-none focus:border-brand-accent"
           >
             <option value="all">{copy.rpsDetail.review.filterAll} ({totalCount})</option>
             <option value="unverified">
@@ -127,7 +123,7 @@ export function CompetencyReviewTable({
             <option value="pending">{copy.rpsDetail.review.filterPending} ({pendingCount})</option>
             <option value="rejected">{copy.rpsDetail.review.filterRejected}</option>
           </select>
-          <ChevronDown className="pointer-events-none absolute right-3 top-2.5 size-4 text-text-secondary" />
+          <ChevronDown className="pointer-events-none absolute right-3 top-3.5 size-4 text-text-secondary" />
         </div>
       </div>
 
@@ -180,7 +176,7 @@ export function CompetencyReviewTable({
             type="button"
             variant="outline"
             onClick={() => setIsAddOpen(true)}
-            className="flex items-center gap-1.5 border-dashed border-brand text-brand-strong hover:bg-brand-soft/20"
+            className="flex h-11 w-full items-center justify-center gap-1.5 border-dashed border-brand text-brand-strong hover:bg-brand-soft/20 active:bg-brand-soft sm:w-auto"
           >
             <Plus className="size-4" aria-hidden="true" />
             <span>{copy.rpsDetail.review.addCompetency}</span>
@@ -286,12 +282,12 @@ export function CompetencyReviewTable({
                     {/* Verifikasi */}
                     <td className="px-4 py-3.5 align-top">
                       {c.verification_status === 'verified' ? (
-                        <span className="inline-flex items-center gap-1 rounded-md bg-[#E5F0E8] px-2 py-0.5 text-[10px] font-semibold text-success">
+                        <span className="inline-flex items-center gap-1 rounded-md bg-success-soft px-2 py-0.5 text-[10px] font-semibold text-success">
                           <Check className="size-3" />
                           {copy.rpsDetail.review.verifiedChip}
                         </span>
                       ) : (
-                        <span className="inline-flex items-center gap-1 rounded-md bg-[#F8E4E1] px-2 py-0.5 text-[10px] font-semibold text-danger">
+                        <span className="inline-flex items-center gap-1 rounded-md bg-danger-soft px-2 py-0.5 text-[10px] font-semibold text-danger">
                           <Minus className="size-3" />
                           {copy.rpsDetail.review.unverifiedChip}
                         </span>
@@ -301,17 +297,17 @@ export function CompetencyReviewTable({
                     {/* Tinjauan Status */}
                     <td className="px-4 py-3.5 align-top">
                       {c.review_status === 'confirmed' ? (
-                        <span className="inline-flex items-center gap-1 rounded-md bg-[#E5F0E8] px-2 py-0.5 text-[10px] font-semibold text-success">
+                        <span className="inline-flex items-center gap-1 rounded-md bg-success-soft px-2 py-0.5 text-[10px] font-semibold text-success">
                           <Check className="size-3" />
                           {copy.rpsDetail.review.confirmedChip}
                         </span>
                       ) : c.review_status === 'rejected' ? (
-                        <span className="inline-flex items-center gap-1 rounded-md bg-[#F8E4E1] px-2 py-0.5 text-[10px] font-semibold text-danger">
+                        <span className="inline-flex items-center gap-1 rounded-md bg-danger-soft px-2 py-0.5 text-[10px] font-semibold text-danger">
                           <X className="size-3" />
                           {copy.rpsDetail.review.rejectedChip}
                         </span>
                       ) : (
-                        <span className="inline-flex items-center gap-1 rounded-md bg-[#FBF0D9] px-2 py-0.5 text-[10px] font-semibold text-warning">
+                        <span className="inline-flex items-center gap-1 rounded-md bg-warning-soft px-2 py-0.5 text-[10px] font-semibold text-warning">
                           <CircleDashed className="size-3" />
                           {copy.rpsDetail.review.pendingChip}
                         </span>
@@ -325,7 +321,7 @@ export function CompetencyReviewTable({
                           type="button"
                           title="Setujui"
                           onClick={() => onApprove(c.id)}
-                          className="flex size-7 items-center justify-center rounded-lg border border-border-warm text-success hover:bg-[#E5F0E8] transition-colors"
+                          className="flex size-7 items-center justify-center rounded-lg border border-border-warm text-success hover:bg-success-soft transition-colors"
                         >
                           <Check className="size-3.5" />
                         </button>
@@ -369,7 +365,7 @@ export function CompetencyReviewTable({
       </div>
 
       {/* Mobile Cards View (< md) */}
-      <div className="flex flex-col gap-3 md:hidden">
+      <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain sm:overflow-visible md:hidden"><div className="flex flex-col gap-3">
         {filtered.map((c) => (
           <div
             key={c.id}
@@ -384,12 +380,12 @@ export function CompetencyReviewTable({
               </div>
 
               {c.verification_status === 'verified' ? (
-                <span className="inline-flex items-center gap-1 rounded-md bg-[#E5F0E8] px-2 py-0.5 text-[10px] font-semibold text-success">
+                <span className="inline-flex items-center gap-1 rounded-md bg-success-soft px-2 py-0.5 text-[10px] font-semibold text-success">
                   <Check className="size-3" />
                   {copy.rpsDetail.review.verifiedChip}
                 </span>
               ) : (
-                <span className="inline-flex items-center gap-1 rounded-md bg-[#F8E4E1] px-2 py-0.5 text-[10px] font-semibold text-danger">
+                <span className="inline-flex items-center gap-1 rounded-md bg-danger-soft px-2 py-0.5 text-[10px] font-semibold text-danger">
                   <Minus className="size-3" />
                   {copy.rpsDetail.review.unverifiedChip}
                 </span>
@@ -414,14 +410,14 @@ export function CompetencyReviewTable({
                 <button
                   type="button"
                   onClick={() => onApprove(c.id)}
-                  className="rounded-lg bg-[#E5F0E8] px-2.5 py-1 text-xs font-semibold text-success"
+                  className="rounded-lg bg-success-soft inline-flex min-h-11 items-center px-3 text-xs font-semibold text-success"
                 >
                   Setujui
                 </button>
                 <button
                   type="button"
                   onClick={() => startEdit(c)}
-                  className="rounded-lg border border-border-warm px-2.5 py-1 text-xs font-semibold text-text-secondary"
+                  className="rounded-lg border border-border-warm inline-flex min-h-11 items-center px-3 text-xs font-semibold text-text-secondary"
                 >
                   Edit
                 </button>
@@ -429,7 +425,7 @@ export function CompetencyReviewTable({
                   <button
                     type="button"
                     onClick={() => onDelete(c.id)}
-                    className="rounded-lg bg-[#F8E4E1] px-2.5 py-1 text-xs font-semibold text-danger"
+                    className="rounded-lg bg-danger-soft inline-flex min-h-11 items-center px-3 text-xs font-semibold text-danger"
                   >
                     Hapus
                   </button>
@@ -437,7 +433,7 @@ export function CompetencyReviewTable({
                   <button
                     type="button"
                     onClick={() => onReject(c.id)}
-                    className="rounded-lg bg-[#F8E4E1] px-2.5 py-1 text-xs font-semibold text-danger"
+                    className="rounded-lg bg-danger-soft inline-flex min-h-11 items-center px-3 text-xs font-semibold text-danger"
                   >
                     Tolak
                   </button>
@@ -446,17 +442,18 @@ export function CompetencyReviewTable({
             </div>
           </div>
         ))}
+        </div>
       </div>
 
       {/* Confirmation Bottom Bar */}
-      <div className="flex flex-col gap-3 rounded-2xl border border-border-warm bg-white p-5 shadow-sm md:flex-row md:items-center md:justify-between">
+      <div className="flex shrink-0 flex-col gap-2 rounded-2xl border border-border-warm bg-white p-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] shadow-sm sm:gap-3 sm:p-5 md:flex-row md:items-center md:justify-between">
         <div className="flex flex-col gap-0.5">
           <span className="text-sm font-bold text-text-primary">
             {pendingCount > 0
               ? `${pendingCount} ${copy.rpsDetail.review.confirmTitle}`
               : 'Semua kompetensi telah ditinjau'}
           </span>
-          <p className="text-xs text-text-secondary">
+          <p className="text-[11px] leading-snug text-text-secondary sm:text-xs">
             {copy.rpsDetail.review.confirmNote}
           </p>
         </div>
