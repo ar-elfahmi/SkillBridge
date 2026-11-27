@@ -23,6 +23,8 @@
 
 ## Handoff
 
+#### HO-A-017 · 2026-11-29 · ps_document_id dan job_count pada analisis · untuk: C
+Menjawab REQ-C-007. AnalysisResource (GET /api/analyses, GET /api/analyses/{id}) kini memuat ps_document_id dan job_count (jumlah lowongan terpilih, withCount('jobPostings')). docs/API.md diperbarui. Frontend dapat menghubungkan kartu RPS ke analisis lewat ps_document_id (E-27), dedup statistik per dokumen (E-38), dan menulis "N dari M lowongan" (E-31). Tes: AnalysisApiTest (10 lulus). Breaking change: tidak (field ditambah).
 #### HO-A-016 · 2026-11-28 · Migrasi `career_suggestions` · untuk: B, C
 Migrasi `2026_11_28_000000_add_career_suggestions_to_rps_documents_table` menambah `rps_documents.career_suggestions` (jsonb null). Dibuat atas izin pengguna (pemilik tunggal semua peran) bersama PR fitur saran profesi; skema di `docs/DATABASE.md`. Server perlu `php artisan migrate`. Breaking change: tidak.
 
